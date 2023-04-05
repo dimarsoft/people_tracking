@@ -1,10 +1,14 @@
 """
-Сохраняет реззультаты детекции YOLO8 и трекинга в текстовый файл
+Сохраняет результаты детекции YOLO8 и трекинга в текстовый файл
 
 Формат: frame_index track_id class bbox_left bbox_top bbox_w bbox_h conf
 
 bbox - в относительный величинах
 """
+import json
+
+from exception_tools import print_exception
+from track_objects import Track
 
 
 def convert_txt_toy7(results, save_none_id=False):
@@ -25,6 +29,7 @@ def convert_txt_toy7(results, save_none_id=False):
         results_y7.append([frame_index, bbox_left, bbox_top, bbox_w, bbox_h, track_id, cls])
 
     return results_y7
+
 
 def convert_toy7(results, save_none_id=False):
     results_y7 = []
@@ -150,14 +155,42 @@ def yolo7_save_tracks_to_txt(results, txt_path, conf=0.0):
                                                   bbox_top, bbox_w, bbox_h, track[7]))
 
 
+def yolo7_save_tracks_to_json(results, json_file, conf=0.0):
+    """
+
+    Args:
+        conf: элементы с conf менее указанной не сохраняются
+        json_file: json файл для сохранения
+        results: результат работы модели
+    """
+
+    results_json = []
+
+    for track in results:
+        object_conf = track[7]
+        if object_conf < conf:
+            continue
+        ltwhn = track[1:5]
+        track_id = int(track[5])
+        cls = int(track[6])
+        frame_index = track[0]
+
+        track = Track(ltwhn, cls, object_conf, frame_index, track_id)
+
+        results_json.append(track)
+
+    with open(json_file, "w") as write_file:
+        write_file.write(json.dumps(results_json, indent=4, sort_keys=True, default=lambda o: o.__dict__))
+
+
 def yolo_load_detections_from_txt(txt_path):
-    import numpy as np
     import pandas as pd
-    df = pd.read_csv(txt_path, delimiter=" ", dtype=float, header=None)
-    # df = pd.DataFrame(df, columns=['frame', 'id', 'class', 'bb_left', 'bb_top', 'bb_width', 'bb_height', 'conf'])
+
+    try:
+        df = pd.read_csv(txt_path, delimiter=" ", dtype=float, header=None)
+        # df = pd.DataFrame(df, columns=['frame', 'id', 'class', 'bb_left', 'bb_top', 'bb_width', 'bb_height', 'conf'])
+    except Exception as ex:
+        print_exception(ex, f"yolo_load_detections_from_txt: '{str(txt_path)}'")
+        df = pd.DataFrame(dtype=float, columns=[0, 1, 2, 3, 4, 5, 6, 7])
 
     return df
-
-
-
-    # return np.genfromtxt(txt_path, delimiter=" ", dtype=float)

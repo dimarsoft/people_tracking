@@ -6,7 +6,9 @@ from pathlib import Path
 
 import torch
 
+from change_bboxes import change_bbox
 from configs import load_default_bound_line, CAMERAS_PATH, get_all_trackers_full_path
+from exception_tools import save_exception
 from labeltools import TrackWorker
 from post_processing.alex import alex_count_humans
 from post_processing.timur import timur_count_humans, get_camera
@@ -15,20 +17,11 @@ from save_txt_tools import yolo7_save_tracks_to_txt
 from utils.torch_utils import time_synchronized
 from yolov7 import YOLO7
 from datetime import datetime
+
 # from tqdm import tqdm
 
 # настройки камер, считываются при старте сессии
 cameras_info = {}
-
-
-def save_exception(e: Exception, text_ex_path, caption: str):
-    with open(text_ex_path, "w") as write_file:
-        write_file.write(f"Exception in {caption}!!!")
-        exc_type, exc_value, exc_traceback = sys.exc_info()
-        lines = traceback.format_exception(exc_type, exc_value, exc_traceback)
-        for line in lines:
-            write_file.write(line)
-    print(f"Exception in {caption} {str(e)}! details in {str(text_ex_path)} ")
 
 
 def run_single_video_yolo7(model, source, tracker_type: str, tracker_config, output_folder,
@@ -41,7 +34,9 @@ def run_single_video_yolo7(model, source, tracker_type: str, tracker_config, out
 
     model = YOLO7(model)
 
-    track, detections = model.track(
+    detections = []
+
+    track = model.track(
         source=source,
         conf_threshold=conf,
         tracker_type=tracker_type,
@@ -67,7 +62,7 @@ def run_single_video_yolo7(model, source, tracker_type: str, tracker_config, out
 
         print(f"Processed '{source}' to {output_folder}: ({(1E3 * (t2 - t1)):.1f} ms)")
 
-    num, w, h = get_camera(source)
+    num, w, h, fps = get_camera(source)
 
     bound_line = cameras_info.get(num)
 
@@ -85,7 +80,7 @@ def run_single_video_yolo7(model, source, tracker_type: str, tracker_config, out
                 humans_result = None
 
                 if test_func == "popov_alex":
-                    humans_result = alex_count_humans(tracks_new)
+                    humans_result = alex_count_humans(tracks_new, num, w, h, bound_line)
                     pass
                 if test_func == "timur":
                     humans_result = timur_count_humans(tracks_new, source)
@@ -117,7 +112,7 @@ def run_single_video_yolo7(model, source, tracker_type: str, tracker_config, out
 
 
 def run_yolo7(model: str, source: str, tracker_type: str, tracker_config, output_folder, reid_weights,
-              test_result_file, test_func=None, files=None,  classes=None, change_bb=False, conf=0.3, save_vid=False):
+              test_result_file, test_func=None, files=None, classes=None, change_bb=False, conf=0.3, save_vid=False):
     """
 
     Args:
@@ -185,7 +180,7 @@ def run_yolo7(model: str, source: str, tracker_type: str, tracker_config, output
     session_info['save_vid'] = save_vid
     session_info['files'] = files
     session_info['classes'] = classes
-    session_info['change_bb'] = change_bb
+    session_info['change_bb'] = str(change_bb)
 
     session_info['cameras_path'] = str(CAMERAS_PATH)
 
@@ -289,7 +284,7 @@ def run_example():
 def run_test():
     video_source = "d:\\AI\\2023\\corridors\\dataset-v1.1\\test\\20.mp4"
 
-    camera_num, w, h = get_camera(video_source)
+    camera_num, w, h, fps = get_camera(video_source)
 
     print(f"{camera_num}, {w}, {h}")
 
@@ -312,7 +307,7 @@ def test_tensor():
     tensor[:, [5]] = 60
     print(tensor)
 
-    tensor2 = YOLO7.change_bbox(tensor, 0.5)
+    tensor2 = change_bbox(tensor, 0.5)
 
     print(tensor2)
 

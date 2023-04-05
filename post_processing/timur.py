@@ -4,7 +4,9 @@ from pathlib import Path
 
 import cv2
 
-from count_results import Result
+from count_results import Result, Deviation
+from labeltools import get_status
+from post_processing.functions import crossing_bound, calc_inp_outp_people, process_filt, get_centrmass, get_deviations
 
 
 def load_bound_line(cameras_path):
@@ -28,24 +30,44 @@ config = {
 }
 bound_line_cameras = load_bound_line(config["cameras_path"])
 
-print(bound_line_cameras)
+
+# print(bound_line_cameras)
 
 
-def get_centrmass(p1, p2):
+def _get_centrmass(p1, p2):
     res = (int((p2[0] + p1[0]) / 2), int(p2[1] + 0.35 * (p1[1] - p2[1])))
     return res
 
 
+def update_dict(dict_tracks, track_id, x1, y1, x2, y2, itt):
+    if track_id in dict_tracks.keys():
+        dict_tracks[track_id]["path"].append(get_centrmass((x1, y1), (x2, y2)))
+        dict_tracks[track_id]["frid"].append(itt)
+        dict_tracks[track_id]["bbox"].append([(x1, y1), (x2, y2)])
+    else:
+        dict_tracks.update({track_id: {
+            "path": [get_centrmass((x1, y1), (x2, y2))],
+            "bbox": [[(x1, y1), (x2, y2)]],
+            "frid": [itt]
+        }})
+
+
 def tracks_to_dic(tracks, w, h):
     people_tracks = {}
+    helmet_tracks = {}
+    vest_tracks = {}
+
+    by_class = {0: people_tracks, 1: helmet_tracks, 2: vest_tracks}
+
     # [frame_index, track_id, cls, bbox_left, bbox_top, bbox_w, bbox_h, box.conf]
 
     for track in tracks:
-        cls = track[2]
-        if cls != 0:
-            continue
+        cls = int(track[2])
+        # if cls != 0:             continue
 
-        x1, y1, x2, y2 = int(track[3]), int(track[4]), int(track[3] + track[5]), int(track[4] + track[6])
+        dict_track = by_class[cls]
+
+        x1, y1, x2, y2 = track[3], track[4], track[3] + track[5], track[4] + track[6]
 
         x1 *= w
         x2 *= w
@@ -55,116 +77,26 @@ def tracks_to_dic(tracks, w, h):
         track_id = track[1]
         itt = track[0]
 
-        if track_id in people_tracks.keys():
-            people_tracks[track_id]["path"].append(get_centrmass((x1, y1), (x2, y2)))
-            people_tracks[track_id]["frid"].append(itt)
-        else:
-            people_tracks.update({track_id: {
-                "path": [get_centrmass((x1, y1), (x2, y2))],
-                "frid": [itt]
-            }})
+        update_dict(dict_track, track_id, x1, y1, x2, y2, itt)
 
-    return people_tracks
-
-
-def process_filt(people_tracks):
-    max_id = max([int(idv) for idv in people_tracks.keys()])
-    max_id += 1
-    res = {}
-    max_delt = 5  # frame
-    for pk in people_tracks.keys():
-        path = people_tracks[pk]["path"]
-        frid = people_tracks[pk]["frid"]
-        new_path = [path[0]]
-        for i in range(1, len(frid)):
-            if frid[i] - frid[i - 1] > max_delt and len(new_path) > 1:
-                if str(pk) in res.keys():
-                    new_id = str(max_id)
-                    max_id += 1
-                else:
-                    new_id = str(pk)
-                res.update({new_id: new_path})
-                new_path = [path[i]]
-            else:
-                new_path.append(path[i])
-        if len(new_path) > 1:
-            if str(pk) in res.keys():
-                new_id = str(max_id)
-                max_id += 1
-            else:
-                new_id = str(pk)
-            res.update({new_id: new_path})
-    return res
-
-
-def get_proj(p1, p2, m):
-    k = (p2[0] - p1[0]) / (p2[1] - p1[1])
-    f1 = m[1] + k * m[0]
-    f2 = p1[1] - (1 / k) * p1[0]
-    x_proj = (f1 - f2) / (k + 1 / k)
-    y_proj = f1 - k * x_proj
-    return [x_proj, y_proj]
-
-
-def get_norm(p1, p2):
-    pc = [(p1[0] + p2[0]) / 2, (p1[1] + p2[1]) / 2]
-    xmin, xmax = pc[0] - 10, pc[0] + 10
-    a = (p2[1] - p1[1]) / (p2[0] - p1[0])
-    fnorm = lambda x: pc[1] - (1 / a) * (x - pc[0])
-    line_norm = [[xmin, fnorm(xmin)], [xmax, fnorm(xmax)]]
-    return line_norm
-
-
-def crossing_bound(people_path, bound_line):
-    def ccw(A, B, C):
-        return (C[1] - A[1]) * (B[0] - A[0]) > (B[1] - A[1]) * (C[0] - A[0])
-
-    def intersect(A, B, C, D):
-        return ccw(A, C, D) != ccw(B, C, D) and ccw(A, B, C) != ccw(A, B, D)
-
-    if len(people_path) >= 4:
-        p1 = [(people_path[0][0] + people_path[1][0]) / 2, (people_path[0][1] + people_path[1][1]) / 2]
-        p2 = [(people_path[-2][0] + people_path[-1][0]) / 2, (people_path[-2][1] + people_path[-1][1]) / 2]
-    else:
-        p1 = [people_path[0][0], people_path[0][1]]
-        p2 = [people_path[-1][0], people_path[-1][1]]
-
-    direction = "up" if p2[1] - p1[1] < 0 else "down"
-
-    line_norm = get_norm(*bound_line)
-    p1_proj = get_proj(*line_norm, p1)
-    p2_proj = get_proj(*line_norm, p2)
-
-    intersect = intersect(p1_proj, p2_proj, bound_line[0], bound_line[1])
-    return {"direction": direction, "intersect": intersect}
-
-
-def calc_inp_outp_people(tracks_info):
-    input_p = 0
-    output_p = 0
-    for track_i in tracks_info:
-        if track_i["intersect"]:
-            if track_i["direction"] == 'down':
-                input_p += 1
-            elif track_i["direction"] == 'up':
-                output_p += 1
-    return {"input": input_p, "output": output_p}
+    return people_tracks, helmet_tracks, vest_tracks
 
 
 def get_camera(source):
     input_video = cv2.VideoCapture(source)
 
-    fps = int(input_video.get(cv2.CAP_PROP_FPS))
     # ширина
     w = int(input_video.get(cv2.CAP_PROP_FRAME_WIDTH))
     # высота
     h = int(input_video.get(cv2.CAP_PROP_FRAME_HEIGHT))
 
+    fps = int(input_video.get(cv2.CAP_PROP_FPS))
+
     input_video.release()
 
     num = Path(source).stem
 
-    return num, w, h
+    return num, w, h, fps
 
 
 def convert_and_save(folder_path):
@@ -173,7 +105,7 @@ def convert_and_save(folder_path):
     for i in bound_line_cameras.keys():
         video_source = folder_path / f"{i}.mp4"
 
-        camera_num, w, h = get_camera(str(video_source))
+        camera_num, w, h, fps = get_camera(str(video_source))
 
         item = bound_line_cameras[i]
         p1 = item[0]
@@ -191,18 +123,22 @@ def convert_and_save(folder_path):
 
 
 def timur_count_humans(tracks, source):
-    print(f"Timur postprocessing v1.1")
+    print(f"Timur postprocessing v1.5_05.04.2023")
 
-    camera_num, w, h = get_camera(source)
+    camera_num, w, h, fps = get_camera(source)
 
     print(f"camera_num =  {camera_num}, ({w} {h})")
 
-    people_tracks = tracks_to_dic(tracks, w, h)
+    people_tracks, helmet_tracks, vest_tracks = tracks_to_dic(tracks, w, h)
 
     if len(people_tracks) == 0:
         return Result(0, 0, 0, [])
 
     people_tracks = process_filt(people_tracks)
+
+    if len(people_tracks) == 0:
+        return Result(0, 0, 0, [])
+
     bound_line = bound_line_cameras.get(camera_num)
 
     print(f"bound_line =  {bound_line}")
@@ -210,7 +146,7 @@ def timur_count_humans(tracks, source):
     tracks_info = []
     for p_id in people_tracks.keys():
         people_path = people_tracks[p_id]
-        tr_info = crossing_bound(people_path, bound_line)
+        tr_info = crossing_bound(people_path['path'], bound_line)
         tracks_info.append(tr_info)
         print(f"{p_id}: {tr_info}")
 
@@ -221,6 +157,18 @@ def timur_count_humans(tracks, source):
 
     deviations = []
 
-    print(f"count_in = {count_in}, count_out = {count_out}")
+    deviations_info = get_deviations(people_tracks, helmet_tracks, vest_tracks, bound_line)
+
+    # print(deviations_info)
+
+    for item in deviations_info:
+        frame_id = item["frame_id"]
+
+        status = get_status(item["has_helmet"], item["has_uniform"])
+
+        if status > 0:  # 0 нет нарушения
+            deviations.append(Deviation(frame_id, frame_id, status))
+
+    print(f"{camera_num}: count_in = {count_in}, count_out = {count_out}, deviations = {len(deviations)}")
 
     return Result(count_in + count_out, count_in, count_out, deviations)

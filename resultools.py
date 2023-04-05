@@ -1,9 +1,45 @@
 import json
+import sys
+import traceback
 from pathlib import Path
 from types import SimpleNamespace
 
+import numpy as np
+from pandas import DataFrame
+
 from configs import TEST_TRACKS_PATH
-from count_results import Result
+from count_results import Result, Deviation
+from exception_tools import save_exception
+
+
+def save_test_result(test_results, session_folder, source_path):
+    try:
+        test_results.save_results(session_folder)
+    except Exception as e:
+        text_ex_path = Path(session_folder) / f"{source_path.stem}_ex_result.log"
+        with open(text_ex_path, "w") as write_file:
+            write_file.write("Exception in save_results!!!")
+            exc_type, exc_value, exc_traceback = sys.exc_info()
+            lines = traceback.format_exception(exc_type, exc_value, exc_traceback)
+            for line in lines:
+                write_file.write(line)
+            for item in test_results.result_items:
+                write_file.write(f"{str(item)}\n")
+
+        print(f"Exception in save_results {str(e)}! details in {str(text_ex_path)} ")
+
+    compare_result = None
+    try:
+        compare_result = test_results.compare_to_file_v2(session_folder)
+    except Exception as e:
+        text_ex_path = Path(session_folder) / f"{source_path.stem}_ex_compare.log"
+        save_exception(e, text_ex_path, "compare_to_file_v2")
+
+    return compare_result
+
+
+def results_to_json(result_items: Result):
+    return json.dumps(result_items, indent=4, sort_keys=True, default=lambda o: o.__dict__)
 
 
 class TestResults:
@@ -138,10 +174,33 @@ class TestResults:
         with open(result_json_file, "w") as write_file:
             write_file.write(json.dumps(results_info, indent=4, sort_keys=True, default=lambda o: o.__dict__))
 
+        return results_info
         # 2 версия считаем дополнительно совпадения инцидентов
 
     def compare_to_file_v2(self, output_folder):
-        self.compare_list_to_file_v2(output_folder, self.test_items)
+        return self.compare_list_to_file_v2(output_folder, self.test_items)
+
+    @staticmethod
+    def intersect_deviation(dev_1: Deviation, dev_2: Deviation) -> bool:
+        if (dev_1.start_frame >= dev_2.start_frame) and (dev_1.start_frame <= dev_2.end_frame):
+            return True
+
+        if (dev_1.end_frame >= dev_2.start_frame) and (dev_1.end_frame <= dev_2.end_frame):
+            return True
+        return False
+
+    def compare_deviations(self, actual_deviations: list, expected_deviations: list) -> int:
+
+        count_equal = 0
+
+        for a_div in actual_deviations:
+
+            for e_div in expected_deviations:
+                if self.intersect_deviation(a_div, e_div):
+                    count_equal += 1
+                    break
+
+        return count_equal
 
     def compare_list_to_file_v2(self, output_folder, test_items):
 
@@ -154,9 +213,14 @@ class TestResults:
         sum_delta_out = 0
 
         by_item_info = []
+        by_item_dev_info = []
 
-        total = len(self.result_items)
+        total_records = len(self.result_items)
         total_equal = 0
+
+        total_count_correct = 0
+        total_actual_devs = 0
+        total_expected_devs = 0
 
         for result_item in self.result_items:
             item = TestResults.get_for(test_items, result_item.file)
@@ -164,12 +228,17 @@ class TestResults:
             actual_counter_in = result_item.counter_in
             actual_counter_out = result_item.counter_out
 
+            actual_deviations = result_item.deviations
+
             if item is not None:
                 expected_counter_in = item.counter_in
                 expected_counter_out = item.counter_out
+
+                expected_deviations = item.deviations
             else:
                 expected_counter_in = 0
                 expected_counter_out = 0
+                expected_deviations = []
 
             delta_in = expected_counter_in - actual_counter_in
             delta_out = expected_counter_out - actual_counter_out
@@ -199,10 +268,42 @@ class TestResults:
 
                 by_item_info.append(item_info)
 
+            count_correct = self.compare_deviations(actual_deviations, expected_deviations)
+
+            actual_devs = len(actual_deviations)
+            expected_devs = len(expected_deviations)
+
+            if count_correct != expected_devs or actual_devs != expected_devs:
+                dev_info = dict()
+                dev_info["file"] = result_item.file
+                dev_info["count_correct"] = count_correct
+                dev_info["actual_devs"] = actual_devs
+                dev_info["expected_devs"] = expected_devs
+
+                if actual_devs > 0:
+                    dev_info["dev_precision"] = count_correct / actual_devs
+                else:
+                    dev_info["dev_precision"] = 0
+
+                if expected_devs > 0:
+                    dev_info["dev_recall"] = count_correct / expected_devs
+                else:
+                    dev_info["dev_recall"] = 0
+
+                by_item_dev_info.append(dev_info)
+
+            total_count_correct += count_correct
+            total_actual_devs += actual_devs
+            total_expected_devs += expected_devs
+
             sum_delta_in += abs(delta_in)
             sum_delta_out += abs(delta_out)
 
         results_info = dict()
+
+        results_info['total_count_correct'] = total_count_correct
+        results_info['total_actual_devs'] = total_actual_devs
+        results_info['total_expected_devs'] = total_expected_devs
 
         results_info['equals_in'] = in_equals
         results_info['equals_out'] = out_equals
@@ -211,13 +312,27 @@ class TestResults:
         results_info['delta_out_sum'] = sum_delta_out
 
         results_info['not_equal_items'] = by_item_info
+        results_info['dev_items'] = by_item_dev_info
 
-        results_info['total_records'] = total
+        results_info['total_records'] = total_records
         results_info['total_equal'] = total_equal
-        if total > 0:
-            results_info['total_equal_percent'] = (100.0 * total_equal) / total
+
+        if total_records > 0:
+            results_info['total_equal_percent'] = (100.0 * total_equal) / total_records
         else:
             results_info['total_equal_percent'] = 0
+
+        if total_expected_devs > 0:
+            results_info['total_dev_recall'] = (100.0 * total_count_correct) / total_expected_devs
+            results_info['total_dev_actual_percent'] = (100.0 * total_actual_devs) / total_expected_devs
+        else:
+            results_info['total_dev_recall'] = 0
+            results_info['total_dev_actual_percent'] = 0
+
+        if total_actual_devs > 0:
+            results_info['total_dev_precision'] = (100.0 * total_count_correct) / total_actual_devs
+        else:
+            results_info['total_dev_precision'] = 0
 
         result_json_file = Path(output_folder) / "compare_track_results.json"
 
@@ -226,14 +341,17 @@ class TestResults:
         with open(result_json_file, "w") as write_file:
             write_file.write(json.dumps(results_info, indent=4, sort_keys=True, default=lambda o: o.__dict__))
 
-        # 2 версия считаем дополнительно совпадения инцидентов
+        return results_info
 
 
 def test_tracks_file(test_file):
     """
 Тест содержимого тестового файла.
-1. читаем показываем. если что-то не так, то будет ошибка
-2. создаем словарь по file, оно должно быть уникально, иначе ошибка по ключу
+
+1. Читаем показываем. Если, что-то не так, то будет ошибка
+
+2. Создаем словарь по file, оно должно быть уникально, иначе ошибка по ключу
+
     """
     print(f"test_tracks_file: {test_file}")
     result = TestResults(test_file)
@@ -264,16 +382,115 @@ def test_tracks_file(test_file):
         for i, div in enumerate(item.deviations):
             print(f"\t{i + 1}, status = {div.status_id}, [{div.start_frame} - {div.end_frame}]")
 
-    # result_json_file = "testinfo/tmp_track_results.json"
-    # print(f"Save compare results info '{str(result_json_file)}'")
 
-    # with open(result_json_file, "w") as write_file:
-    #     write_file.write(json.dumps(test, indent=4, sort_keys=True, default=lambda o: o.__dict__))
+def unique(list1):
+    x = np.array(list1)
+    return np.unique(x)
 
-    # result.result_items = TestResults.read_info(test_file)
 
-    # result.compare_to_file("testinfo")
+def get_files_str(items: dict) -> str:
+    files = []
+    for nc in items:
+        f = int(Path(nc['file']).stem)
+        files.append(f)
+
+    files = sorted(unique(files))
+
+    files_str = ""
+    for item in files:
+        f = str(item)
+        files_str += f"{f},"
+
+    return files_str
+
+
+def save_results_to_csv(results: dict, file_path, sep=";") -> None:
+    """
+    Сохранение результатов сравнение в csv файл.
+    Данные в таблично виде и упорядоченны по total_equal_percent
+
+    Args:
+        results (dict): Словарь с результатами сравнения
+        file_path: Путь к файлу, для сохранения данных
+        sep: Разделитель в csv файле
+    """
+    table = []
+    for key in results.keys():
+        results_info = results[key]
+
+        total_equal_percent = results[key]["total_equal_percent"]
+        total_equal = results[key]["total_equal"]
+        total_records = results[key]["total_records"]
+
+        not_equal_items = results[key]["not_equal_items"]
+
+        total_count_correct = results_info['total_count_correct']
+        total_actual_devs = results_info['total_actual_devs']
+        total_expected_devs = results_info['total_expected_devs']
+
+        # total_dev_correct_percent = results_info['total_dev_correct_percent']
+        total_dev_actual_percent = results_info['total_dev_actual_percent']
+
+        total_dev_precision = results_info['total_dev_precision']
+        total_dev_recall = results_info['total_dev_recall']
+
+        by_item_dev_info = results_info['dev_items']
+
+        files_str = get_files_str(not_equal_items)
+        files_dev_str = get_files_str(by_item_dev_info)
+
+        print(f"{key} = {total_equal_percent}, {files_str}")
+
+        table.append([key, total_equal_percent, total_equal, total_records, str(files_str),
+                      total_dev_precision, total_dev_recall,
+                      total_count_correct, total_actual_devs, total_expected_devs,
+                      total_dev_actual_percent, files_dev_str])
+
+    df = DataFrame(table, columns=["tracker_name", "total_equal_percent",
+                                   "total_equal", "total_records", "not_equal_items",
+                                   "total_dev_precision", "total_dev_recall",
+                                   "total_count_correct", "total_actual_devs", "total_expected_devs",
+                                   "total_dev_actual_percent",
+                                   "no_correct_dev"])
+    df.sort_values(by=['total_equal_percent'], inplace=True, ascending=False)
+
+    # print(df)
+    df.to_csv(file_path, sep=sep, index=False)
+
+
+def results_to_table():
+    file_path = "D:\\AI\\2023\\corridors\\dataset-v1.1\\2023_04_02_07_43_54_yolo_tracks_by_txt" \
+                "\\all_compare_track_results.json"
+
+    file_path_tbl = "D:\\AI\\2023\\corridors\\dataset-v1.1\\2023_04_02_07_43_54_yolo_tracks_by_txt" \
+                    "\\all_compare_track_results.csv"
+
+    with open(file_path, "r") as read_file:
+        results = json.loads(read_file.read())
+
+    save_results_to_csv(results, file_path_tbl)
+
+    table = []
+    for key in results.keys():
+        total_equal_percent = results[key]["total_equal_percent"]
+        total_equal = results[key]["total_equal"]
+        total_records = results[key]["total_records"]
+
+        print(f"{key} = {total_equal_percent}")
+
+        table.append([key, total_equal_percent, total_equal, total_records])
+
+    df = DataFrame(table, columns=["tracker_name", "total_equal_percent", "total_equal", "total_records"])
+    df.sort_values(by=['total_equal_percent'], inplace=True, ascending=False)
+    print(df)
+
+    df = DataFrame.from_dict(results, orient="index")
+    print(df)
+
+    # print(results)
 
 
 if __name__ == '__main__':
     test_tracks_file(test_file=TEST_TRACKS_PATH)
+
+    # results_to_table()
