@@ -4,6 +4,8 @@ from pathlib import Path
 import cv2
 import numpy as np
 import torch
+
+from change_bboxes import change_bbox
 from utils.general import check_img_size, xyxy2xywh
 
 from configs import WEIGHTS
@@ -26,7 +28,7 @@ class YOLO7:
 
         self.imgsz = check_img_size(imgsz, s=self.stride)  # check img_size
 
-        self.model = TracedModel(self.model, self.device, img_size=640)
+        self.model = TracedModel(self.model, self.device, img_size=self.imgsz)
 
         self.names = self.model.module.names if hasattr(self.model, 'module') else self.model.names
 
@@ -72,59 +74,6 @@ class YOLO7:
         if len(im.shape) == 3:
             im = im[None]  # expand for batch dim
         return im
-
-    @staticmethod
-    def change_bbox(bbox, change_bb):
-
-        if change_bb is None:
-            return bbox
-
-        if isinstance(change_bb, float):
-            return YOLO7.change_bbox_v2(bbox, change_bb)
-
-        if not isinstance(change_bb, bool):
-            return bbox
-
-        if not change_bb:
-            return bbox
-
-        x1 = (bbox[:, [0]] + bbox[:, [2]]) / 2
-        y1 = (bbox[:, [1]] + bbox[:, [3]]) / 2
-
-        w = 10  # abs(bbox[:, [0]] - bbox[:, [2]]) / 4
-        h = 10  # abs(bbox[:, [1]] - bbox[:, [3]]) / 4
-
-        bbox[:, [0]] = x1 - w
-        bbox[:, [2]] = x1 + w
-
-        bbox[:, [1]] = y1 - h
-        bbox[:, [3]] = y1 + h
-
-        return bbox
-
-    @staticmethod
-    def change_bbox_v2(bbox, scale: float):
-        """
-
-        Args:
-            bbox: bbox на замену
-            scale (float):
-        """
-        x1_center = (bbox[:, [0]] + bbox[:, [2]]) / 2
-        y1_center = (bbox[:, [1]] + bbox[:, [3]]) / 2
-
-        scale /= 2
-
-        w = abs(bbox[:, [0]] - bbox[:, [2]]) * scale
-        h = abs(bbox[:, [1]] - bbox[:, [3]]) * scale
-
-        bbox[:, [0]] = x1_center - w
-        bbox[:, [2]] = x1_center + w
-
-        bbox[:, [1]] = y1_center - h
-        bbox[:, [3]] = y1_center + h
-
-        return bbox
 
     def detect2(self, source, conf_threshold=0.25, iou=0.45, classes=None):
         dataset = LoadImages(source, img_size=self.imgsz, stride=self.stride)
@@ -183,7 +132,8 @@ class YOLO7:
                         results.append([frame, -1, cls, xywh[0], xywh[1], xywh[2], xywh[3], conf])
 
                 # Print time (inference + NMS)
-                print(f'{s}Done. ({(1E3 * (t2 - t1)):.1f}ms) Inference, ({(1E3 * (t3 - t2)):.1f}ms) NMS, detections = {total_detections}')
+                print(
+                    f'{s}Done. ({(1E3 * (t2 - t1)):.1f}ms) Inference, ({(1E3 * (t3 - t2)):.1f}ms) NMS, detections = {total_detections}')
 
                 # Save results (image with detections)
 
@@ -284,10 +234,12 @@ class YOLO7:
         return results
 
     def track(self, source, tracker_type, tracker_config, reid_weights="osnet_x0_25_msmt17.pt",
-              conf_threshold=0.3, iou=0.4, classes=None, change_bb=False):
+              conf_threshold=0.3, iou=0.4, classes=None, change_bb=False) -> list:
 
         self.reid_weights = Path(WEIGHTS) / reid_weights
         tracker = create_tracker(tracker_type, tracker_config, self.reid_weights, self.device, self.half)
+
+        file_id = Path(source).stem
 
         input_video = cv2.VideoCapture(source)
 
@@ -334,7 +286,7 @@ class YOLO7:
                 for tr_id, predict_track in enumerate(predict):
                     if predict_track is not None and len(predict_track) > 0:
                         dets += 1
-                        predict_track = self.change_bbox(predict_track, change_bb)
+                        predict_track = change_bbox(predict_track, change_bb, file_id)
 
                         # conf_ = predict_track[:, [4]]
                         # cls = predict_track[:, [5]]
@@ -441,4 +393,7 @@ class YOLO7:
 
         input_video.release()
 
-        return results, results_det
+        return results  # , results_det
+
+    def train(self, **kwargs):
+        pass

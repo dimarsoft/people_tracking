@@ -1,19 +1,16 @@
 import argparse
 import json
-import os
-from datetime import datetime
 from pathlib import Path
 
 from configs import parse_yolo_version, YoloVersion
 from labeltools import TrackWorker
-from save_txt_tools import yolo7_save_tracks_to_txt
+from path_tools import get_video_files, create_session_folder
+from save_txt_tools import yolo7_save_tracks_to_txt, yolo7_save_tracks_to_json
 from utils.general import set_logging
 from utils.torch_utils import time_synchronized
 from yolov7 import YOLO7
 from yolov8 import YOLO8
-
-
-# from yolov8_ultralitics import YOLO8UL
+from yolov8_ultralitics import YOLO8UL
 
 
 def create_yolo_model(yolo_version, model):
@@ -22,28 +19,39 @@ def create_yolo_model(yolo_version, model):
 
     if yolo_version == YoloVersion.yolo_v8:
         return YOLO8(model)
-        # return YOLO8UL(model)
+
+    if yolo_version == YoloVersion.yolo_v8ul:
+        return YOLO8UL(model)
 
 
-def detect_single_video_yolo(yolo_version, model, source, output_folder, classes=None, conf=0.1, save_txt=True,
+def detect_single_video_yolo(yolo_version, model, source, output_folder, classes=None,
+                             conf=0.1, iou=0.45, save_txt=True,
                              save_vid=False):
     print(f"start detect_single_video_yolo: {yolo_version}, source = {source}")
 
     source_path = Path(source)
-    text_path = Path(output_folder) / f"{source_path.stem}.txt"
 
     model = create_yolo_model(yolo_version, model)
 
     detections = model.detect(
         source=source,
         conf_threshold=conf,
+        iou=iou,
         classes=classes
     )
 
     if save_txt:
+        text_path = Path(output_folder) / f"{source_path.stem}.txt"
+
         print(f"save detections to: {text_path}")
 
         yolo7_save_tracks_to_txt(results=detections, txt_path=text_path, conf=conf)
+
+        json_file = Path(output_folder) / f"{source_path.stem}.json"
+
+        print(f"save detections to: {json_file}")
+
+        yolo7_save_tracks_to_json(results=detections, json_file=json_file, conf=conf)
 
     if save_vid:
         track_worker = TrackWorker(detections)
@@ -55,10 +63,11 @@ def detect_single_video_yolo(yolo_version, model, source, output_folder, classes
 
 
 def run_detect_yolo(yolo_info, model: str, source: str, output_folder,
-                    files=None, classes=None, conf=0.3, save_txt=True, save_vid=False):
+                    files=None, classes=None, conf=0.3, iou=0.45, save_txt=True, save_vid=False):
     """
 
     Args:
+        iou:
         yolo_info: версия Yolo: 7 ил 8
         save_txt: сохранять бб в файл
         files: если указана папка, но можно указать имена фай1лов,
@@ -79,27 +88,15 @@ def run_detect_yolo(yolo_info, model: str, source: str, output_folder,
     if yolo_version is None:
         raise Exception(f"unsupported yolo version {yolo_info}")
 
-    source_path = Path(source)
-
     # в выходной папке создаем папку с сессией: дата_трекер туда уже сохраняем все файлы
 
-    now = datetime.now()
-
-    session_folder_name = f"{now.year:04d}_{now.month:02d}_{now.day:02d}_{now.hour:02d}_{now.minute:02d}_" \
-                          f"{now.second:02d}_{yolo_version}_detect"
-
-    session_folder = str(Path(output_folder) / session_folder_name)
-
-    try:
-        os.makedirs(session_folder, exist_ok=True)
-        print(f"Directory '{session_folder}' created successfully")
-    except OSError as error:
-        print(f"Directory '{session_folder}' can not be created. {error}")
+    session_folder = create_session_folder(yolo_version, output_folder, "detect")
 
     session_info = dict()
 
     session_info['model'] = str(Path(model).name)
     session_info['conf'] = conf
+    session_info['iou'] = iou
     session_info['save_vid'] = save_vid
     session_info['files'] = files
     session_info['classes'] = classes
@@ -111,25 +108,16 @@ def run_detect_yolo(yolo_info, model: str, source: str, output_folder,
     with open(session_info_path, "w") as session_info_file:
         json.dump(session_info, fp=session_info_file, indent=4)
 
-    # test_results = TestResults(test_result_file)
+    # список файлов с видео для обработки
+    list_of_videos = get_video_files(source, files)
+    total_videos = len(list_of_videos)
 
-    if source_path.is_dir():
-        print(f"process folder: {source_path}")
+    for i, item in enumerate(list_of_videos):
+        print(f"process file: {i + 1}/{total_videos} {item}")
 
-        for entry in source_path.iterdir():
-            # check if it is a file
-            if entry.is_file() and entry.suffix == ".mp4":
-                if files is None:
-                    detect_single_video_yolo(yolo_version, model, str(entry), session_folder,
-                                             classes, conf, save_txt, save_vid)
-                else:
-                    if entry.stem in files:
-                        detect_single_video_yolo(yolo_version, model, str(entry), session_folder,
-                                                 classes, conf, save_txt, save_vid)
-    else:
-        print(f"process file: {source_path}")
-        detect_single_video_yolo(yolo_version, model, str(source_path), session_folder,
-                                 classes, conf, save_txt, save_vid)
+        detect_single_video_yolo(yolo_version, model, str(item), session_folder,
+                                 classes=classes, conf=conf, iou=iou,
+                                 save_txt=save_txt, save_vid=save_vid)
 
 
 def run_example():
@@ -144,7 +132,7 @@ def run_example():
 
     model = "D:\\AI\\2023\\models\\Yolo8s_batch32_epoch100.pt"
 
-    run_detect_yolo(8, model, video_source, output_folder, files=files, conf=0.25, save_txt=True, save_vid=True)
+    run_detect_yolo("8ul", model, video_source, output_folder, files=files, conf=0.25, save_txt=True, save_vid=True)
 
 
 # запуск из командной строки: python yolo_detect.py  --yolo 7 --weights "" source ""
@@ -154,14 +142,15 @@ def run_cli(opt_info):
         opt_info.files, opt_info.save_txt, opt_info.save_vid, opt_info.conf, opt_info.classes
 
     run_detect_yolo(yolo, weights, source, output_folder,
-                    files=files, conf=conf, save_txt=save_txt, save_vid=save_vid, classes=classes)
+                    files=files, conf=conf, iou=opt_info.iou,
+                    save_txt=save_txt, save_vid=save_vid, classes=classes)
 
 
 if __name__ == '__main__':
     # run_example()
 
     parser = argparse.ArgumentParser()
-    parser.add_argument('--yolo', type=int, help='7')
+    parser.add_argument('--yolo', type=int, help='7, 8, 8ul')
     parser.add_argument('--weights', type=str, default='yolov7.pt', help='model.pt path(s)')
     parser.add_argument('--source', type=str, help='source')  # file/folder, 0 for webcam
     parser.add_argument('--files', type=str, default=None, help='files names list')  # files from list

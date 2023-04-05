@@ -53,7 +53,7 @@ def run_single_video_yolo8v2(model, source, tracker_type: str, tracker_config, o
 
         print(f"Processed '{source}' to {output_folder}: ({(1E3 * (t2 - t1)):.1f} ms)")
 
-    num, w, h = get_camera(source)
+    num, w, h, fps = get_camera(source)
     bound_line = cameras_info.get(num)
 
     print(f"num = {num}, w = {w}, h = {h}, bound_line = {bound_line}")
@@ -70,7 +70,7 @@ def run_single_video_yolo8v2(model, source, tracker_type: str, tracker_config, o
                 humans_result = None
 
                 if test_func == "popov_alex":
-                    humans_result = alex_count_humans(tracks_new)
+                    humans_result = alex_count_humans(tracks_new, num, w, h, bound_line)
                     pass
                 if test_func == "timur":
                     humans_result = timur_count_humans(tracks_new, source)
@@ -169,7 +169,7 @@ def run_yolo8v2(model: str, source: str, tracker_type: str, tracker_config, outp
     session_info['save_vid'] = save_vid
     session_info['files'] = files
     session_info['classes'] = classes
-    session_info['change_bb'] = change_bb
+    session_info['change_bb'] = str(change_bb)
     session_info['cameras_path'] = str(CAMERAS_PATH)
 
     test_tracks_file(test_result_file)
