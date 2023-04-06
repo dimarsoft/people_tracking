@@ -40,7 +40,13 @@ train_val.py
 
 Большая часть и финальные (с трекинговой разметкой) эксперементы проводились на локальной машине. До обучение сети имеет эфективность в 10-20% по времени, что бы достич предыдущих результатов обучаемой модели. Поэтому вариант до обучения весьма затягивается.
 
+**Графики обучения архитектур FairMOT с валидацией**
+
 ![График обучения dla34 на 30 эпохах](https://github.com/terrainternship/people_tracking/blob/Group_5_MOT/%D0%93%D1%80%D0%B0%D1%84%D0%B8%D0%BA%D0%B8%20%D0%BE%D0%B1%D1%83%D1%87%D0%B5%D0%BD%D0%B8%D1%8F/dla34_30_epoch.png)
+
+![График обучения resdcn18 на 120 эпохах](https://github.com/terrainternship/people_tracking/blob/Group_5_MOT/%D0%93%D1%80%D0%B0%D1%84%D0%B8%D0%BA%D0%B8%20%D0%BE%D0%B1%D1%83%D1%87%D0%B5%D0%BD%D0%B8%D1%8F/resdcn18_120_epoch.png)
+
+![График обучения resdcn34 на 54 эпохах](https://github.com/terrainternship/people_tracking/blob/Group_5_MOT/%D0%93%D1%80%D0%B0%D1%84%D0%B8%D0%BA%D0%B8%20%D0%BE%D0%B1%D1%83%D1%87%D0%B5%D0%BD%D0%B8%D1%8F/resdcn34_54_epoch.png)
 
 **Так же стоит отметить две отправные точки обучения:**
 
