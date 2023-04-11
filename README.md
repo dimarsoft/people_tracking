@@ -48,6 +48,12 @@ train_val.py
 
 ![График обучения resdcn34 на 54 эпохах](https://github.com/terrainternship/people_tracking/blob/Group_5_MOT/%D0%93%D1%80%D0%B0%D1%84%D0%B8%D0%BA%D0%B8%20%D0%BE%D0%B1%D1%83%D1%87%D0%B5%D0%BD%D0%B8%D1%8F/resdcn34_54_epoch.png)
 
+![График обучения cspdarknet53 на 19 эпохах](https://github.com/terrainternship/people_tracking/blob/Group_5_MOT/%D0%93%D1%80%D0%B0%D1%84%D0%B8%D0%BA%D0%B8%20%D0%BE%D0%B1%D1%83%D1%87%D0%B5%D0%BD%D0%B8%D1%8F/cspdarknet53_19_epoch.png)
+
+![График обучения resfpndcn34 на 96 эпохах](https://github.com/terrainternship/people_tracking/blob/Group_5_MOT/%D0%93%D1%80%D0%B0%D1%84%D0%B8%D0%BA%D0%B8%20%D0%BE%D0%B1%D1%83%D1%87%D0%B5%D0%BD%D0%B8%D1%8F/resfpndcn34_96_epoch.png)
+
+![График обучения yolo5s на 33 эпохах](https://github.com/terrainternship/people_tracking/blob/Group_5_MOT/%D0%93%D1%80%D0%B0%D1%84%D0%B8%D0%BA%D0%B8%20%D0%BE%D0%B1%D1%83%D1%87%D0%B5%D0%BD%D0%B8%D1%8F/yolo5s_33_epoch.png)
+
 **Так же стоит отметить две отправные точки обучения:**
 
 1. При обучении без учета валидации, ошибка по всем параметрам постоянно снижается, спустя 50 эпох, понимажается шаг обучения что способствует увеличению понижения ошибки с каждой эпохой (параметр настраивается).
