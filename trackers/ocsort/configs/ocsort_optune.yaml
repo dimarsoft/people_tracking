@@ -1,0 +1,11 @@
+# Trial number:      137
+# HOTA, MOTA, IDF1:  [55.567]
+ocsort:
+  asso_func: giou
+  det_thresh: 0.4
+  delta_t: 8
+  inertia: 0.8
+  iou_thresh: 0.7
+  max_age: 10
+  min_hits: 7
+  use_byte: true
