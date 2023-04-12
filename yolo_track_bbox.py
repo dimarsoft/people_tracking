@@ -20,7 +20,7 @@ class YoloTrackBbox:
         if half:
             self.half = self.device.type != 'cpu'  # half precision only supported on CUDA
 
-        print(f"device = {self.device}, half = {self.half}")
+        # print(f"device = {self.device}, half = {self.half}")
 
         self.reid_weights = ""
 
@@ -42,7 +42,7 @@ class YoloTrackBbox:
     def track(self, source, txt_source, tracker_type, tracker_config, reid_weights="osnet_x0_25_msmt17.pt",
               conf_threshold=0.3,
               iou=0.4,
-              classes=None, change_bb=False):
+              classes=None, change_bb=False, log: bool = True):
 
         file_id = Path(source).stem
 
@@ -73,7 +73,8 @@ class YoloTrackBbox:
             bbox_track = df_bbox
             bbox_no_track = None
 
-        print(f"file '{txt_source}' read in ({(1E3 * (file_t2 - file_t1)):.1f}ms)")
+        if log:
+            print(f"file '{txt_source}' read in ({(1E3 * (file_t2 - file_t1)):.1f}ms)")
 
         input_video = cv2.VideoCapture(source)
 
@@ -86,7 +87,8 @@ class YoloTrackBbox:
         # количество кадров в видео
         frames_in_video = int(input_video.get(cv2.CAP_PROP_FRAME_COUNT))
 
-        print(f"input = {source}, w = {w}, h = {h}, fps = {fps}, frames_in_video = {frames_in_video}")
+        if log:
+            print(f"input = {source}, w = {w}, h = {h}, fps = {fps}, frames_in_video = {frames_in_video}")
 
         file_name = Path(source).name
 
@@ -177,10 +179,6 @@ class YoloTrackBbox:
 
             t2 = time_synchronized()
 
-            detections_info = f"({dets} tracks)"
-
-            empty_conf_count_str = f"{'' if empty_conf_count == 0 else f', empty_confs = {empty_conf_count}'}"
-
             prev_frame = frame
 
             d_track = track_t2 - track_t1
@@ -193,21 +191,26 @@ class YoloTrackBbox:
             d_group_sum += d_group
             d_video_sum += d_video
 
-            print(f'{file_name} ({frame_id + 1}/{frames_in_video}) Done. track = ({(1E3 * d_track):.1f}ms), '
-                  f' df = ({(1E3 * d_df):.1f}ms), ({(1E3 * (t2 - t1)):.1f}ms) tracking, '
-                  f' d_group = ({(1E3 * d_group):.1f}ms), '
-                  f' d_video = ({(1E3 * d_video):.1f}ms), '
-                  f'{detections_info} {empty_conf_count_str}')
+            if log:
+                detections_info = f"({dets} tracks)"
+                empty_conf_count_str = f"{'' if empty_conf_count == 0 else f', empty_confs = {empty_conf_count}'}"
+
+                print(f'{file_name} ({frame_id + 1}/{frames_in_video}) Done. track = ({(1E3 * d_track):.1f}ms), '
+                      f' df = ({(1E3 * d_df):.1f}ms), ({(1E3 * (t2 - t1)):.1f}ms) tracking, '
+                      f' d_group = ({(1E3 * d_group):.1f}ms), '
+                      f' d_video = ({(1E3 * d_video):.1f}ms), '
+                      f'{detections_info} {empty_conf_count_str}')
 
         input_video.release()
 
         tracks_t2 = time_synchronized()
 
-        print(f'Total tracking ({(1E3 * (tracks_t2 - tracks_t1)):.1f}ms), '
-              f'd_tracks_sum = ({(1E3 * d_tracks_sum):.1f}ms),'
-              f'd_group_sum = ({(1E3 * d_group_sum):.1f}ms),'
-              f'd_video_sum = ({(1E3 * d_video_sum):.1f}ms),'
-              f'd_df_sum = ({(1E3 * d_df_sum):.1f}ms)')
+        if log:
+            print(f'Total tracking ({(1E3 * (tracks_t2 - tracks_t1)):.1f}ms), '
+                  f'd_tracks_sum = ({(1E3 * d_tracks_sum):.1f}ms),'
+                  f'd_group_sum = ({(1E3 * d_group_sum):.1f}ms),'
+                  f'd_video_sum = ({(1E3 * d_video_sum):.1f}ms),'
+                  f'd_df_sum = ({(1E3 * d_df_sum):.1f}ms)')
 
         # которых не трекали, запишем тоже, но с id -1
         if bbox_no_track is not None:
