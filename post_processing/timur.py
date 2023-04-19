@@ -109,8 +109,8 @@ def convert_and_save(folder_path):
     save_bound_line(file_to_save, bl)
 
 
-def timur_count_humans(tracks, source, log: bool = True):
-    print(f"Timur postprocessing v1.5_05.04.2023")
+def timur_count_humans(tracks, source, bound_line, log: bool = True) -> Result:
+    print(f"Timur postprocessing v1.6_14.04.2023")
 
     camera_num, w, h, fps = get_camera(source)
 
@@ -127,7 +127,7 @@ def timur_count_humans(tracks, source, log: bool = True):
     if len(people_tracks) == 0:
         return Result(0, 0, 0, [])
 
-    bound_line = bound_line_cameras.get(camera_num)
+    # bound_line = bound_line_cameras.get(camera_num)
 
     if log:
         print(f"bound_line =  {bound_line}")
@@ -140,14 +140,12 @@ def timur_count_humans(tracks, source, log: bool = True):
         if log:
             print(f"{p_id}: {tr_info}")
 
-    result = calc_inp_outp_people(tracks_info)
+    deviations = []
+
+    deviations_info, result = get_deviations(people_tracks, helmet_tracks, vest_tracks, bound_line, log=log)
 
     count_in = result["input"]
     count_out = result["output"]
-
-    deviations = []
-
-    deviations_info = get_deviations(people_tracks, helmet_tracks, vest_tracks, bound_line, log=log)
 
     # print(deviations_info)
 
