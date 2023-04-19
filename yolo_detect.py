@@ -1,4 +1,5 @@
 import argparse
+import gc
 import json
 from pathlib import Path
 
@@ -13,15 +14,15 @@ from yolov8 import YOLO8
 from yolov8_ultralitics import YOLO8UL
 
 
-def create_yolo_model(yolo_version, model):
+def create_yolo_model(yolo_version, model, w=640, h=640):
     if yolo_version == YoloVersion.yolo_v7:
-        return YOLO7(model)
+        return YOLO7(model, imgsz=(w, h))
 
     if yolo_version == YoloVersion.yolo_v8:
         return YOLO8(model)
 
     if yolo_version == YoloVersion.yolo_v8ul:
-        return YOLO8UL(model)
+        return YOLO8UL(model) # , imgsz=(w, h)
 
 
 def detect_single_video_yolo(yolo_version, model, source, output_folder, classes=None,
@@ -60,6 +61,10 @@ def detect_single_video_yolo(yolo_version, model, source, output_folder, classes
         t2 = time_synchronized()
 
         print(f"Processed '{source}' to {output_folder}: ({(1E3 * (t2 - t1)):.1f} ms)")
+
+    del detections
+
+    gc.collect()
 
 
 def run_detect_yolo(yolo_info, model: str, source: str, output_folder,
@@ -147,6 +152,10 @@ def run_cli(opt_info):
 
 
 if __name__ == '__main__':
+    # lst = range(44, 72)
+    # lst = [f"{x}" for x in lst]
+    # print(lst)
+
     # run_example()
 
     parser = argparse.ArgumentParser()

@@ -1,15 +1,17 @@
 """
 
 """
+import json
 from pathlib import Path
 import gdown
 
-from configs import load_default_bound_line, get_all_trackers_full_path, WEIGHTS, YoloVersion, parse_yolo_version, ROOT
+from configs import load_default_bound_line, get_all_trackers_full_path, WEIGHTS, YoloVersion, parse_yolo_version, ROOT, \
+    get_all_optune_trackers, TEST_TRACKS_PATH, get_bound_line
 from count_results import Result
 from exception_tools import print_exception
 from post_processing.alex import alex_count_humans
 from post_processing.timur import get_camera, timur_count_humans
-from resultools import results_to_json
+from resultools import results_to_json, TestResults
 from yolo_detect import create_yolo_model
 
 folder_link = "https://drive.google.com/drive/folders/1b-tp_yxHgadeElP4XoDCFoXxCwXHK9CV"
@@ -63,13 +65,8 @@ def download_test_video():
     # folders = gdown.download_folder(url=url, quiet=False)
     print(folders)
 
-   # gdown.download_folder(
-   #     "https://drive.google.com/drive/folders/" +
-   #     "1YK0a3peuwdbvoZUAKciCvYM5KjKeizA6",
-   # )
 
-
-def post_process(test_func, track, num, w, h, bound_line, source):
+def post_process(test_func, track, num, w, h, bound_line, source) -> Result:
     # count humans
 
     humans_result = Result(0, 0, 0, [])
@@ -88,7 +85,7 @@ def post_process(test_func, track, num, w, h, bound_line, source):
                     humans_result = alex_count_humans(tracks_new, num, w, h, bound_line)
                     pass
                 if test_func == "timur":
-                    humans_result = timur_count_humans(tracks_new, source)
+                    humans_result = timur_count_humans(tracks_new, source, bound_line)
                     pass
 
             else:
@@ -111,7 +108,8 @@ def post_process(test_func, track, num, w, h, bound_line, source):
     return humans_result
 
 
-def run_single_video_yolo(source, yolo_info="7", conf=0.3, iou=0.45, test_func="timur", tracker_type="fastdeepsort"):
+def run_single_video_yolo(source, yolo_info="7", conf=0.3, iou=0.45, test_func="timur",
+                          tracker_type="fastdeepsort", log: bool = True) -> dict:
     print(f"yolo version = {yolo_info}")
     yolo_version = parse_yolo_version(yolo_info)
 
@@ -121,15 +119,21 @@ def run_single_video_yolo(source, yolo_info="7", conf=0.3, iou=0.45, test_func="
 
     reid_weights = str(Path(WEIGHTS) / "osnet_x0_25_msmt17.pt")
 
+    num, w, h, fps = get_camera(source)
+
+    print(f"num = {num}, w = {w}, h = {h}, fps = {fps}")
+
     model = create_yolo_model(yolo_version, model)
 
     # tracker_type = "fastdeepsort"
     # tracker_type = "ocsort"
 
-    all_trackers = get_all_trackers_full_path()
+    # all_trackers = get_all_trackers_full_path()
+    all_trackers = get_all_optune_trackers()
     tracker_config = all_trackers.get(tracker_type)
 
-    print(f"tracker_type = {tracker_type}")
+    if log:
+        print(f"tracker_type = {tracker_type}")
 
     track = model.track(
         source=source,
@@ -137,27 +141,61 @@ def run_single_video_yolo(source, yolo_info="7", conf=0.3, iou=0.45, test_func="
         iou=iou,
         tracker_type=tracker_type,
         tracker_config=tracker_config,
-        reid_weights=reid_weights
+        reid_weights=reid_weights,
+        log=log
     )
 
     num, w, h, fps = get_camera(source)
     cameras_info = load_default_bound_line()
-    bound_line = cameras_info.get(num)
+    bound_line = get_bound_line(cameras_info, num)
 
     humans_result = post_process(test_func, track, num, w, h, bound_line, source)
 
-    return results_to_json(humans_result)
+    test_result_file = TEST_TRACKS_PATH
+
+    test_results = TestResults(test_result_file)
+
+    test_results.add_test(humans_result)
+
+    test_res = test_results.compare_to_file_v2(output_folder=None)
+
+    res_dic = \
+        {
+            "result": json.loads(results_to_json(humans_result)),
+            "test_result": test_res,
+            "num": num,
+            "width": w,
+            "height": h,
+            "fps": fps,
+            "bound_line": bound_line,
+            "file": str(source)
+        }
+
+    return res_dic
 
 
 if __name__ == '__main__':
-    download_test_video()
+    # download_test_video()
 
     # get_model_file(YoloVersion.yolo_v7)
 
     video_source = "d:\\AI\\2023\\corridors\\dataset-v1.1\\test\\"
 
-    video_file = str(Path(video_source) / "1.mp4")
+    # video_file = str(Path(video_source) / "1.mp4")
+    video_file = "D:\\44.mp4"
 
-    # result = run_single_video_yolo(video_file, yolo_info="8ul")
+    result = run_single_video_yolo(video_file, yolo_info="8ul", log=False)
 
-    # print(result)
+    print(result)
+
+    # res = Result(1, 2, 4, [])
+
+    # print(res.__dict__)
+
+    # str1 = results_to_json(res)
+    # print(str1)
+
+    # str2 = json.dumps(res.__dict__, indent=4)
+
+    # print(str2)
+

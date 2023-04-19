@@ -49,7 +49,7 @@ def get_test_result(test_results, session_folder):
 
 
 def results_to_json(result_items: Result):
-    return json.dumps(result_items, indent=4, sort_keys=True, default=lambda o: o.__dict__)
+    return json.dumps(result_items, indent=4, default=lambda o: o.__dict__)
 
 
 class TestResults:
@@ -93,7 +93,7 @@ class TestResults:
         result_json_file = Path(output_folder) / "current_all_track_results.json"
         print(f"Save result_items '{str(result_json_file)}'")
         with open(result_json_file, "w") as write_file:
-            write_file.write(json.dumps(self.result_items, indent=4, sort_keys=True, default=lambda o: o.__dict__))
+            write_file.write(json.dumps(self.result_items, indent=4, default=lambda o: o.__dict__))
 
     def compare_to_file(self, output_folder):
         self.compare_list_to_file(output_folder, self.test_items)
@@ -182,7 +182,7 @@ class TestResults:
         print(f"Save compare results info '{str(result_json_file)}'")
 
         with open(result_json_file, "w") as write_file:
-            write_file.write(json.dumps(results_info, indent=4, sort_keys=True, default=lambda o: o.__dict__))
+            write_file.write(json.dumps(results_info, indent=4, default=lambda o: o.__dict__))
 
         return results_info
 
@@ -224,7 +224,7 @@ class TestResults:
 
         return count_equal
 
-    def compare_list_to_file_v2(self, output_folder, test_items):
+    def compare_list_to_file_v2(self, output_folder, test_items) -> dict:
 
         # 1 версия считаем вход/выход
 
@@ -368,7 +368,7 @@ class TestResults:
             print(f"Save compare results info '{str(result_json_file)}'")
 
             with open(result_json_file, "w") as write_file:
-                write_file.write(json.dumps(results_info, indent=4, sort_keys=True, default=lambda o: o.__dict__))
+                write_file.write(json.dumps(results_info, indent=4, default=lambda o: o.__dict__))
 
             result_csv_file = Path(output_folder) / "compare_track_results.csv"
             result_xlsx_file = Path(output_folder) / "compare_track_results.xlsx"
@@ -632,9 +632,9 @@ def test_results_to_table(results, csv_file_path, excel_file_path, sep: str = ";
 
 
 def convert_test_json_to_csv():
-    json_file_path = TEST_TRACKS_PATH
-    csv_file_path = TEST_ROOT / "all_track_results.csv"
-    excel_file_path = TEST_ROOT / "all_track_results.xlsx"
+    json_file_path = TEST_ROOT / 'all_track_results_group1.json'
+    csv_file_path = TEST_ROOT / "all_track_results_group1.csv"
+    excel_file_path = TEST_ROOT / "all_track_results_group1.xlsx"
 
     with open(json_file_path, "r") as read_file:
         results = json.loads(read_file.read())
@@ -642,8 +642,31 @@ def convert_test_json_to_csv():
     test_results_to_table(results, csv_file_path, excel_file_path)
 
 
+def gr1():
+    # Истинные значения вошедших и вышедших на видео
+    dict_in_true = {'1': 3, '2': 3, '3': 3, '4': 4, '5': 0, '6': 1, '7': 0, '8': 0, '9': 1, '10': 0, '11': 0, '12': 0,
+                    '13': 2, '14': 0, '15': 2, '16': 0, '17': 0, '18': 4, '19': 1, '20': 0, '21': 1, '22': 0, '23': 0,
+                    '24': 1, '25': 2, '26': 0, '27': 1, '28': 1, '29': 1, '30': 1, '31': 0, '32': 0, '33': 0, '34': 0,
+                    '35': 0, '36': 0, '37': 0, '38': 8, '39': 0, '40': 0, '41': 0, '42': 2,
+                    '43': 0}  # 20 видео битое с невошедшим призраком (человек раздвоился)
+
+    dict_out_true = {'1': 0, '2': 0, '3': 0, '4': 0, '5': 0, '6': 4, '7': 4, '8': 5, '9': 1, '10': 2, '11': 3, '12': 4,
+                     '13': 4, '14': 3, '15': 0, '16': 4, '17': 5, '18': 0, '19': 0, '20': 0, '21': 1, '22': 3, '23': 1,
+                     '24': 0, '25': 0, '26': 1, '27': 1, '28': 1, '29': 1, '30': 3, '31': 2, '32': 0, '33': 0, '34': 0,
+                     '35': 0, '36': 0, '37': 0, '38': 7, '39': 1, '40': 1, '41': 0, '42': 0, '43': 0}
+
+    # print(dict_in_true)
+
+    df_in = DataFrame.from_dict(dict_in_true, orient="index", columns=['A'])
+    df_out = DataFrame.from_dict(dict_out_true, orient="index", columns=['A'])
+
+    df_in.to_excel("df_in.xlsx", index=False)
+    df_out.to_excel("df_out.xlsx", index=False)
+
+
 if __name__ == '__main__':
-    test_tracks_file(test_file=TEST_TRACKS_PATH)
-    # convert_test_json_to_csv()
+    # gr1()
+    # test_tracks_file(test_file=TEST_TRACKS_PATH)
+    convert_test_json_to_csv()
 
     # results_to_table()

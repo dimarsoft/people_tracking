@@ -1,8 +1,7 @@
 import json
 from enum import Enum
 from pathlib import Path
-from typing import Dict
-
+from typing import Dict, Optional
 
 FILE = Path(__file__).resolve()
 ROOT = FILE.parents[0]
@@ -28,7 +27,7 @@ class YoloVersion(Enum):
     yolo_v8ul = 81  # из пакета ultralytics
 
 
-def parse_yolo_version(yolo_version):
+def parse_yolo_version(yolo_version) -> Optional[YoloVersion]:
     if isinstance(yolo_version, YoloVersion):
         return yolo_version
 
@@ -48,13 +47,22 @@ def parse_yolo_version(yolo_version):
     return None
 
 
-def load_bound_line(cameras_path):
+def load_bound_line(cameras_path) -> dict:
     with open(cameras_path, 'r') as f:
         bound_line = json.load(f)
     return bound_line
 
 
-def load_default_bound_line():
+def get_bound_line(cameras: dict, camera_num: str) -> Optional[list]:
+    line = cameras.get(camera_num)
+
+    if line is None:
+        line = cameras.get("-1")
+
+    return line
+
+
+def load_default_bound_line() -> dict:
     """
     Загрузка информации по камерам по видео файлам.
 
@@ -70,7 +78,7 @@ def load_default_bound_line():
     return load_bound_line(CAMERAS_PATH)
 
 
-def get_all_trackers():
+def get_all_trackers() -> dict[str, str]:
     all_trackers = \
         {
             'sort': 'trackers/sort/configs/sort.yaml',
@@ -82,6 +90,18 @@ def get_all_trackers():
             'strongsort': 'trackers/strongsort/configs/strongsort.yaml',
             'fastdeepsort': 'trackers/fast_deep_sort/configs/fastdeepsort.yaml',
             'norfair': 'trackers/NorFairTracker/configs/norfair_track.yaml',
+        }
+
+    return all_trackers
+
+
+def get_all_optune_trackers() -> dict[str, str]:
+    all_trackers = \
+        {
+            'ocsort': 'trackers/ocsort/configs/ocsort_optune.yaml',
+            'botsort': 'trackers/botsort/configs/botsort_optune.yaml',
+            'bytetrack': 'trackers/bytetrack/configs/bytetrack_optune.yaml',
+            'fastdeepsort': 'trackers/fast_deep_sort/configs/fastdeepsort_optune.yaml',
         }
 
     return all_trackers

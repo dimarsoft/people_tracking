@@ -2,7 +2,7 @@ from enum import Enum
 from enum import IntEnum
 
 from pathlib import Path
-from typing import List
+from typing import List, Optional
 
 import cv2
 from ultralytics.yolo.utils.plotting import Colors
@@ -12,9 +12,12 @@ from count_results import Result, Deviation
 
 # класс
 class Labels(IntEnum):
-    human = 0
-    helmet = 1
-    uniform = 2
+    # Человек
+    human: int = 0
+    # Каска
+    helmet: int = 1
+    # Жилет
+    uniform: int = 2
 
 
 # положение человека относительно турникета
@@ -91,17 +94,28 @@ class Bbox:
 
 
 class DetectedLabel:
-    def __init__(self, label, x, y, width, height):
+    def __init__(self, label, x, y, width, height, conf):
+        """
+        Объект обнаруженный детекцией
+        Args:
+            label: класс
+            x:
+            y:
+            width:
+            height:
+            conf: вероятность
+        """
         self.label = label
         self.x = x
         self.y = y
         self.width = width
         self.height = height
         self.human_pos = None
+        self.conf = float(conf)
 
-    def label_str(self):
+    def label_str(self) -> str:
         if self.label is Labels.human:
-            return "human"
+            return f"human: {self.conf:.2f}"
         if self.label is Labels.uniform:
             return "uniform"
         if self.label is Labels.helmet:
@@ -110,8 +124,20 @@ class DetectedLabel:
 
 
 class DetectedTrackLabel(DetectedLabel):
-    def __init__(self, label, x, y, width, height, track_id, frame):
-        super(DetectedTrackLabel, self).__init__(label, x, y, width, height)
+    def __init__(self, label, x, y, width, height, track_id, frame, conf):
+        """
+        Объект обнаруженный детекцией и прошедший через трекер
+        Args:
+            label:
+            x:
+            y:
+            width:
+            height:
+            track_id: ИД трека, -1 если его нет
+            frame:
+            conf:
+        """
+        super(DetectedTrackLabel, self).__init__(label, x, y, width, height, conf)
 
         self.track_id = track_id
         self.frame = frame
@@ -177,7 +203,6 @@ def draw_track_on_frame(frame, draw_rect, frame_w,
         # cv2.rectangle(frame, (x, y), (x + ww, y + hh), label_colors[lab.label], 1)
         cv2.rectangle(frame, (x, y), (x + ww, y + hh), label_color, line_width)
 
-
     # если человек, то рисуем центр масс
 
     if draw_center and lab.label is Labels.human:
@@ -217,7 +242,16 @@ class NearItem:
         self.end_i = end_i
 
 
-def get_status(has_helmet, has_uniform):
+def get_status(has_helmet: bool, has_uniform: bool) -> int:
+    """
+    Получить код нарушения
+    Args:
+        has_helmet: Есть каска?
+        has_uniform: Есть жилет
+
+    Returns:
+
+    """
     status = 0
     if not has_helmet and not has_uniform:
         status = 1
@@ -306,7 +340,7 @@ class TrackWorker:
             return HumanPos.above
         return human_pos
 
-    def get_near_v2(self, start, tracks) -> NearItem:
+    def get_near_v2(self, start, tracks) -> Optional[NearItem]:
         start_pos = tracks[start].human_pos
         end_pos = self.invert_human_pos(start_pos)
 
@@ -535,8 +569,11 @@ class TrackWorker:
             x_center = bbox_left + bbox_w / 2
             y_center = bbox_top + bbox_h / 2
 
+            conf = track[7]
+
             track_list.append(
-                DetectedTrackLabel(Labels(cls), x_center, y_center, bbox_w, bbox_h, track_id, frame_index))
+                DetectedTrackLabel(Labels(cls), x_center, y_center, bbox_w, bbox_h,
+                                   track_id, frame_index, conf=conf))
 
         return track_list
 
@@ -563,10 +600,11 @@ class TrackWorker:
         for frame_id in range(frames_in_video):
             ret, frame = input_video.read()
             results.append(frame)
+            self.draw_turnic_on_frame(frame, w, h)
         input_video.release()
 
-        for i in range(frames_in_video):
-            self.draw_turnic_on_frame(results[i], w, h)
+#        for i in range(frames_in_video):
+#            self.draw_turnic_on_frame(results[i], w, h)
 
         for label in self.track_labels:
             draw_track_on_frame(results[int(label.frame)], True, w, h, label, draw_class=draw_class)
@@ -580,6 +618,8 @@ class TrackWorker:
             output_video.write(results[i])
 
         output_video.release()
+
+        del results
 
     def test_humans(self):
         return self.get_humans_counter()
