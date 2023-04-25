@@ -43,13 +43,15 @@ def run_group1_detection(video_source: Union[str, Path],
 def run_group2_detection(video_source: Union[str, Path],
                          model: Union[str, Path, None] = None,
                          tracker_name: Optional[str] = None,
-                         tracker_config: Union[str, dict, Path, None] = None) -> dict:
+                         tracker_config: Union[str, dict, Path, None] = None,
+                         log: bool = False) -> dict:
     if tracker_name is None:
         tracker_name = "fastdeepsort"
     return get_results_video_yolo(video_source,
                                   model=model,
                                   tracker_type=tracker_name,
-                                  tracker_config=tracker_config)
+                                  tracker_config=tracker_config,
+                                  log=log)
 
 
 def run_detection(version: Union[str, int],
