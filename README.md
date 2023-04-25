@@ -1,8 +1,3 @@
-# Группа №2
+# people_tracking
 
-people_tracking
-
-Также наш рабочий репозиторий:
-
-https://github.com/dimarsoft/yolov7.git
-
+ветка main - объединенное хранилище кода всех групп.
