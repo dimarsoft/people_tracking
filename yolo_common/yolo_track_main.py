@@ -3,6 +3,8 @@
 """
 import json
 from pathlib import Path
+from typing import Union
+
 import gdown
 
 from configs import load_default_bound_line, WEIGHTS, YoloVersion, parse_yolo_version, ROOT, \
@@ -11,7 +13,7 @@ from tools.count_results import Result
 from tools.exception_tools import print_exception
 from post_processing.alex import alex_count_humans
 from post_processing.timur import get_camera, timur_count_humans
-from tools.resultools import results_to_json, TestResults
+from tools.resultools import results_to_json, TestResults, results_to_dict
 from yolo_common.run_post_process import get_post_process_results
 from yolo_common.yolo_detect import create_yolo_model
 from yolo_common.yolo_track_bbox import YoloTrackBbox
@@ -228,7 +230,8 @@ def get_results_video_yolo_txt(source, conf=0.3, test_func="timur",
 
 
 def get_results_video_yolo(source, yolo_info="7", conf=0.3, iou=0.45, test_func="timur",
-                           tracker_type="fastdeepsort", log: bool = True) -> dict:
+                           model: Union[str, Path, None] = None,
+                           tracker_type="fastdeepsort", tracker_config=None, log: bool = True) -> dict:
     num, w, h, fps = get_camera(source)
 
     print(f"yolo version = {yolo_info}")
@@ -236,18 +239,19 @@ def get_results_video_yolo(source, yolo_info="7", conf=0.3, iou=0.45, test_func=
 
     if yolo_version is None:
         raise Exception(f"unsupported yolo version {yolo_info}")
-    model = get_model_file(yolo_version)
+
+    if model is None:
+        model = get_model_file(yolo_version)
 
     reid_weights = str(Path(WEIGHTS) / "osnet_x0_25_msmt17.pt")
-
-    # num, w, h, fps = get_camera(source)
 
     print(f"num = {num}, w = {w}, h = {h}, fps = {fps}")
 
     model = create_yolo_model(yolo_version, model)
 
-    all_trackers = get_all_optune_trackers()
-    tracker_config = all_trackers.get(tracker_type)
+    if tracker_config is None:
+        all_trackers = get_all_optune_trackers()
+        tracker_config = all_trackers.get(tracker_type)
 
     if log:
         print(f"tracker_type = {tracker_type}")
@@ -268,10 +272,11 @@ def get_results_video_yolo(source, yolo_info="7", conf=0.3, iou=0.45, test_func=
 
     humans_result = get_post_process_results(test_func, track, num, w, h, fps, bound_line, source, log=True)
 
-    res = json.loads(results_to_json(humans_result))
-    res["fps"] = fps
+    results = results_to_dict(humans_result)
+    # res = json.loads(results_to_json(humans_result))
+    results["fps"] = fps
 
-    return res
+    return results
 
 
 if __name__ == '__main__':
