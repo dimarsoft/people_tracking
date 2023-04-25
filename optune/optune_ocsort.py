@@ -1,7 +1,7 @@
 
 from configs import get_detections_path
 from optune.optune_tools import reset_seed, common_run_optuna
-from yolo_optune import run_track_yolo
+from yolo_common.yolo_optune import run_track_yolo
 
 
 def objective_ocsort(trial):
@@ -78,7 +78,8 @@ def objective_ocsort(trial):
                                  test_func=test_func,
                                  files=files, change_bb=change_bb, classes=classes)
 
-    accuracy = cmp_results["total_equal_percent"]
+    # accuracy = cmp_results["total_equal_percent"]
+    accuracy = cmp_results["total_dev_precision"]
 
     return accuracy
 
