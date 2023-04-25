@@ -1,4 +1,5 @@
 import json
+import os
 from enum import Enum
 from pathlib import Path
 from typing import Dict, Optional
@@ -19,6 +20,15 @@ DETECTIONS_FOLDER = DETECTIONS_ROOT / '2023_03_29_10_35_01_YoloVersion.yolo_v7_d
 DETECTIONS_ZIP = DETECTIONS_ROOT / '2023_03_29_10_35_01_YoloVersion.yolo_v7_detect.zip'
 
 TEST_VIDEOS = TEST_ROOT / "test_video"
+
+if not WEIGHTS.exists():
+    weights = str(WEIGHTS)
+    try:
+        os.mkdir(weights)
+        print(f"{weights} created")
+    except Exception as ex:
+        print(f"fail to create {weights}!")
+        raise ex
 
 
 class YoloVersion(Enum):
