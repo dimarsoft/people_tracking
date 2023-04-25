@@ -3,7 +3,7 @@ from pathlib import Path
 from post_processing.alex import alex_count_humans
 from post_processing.group_1 import group_1_count_humans
 from post_processing.group_3 import group_3_count
-from post_processing.stanislav import stanislav_count_humans
+from post_processing.stanislav_post import stanislav_count_humans
 from post_processing.timur import timur_count_humans
 from tools.count_results import Result
 from tools.exception_tools import print_exception
