@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import Optional, Union
+from typing import Union
 
 import gdown
 import numpy as np
@@ -12,7 +12,6 @@ from tools.count_results import Deviation, Result
 from tools.labeltools import get_status
 from tools.resultools import results_to_dict
 from trackers.multi_tracker_zoo import create_tracker
-from utils.torch_utils import select_device
 
 
 def group_1_detect(source,
@@ -37,14 +36,7 @@ def group_1_detect(source,
 
     all_boxes_and_shp = np.array((orig_shape, all_boxes))
 
-    half = False
-    device = select_device("")
-
-    half = half
-    if half:
-        half = device.type != 'cpu'  # half precision only supported on CUDA
-
-    ocsort_tracker = create_tracker("ocsort_v2", tracker_config, "", device, half)
+    ocsort_tracker = create_tracker("ocsort_v2", tracker_config)
 
     orig_shp = all_boxes_and_shp[0]  # Здесь формат
     all_boxes = all_boxes_and_shp[1]  # Здесь боксы
