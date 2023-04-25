@@ -5,9 +5,9 @@ from pathlib import Path
 import cv2
 
 from configs import CAMERAS_PATH, load_bound_line
-from count_results import Result, Deviation
-from labeltools import get_status
-from post_processing.functions import crossing_bound, calc_inp_outp_people, process_filt, get_centrmass, get_deviations
+from tools.count_results import Result, Deviation
+from tools.labeltools import get_status
+from post_processing.functions import crossing_bound, process_filt, get_centrmass, get_deviations
 
 
 def save_bound_line(cameras_path, bound_line):
@@ -110,7 +110,7 @@ def convert_and_save(folder_path):
 
 
 def timur_count_humans(tracks, source, bound_line, log: bool = True) -> Result:
-    print(f"Timur postprocessing v1.6_14.04.2023")
+    print(f"Timur postprocessing v1.7_24.04.2023")
 
     camera_num, w, h, fps = get_camera(source)
 
@@ -152,10 +152,26 @@ def timur_count_humans(tracks, source, bound_line, log: bool = True) -> Result:
     for item in deviations_info:
         frame_id = item["frame_id"]
 
+        start_frame = item["start_frame"]
+        end_frame = item["end_frame"]
+
+        if start_frame > end_frame:
+            start_frame, end_frame = end_frame, start_frame
+
+        # -+ 1 сек от пересечения, но не забегая за границы человека по треку
+        start_frame = max(frame_id - 2*fps, start_frame)
+        end_frame = min(frame_id + 2*fps, end_frame)
+
+        if start_frame <= frame_id <= end_frame:
+            pass
+        else:
+            # для проверки
+            print(f"bad: {start_frame}, {frame_id}, {end_frame}")
+
         status = get_status(item["has_helmet"], item["has_uniform"])
 
         if status > 0:  # 0 нет нарушения
-            deviations.append(Deviation(frame_id, frame_id, status))
+            deviations.append(Deviation(start_frame, end_frame, status))
 
     if log:
         print(f"{camera_num}: count_in = {count_in}, count_out = {count_out}, deviations = {len(deviations)}")
