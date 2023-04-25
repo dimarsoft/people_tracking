@@ -1,10 +1,26 @@
 from pathlib import Path
+from typing import Union, Optional
+
+import torch
 
 from configs import WEIGHTS
 from trackers.strongsort.utils.parser import get_config
 
 
-def create_tracker(tracker_type, tracker_config, reid_weights, device, half):
+def create_tracker(tracker_type: str,
+                   tracker_config: Union[str, Path, dict],
+                   reid_weights: Union[str, Path, None] = None,
+                   device: Optional[torch.device] = None,
+                   half: Union[bool, None] = None):
+    """
+    Создание трекера
+    :param tracker_type:  Тип трекера: ocsort, ocsort_v2, deepsort, bytetrack....
+    :param tracker_config: Настройка трекера: Путь к yaml файлу или словарь параметров
+    :param reid_weights: Некоторым трекерам нужна модель для предсказаний ИД
+    :param device: GPU/CPU, указывается для тех, кому нужен reid_weights
+    :param half:
+    :return: Инстанс трекера или исключение если указанный трекер не поддерживается
+    """
     cfg = get_config()
 
     if isinstance(tracker_config, dict):
@@ -128,5 +144,4 @@ def create_tracker(tracker_type, tracker_config, reid_weights, device, half):
 
         return norfair_tracker
     else:
-        print(f"No such tracker: {tracker_type}!")
-        exit()
+        raise Exception(f"No such tracker: {tracker_type}!")
