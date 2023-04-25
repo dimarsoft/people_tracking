@@ -43,6 +43,19 @@ def create_tracker(tracker_type, tracker_config, reid_weights, device, half):
             use_byte=cfg.ocsort.use_byte,
         )
         return ocsort
+    elif tracker_type == 'ocsort_v2':
+        from trackers.ocsort_tracker.ocsort import OCSort
+        ocsort = OCSort(
+            det_thresh=cfg.ocsort.det_thresh,
+            max_age=cfg.ocsort.max_age,
+            min_hits=cfg.ocsort.min_hits,
+            iou_threshold=cfg.ocsort.iou_thresh,
+            delta_t=cfg.ocsort.delta_t,
+            asso_func=cfg.ocsort.asso_func,
+            inertia=cfg.ocsort.inertia,
+            use_byte=cfg.ocsort.use_byte,
+        )
+        return ocsort
 
     elif tracker_type == 'bytetrack':
         from trackers.bytetrack.byte_tracker import BYTETracker

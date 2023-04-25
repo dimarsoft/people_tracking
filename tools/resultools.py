@@ -52,6 +52,10 @@ def results_to_json(result_items: Result):
     return json.dumps(result_items, indent=4, default=lambda o: o.__dict__)
 
 
+def results_to_dict(humans_result: Result) -> dict:
+    return json.loads(results_to_json(humans_result))
+
+
 class TestResults:
     def __init__(self, test_file):
         self.test_file = test_file
@@ -663,6 +667,7 @@ def test_results_to_dict(results: list) -> dict:
 
     return res_dic
 
+
 def sort_test_results(results: list) -> list:
     res_dic = {}
 
@@ -798,7 +803,7 @@ def gr1():
 
 
 if __name__ == '__main__':
-    #gr1()
+    # gr1()
     # test_tracks_file(test_file=TEST_TRACKS_PATH)
     convert_test_json_to_csv()
 
