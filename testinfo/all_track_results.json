@@ -1,0 +1,1843 @@
+[
+	{
+        "deviations": [],
+        "file": "1.mp4",
+        "humans": 3,
+		"counter_in": 3,
+        "counter_out": 0
+    },
+    {
+        "deviations": [
+            {
+                "end_frame": 550,
+                "start_frame": 70,
+                "status_id": 3
+            }
+        ],
+        "file": "2.mp4",
+        "humans": 3,
+		"counter_in": 3,
+        "counter_out": 0		
+    },
+    {
+        "deviations": [
+            {
+                "end_frame": 850,
+                "start_frame": 45,
+                "status_id": 1
+            }
+        ],
+        "file": "3.mp4",
+        "humans": 3,
+		"counter_in": 3,
+        "counter_out": 0
+    },
+    {
+        "deviations": [],
+        "file": "5.mp4",
+        "humans": 0,
+		"counter_in": 0,
+        "counter_out": 0
+    },
+    {
+        "deviations": [
+
+            {
+                "end_frame": 1000,
+                "start_frame": 210,
+                "status_id": 1
+            }
+ 
+        ],
+        "file": "4.mp4",
+        "humans": 4,
+		"counter_in": 4,
+        "counter_out": 0
+    },
+    {
+        "deviations": [
+            {
+                "end_frame": 200,
+                "start_frame": 85,
+                "status_id": 1
+            },
+            {
+                "end_frame": 220,
+                "start_frame": 160,
+                "status_id": 1
+			},
+            {
+                "end_frame": 260,
+                "start_frame": 190,
+                "status_id": 1
+            },
+            {
+                "end_frame": 310,
+                "start_frame": 240,
+                "status_id": 1
+            }
+
+        ],
+        "file": "6.mp4",
+        "humans": 5,
+		"counter_in": 1,
+        "counter_out": 4
+    },
+    {
+        "deviations": [
+            {
+                "end_frame": 100,
+                "start_frame": 35,
+                "status_id": 3
+            },
+            {
+                "end_frame": 400,
+                "start_frame": 100,
+                "status_id": 1
+            },
+            {
+                "end_frame": 1000,
+                "start_frame": 930,
+                "status_id": 3
+            },
+            {
+                "end_frame": 1100,
+                "start_frame": 1050,
+                "status_id": 1
+            }
+        ],
+        "file": "7.mp4",
+        "humans": 4,
+		"counter_in": 0,
+        "counter_out": 4
+    },
+    {
+        "deviations": [
+            {
+                "end_frame": 135,
+                "start_frame": 50,
+                "status_id": 1
+            },
+            {
+                "end_frame": 210,
+                "start_frame": 105,
+                "status_id": 1
+            },
+            {
+                "end_frame": 465,
+                "start_frame": 145,
+                "status_id": 1
+            },
+            {
+                "end_frame": 590,
+                "start_frame": 430,
+                "status_id": 1
+            },
+            {
+                "end_frame": 670,
+                "start_frame": 590,
+                "status_id": 1
+            }
+        ],
+        "file": "8.mp4",
+        "humans": 5,
+		"counter_in": 0,
+        "counter_out": 5		
+    },
+    {
+        "deviations": [
+            {
+                "end_frame": 180,
+                "start_frame": 90,
+                "status_id": 3
+            }
+        ],
+        "file": "9.mp4",
+        "humans": 2,
+		"counter_in": 1,
+        "counter_out": 1		
+    },
+    {
+        "deviations": [
+            {
+                "end_frame": 260,
+                "start_frame": 40,
+                "status_id": 3
+            },
+            {
+                "end_frame": 310,
+                "start_frame": 205,
+                "status_id": 3
+            }
+        ],
+        "file": "10.mp4",
+        "humans": 2,
+		"counter_in": 0,
+        "counter_out": 2		
+    },
+	{
+            "deviations": [
+                  {
+                        "end_frame": 250,
+                        "start_frame": 25,
+                        "status_id": 1
+                  },
+                  {
+                        "end_frame": 355,
+                        "start_frame": 40,
+                        "status_id": 1
+                  },
+                  {
+                        "end_frame": 540,
+                        "start_frame": 445,
+                        "status_id": 3
+                  }
+            ],
+            "file": "11.mp4",
+            "humans": 3,
+            "counter_in": 0,
+            "counter_out": 3
+      },
+      {
+            "deviations": [
+                  {
+                        "end_frame": 150,
+                        "start_frame": 90,
+                        "status_id": 1
+                  },
+                  {
+                        "end_frame": 190,
+                        "start_frame": 105,
+                        "status_id": 1
+                  },
+                  {
+                        "end_frame": 365,
+                        "start_frame": 260,
+                        "status_id": 1
+                  }
+            ],
+            "file": "12.mp4",
+            "humans": 4,
+            "counter_in": 0,
+            "counter_out": 4
+      },
+      {
+            "deviations": [
+                  {
+                        "end_frame": 190,
+                        "start_frame": 70,
+                        "status_id": 3
+                  },
+                  {
+                        "end_frame": 465,
+                        "start_frame": 365,
+                        "status_id": 1
+                  },
+                  {
+                        "end_frame": 576,
+                        "start_frame": 440,
+                        "status_id": 1
+                  },
+                  {
+                        "end_frame": 760,
+                        "start_frame": 690,
+                        "status_id": 3
+                  },
+                  {
+                        "end_frame": 830,
+                        "start_frame": 740,
+                        "status_id": 3
+                  }
+            ],
+            "file": "13.mp4",
+            "humans": 6,
+            "counter_in": 2,
+            "counter_out": 4
+      },
+      {
+            "deviations": [],
+            "file": "14.mp4",
+            "humans": 3,
+            "counter_in": 0,
+            "counter_out": 3
+      },
+      {
+            "deviations": [
+                  {
+                        "end_frame": 260,
+                        "start_frame": 0,
+                        "status_id": 1
+                  },
+                  {
+                        "end_frame": 360,
+                        "start_frame": 200,
+                        "status_id": 1
+                  }
+            ],
+            "file": "15.mp4",
+            "humans": 2,
+            "counter_in": 2,
+            "counter_out": 0
+      },
+      {
+            "deviations": [
+                  {
+                        "end_frame": 250,
+                        "start_frame": 55,
+                        "status_id": 3
+                  },
+                  {
+                        "end_frame": 320,
+                        "start_frame": 160,
+                        "status_id": 3
+                  },
+                  {
+                        "end_frame": 570,
+                        "start_frame": 280,
+                        "status_id": 1
+                  }
+            ],
+            "file": "16.mp4",
+            "humans": 4,
+            "counter_in": 0,
+            "counter_out": 4
+      },
+      {
+            "deviations": [
+                  {
+                        "end_frame": 60,
+                        "start_frame": 10,
+                        "status_id": 1
+                  },
+                  {
+                        "end_frame": 115,
+                        "start_frame": 70,
+                        "status_id": 1
+                  },
+                  {
+                        "end_frame": 164,
+                        "start_frame": 100,
+                        "status_id": 1
+                  },
+                  {
+                        "end_frame": 340,
+                        "start_frame": 180,
+                        "status_id": 3
+                  },
+                  {
+                        "end_frame": 370,
+                        "start_frame": 150,
+                        "status_id": 3
+                  }
+            ],
+            "file": "17.mp4",
+            "humans": 6,
+            "counter_in": 0,
+            "counter_out": 6
+      },
+      {
+            "deviations": [
+                  {
+                        "end_frame": 148,
+                        "start_frame": 90,
+                        "status_id": 2
+                  },
+                  {
+                        "end_frame": 185,
+                        "start_frame": 118,
+                        "status_id": 2
+                  }
+            ],
+            "file": "18.mp4",
+            "humans": 4,
+            "counter_in": 4,
+            "counter_out": 0
+      },
+      {
+            "deviations": [
+                  {
+                        "end_frame": 100,
+                        "start_frame": 22,
+                        "status_id": 3
+                  }
+            ],
+            "file": "19.mp4",
+            "humans": 1,
+            "counter_in": 1,
+            "counter_out": 0
+      },
+      {
+            "deviations": [
+                  {
+                        "end_frame": 90,
+                        "start_frame": 60,
+                        "status_id": 1
+                  }
+            ],
+            "file": "20.mp4",
+            "humans": 1,
+            "counter_in": 1,
+            "counter_out": 0
+      },
+	  {
+        "deviations": [],
+        "file": "21.mp4",
+        "humans": 0,
+        "counter_in": 0,
+        "counter_out": 0
+    },
+    {
+        "deviations": [
+            {
+                "end_frame": 107,
+                "start_frame": 47,
+                "status_id": 1
+            },
+            {
+                "end_frame": 349,
+                "start_frame": 292,
+                "status_id": 1
+            }
+        ],
+        "file": "22.mp4",
+        "humans": 3,
+        "counter_in": 0,
+        "counter_out": 3
+    },
+    {
+        "deviations": [
+            {
+                "end_frame": 95,
+                "start_frame": 55,
+                "status_id": 1
+            }
+        ],
+        "file": "23.mp4",
+        "humans": 1,
+        "counter_in": 0,
+        "counter_out": 1
+    },
+    {
+        "deviations": [],
+        "file": "24.mp4",
+        "humans": 1,
+        "counter_in": 1,
+        "counter_out": 0
+    },
+    {
+        "deviations": [
+            {
+                "end_frame": 72,
+                "start_frame": 25,
+                "status_id": 1
+            },
+            {
+                "end_frame": 246,
+                "start_frame": 78,
+                "status_id": 1
+            }
+        ],
+        "file": "25.mp4",
+        "humans": 2,
+        "counter_in": 2,
+        "counter_out": 0
+    },
+    {
+        "deviations": [
+            {
+                "end_frame": 115,
+                "start_frame": 75,
+                "status_id": 1
+            }
+        ],
+        "file": "26.mp4",
+        "humans": 1,
+        "counter_in": 0,
+        "counter_out": 1
+    },
+    {
+        "deviations": [
+            {
+                "end_frame": 82,
+                "start_frame": 20,
+                "status_id": 1
+            }
+        ],
+        "file": "27.mp4",
+        "humans": 2,
+        "counter_in": 1,
+        "counter_out": 1
+    },
+    {
+        "deviations": [
+            {
+                "end_frame": 82,
+                "start_frame": 20,
+                "status_id": 1
+            }
+        ],
+        "file": "28.mp4",
+        "humans": 2,
+        "counter_in": 1,
+        "counter_out": 1
+    },
+    {
+        "deviations": [
+            {
+                "end_frame": 127,
+                "start_frame": 28,
+                "status_id": 1
+            },
+            {
+                "end_frame": 207,
+                "start_frame": 153,
+                "status_id": 1
+            }
+        ],
+        "file": "29.mp4",
+        "humans": 2,
+        "counter_in": 1,
+        "counter_out": 1
+    },
+    {
+        "deviations": [
+            {
+                "end_frame": 1100,
+                "start_frame": 0,
+                "status_id": 1
+            },
+            {
+                "end_frame": 1220,
+                "start_frame": 1148,
+                "status_id": 3
+            },
+            {
+                "end_frame": 1260,
+                "start_frame": 1214,
+                "status_id": 3
+            },
+            {
+                "end_frame": 1300,
+                "start_frame": 1250,
+                "status_id": 3
+            }
+        ],
+        "file": "30.mp4",
+        "humans": 4,
+        "counter_in": 1,
+        "counter_out": 3
+    },
+    {
+        "deviations": [],
+        "file": "31.mp4",
+        "humans": 2,
+        "counter_in": 0,
+        "counter_out": 2
+    },
+    {
+        "deviations": [],
+        "file": "32.mp4",
+        "humans": 0,
+        "counter_in": 0,
+        "counter_out": 0
+    },
+    {
+        "deviations": [],
+        "file": "33.mp4",
+        "humans": 0,
+        "counter_in": 0,
+        "counter_out": 0
+    },
+    {
+        "deviations": [],
+        "file": "34.mp4",
+        "humans": 0,
+        "counter_in": 0,
+        "counter_out": 0
+    },
+    {
+        "deviations": [],
+        "file": "35.mp4",
+        "humans": 0,
+        "counter_in": 0,
+        "counter_out": 0
+    },
+    {
+        "deviations": [],
+        "file": "36.mp4",
+        "humans": 0,
+        "counter_in": 0,
+        "counter_out": 0
+    },
+    {
+        "deviations": [],
+        "file": "37.mp4",
+        "humans": 0,
+        "counter_in": 0,
+        "counter_out": 0
+    },
+    {
+        "deviations": [
+            {
+                "end_frame": 115,
+                "start_frame": 75,
+                "status_id": 1
+            },
+            {
+                "end_frame": 1250,
+                "start_frame": 1189,
+                "status_id": 1
+            },
+            {
+                "end_frame": 1485,
+                "start_frame": 1428,
+                "status_id": 1
+            },
+            {
+                "end_frame": 1668,
+                "start_frame": 1628,
+                "status_id": 1
+            },
+            {
+                "end_frame": 2020,
+                "start_frame": 1963,
+                "status_id": 1
+            },
+            {
+                "end_frame": 2190,
+                "start_frame": 2028,
+                "status_id": 1
+            },
+            {
+                "end_frame": 2318,
+                "start_frame": 2276,
+                "status_id": 1
+            },
+            {
+                "end_frame": 2627,
+                "start_frame": 2434,
+                "status_id": 1
+            },
+            {
+                "end_frame": 2762,
+                "start_frame": 2697,
+                "status_id": 1
+            }
+        ],
+        "file": "38.mp4",
+        "humans": 13,
+        "counter_in": 7,
+        "counter_out": 6
+    },
+    {
+        "deviations": [],
+        "file": "39.mp4",
+        "humans": 1,
+        "counter_in": 0,
+        "counter_out": 1
+    },
+    {
+        "deviations": [
+            {
+                "end_frame": 270,
+                "start_frame": 160,
+                "status_id": 1
+            }
+        ],
+        "file": "40.mp4",
+        "humans": 1,
+        "counter_in": 0,
+        "counter_out": 1
+    },
+    {
+        "deviations": [],
+        "file": "41.mp4",
+        "humans": 0,
+        "counter_in": 0,
+        "counter_out": 0
+    },
+    {
+        "deviations": [
+            {
+                "end_frame": 39,
+                "start_frame": 0,
+                "status_id": 3
+            },
+            {
+                "end_frame": 94,
+                "start_frame": 32,
+                "status_id": 3
+            }
+        ],
+        "file": "42.mp4",
+        "humans": 2,
+        "counter_in": 2,
+        "counter_out": 0
+    },
+    {
+        "deviations": [],
+        "file": "43.mp4",
+        "humans": 0,
+        "counter_in": 0,
+        "counter_out": 0
+    },
+    {
+        "deviations": [
+            {
+                "end_frame": 71,
+                "start_frame": 44,
+                "status_id": 1
+            },
+            {
+                "end_frame": 132,
+                "start_frame": 72,
+                "status_id": 1
+            },
+            {
+                "end_frame": 169,
+                "start_frame": 133,
+                "status_id": 1
+            },
+            {
+                "end_frame": 217,
+                "start_frame": 178,
+                "status_id": 1
+            },
+            {
+                "end_frame": 250,
+                "start_frame": 220,
+                "status_id": 1
+            },
+            {
+                "end_frame": 315,
+                "start_frame": 255,
+                "status_id": 1
+            },
+            {
+                "end_frame": 352,
+                "start_frame": 320,
+                "status_id": 1
+            },
+            {
+                "end_frame": 397,
+                "start_frame": 352,
+                "status_id": 1
+            },
+            {
+                "end_frame": 450,
+                "start_frame": 432,
+                "status_id": 1
+            }
+        ],
+        "file": "61.mp4",
+        "humans": 9,
+        "counter_in": 0,
+        "counter_out": 9
+    },
+    {
+      "deviations": [
+        {
+            "end_frame": 52,
+            "start_frame": 9,
+            "status_id": 1
+        },
+        {
+            "end_frame": 456,
+            "start_frame": 433,
+            "status_id": 1
+        },
+        {
+            "end_frame": 509,
+            "start_frame": 460,
+            "status_id": 3
+        },
+        {
+            "end_frame": 720,
+            "start_frame": 701,
+            "status_id": 1
+        }
+        ,
+        {
+            "end_frame": 758,
+            "start_frame": 730,
+            "status_id": 1
+        }
+        ,
+        {
+            "end_frame": 794,
+            "start_frame": 770,
+            "status_id": 1
+        }
+        ,
+        {
+            "end_frame": 889,
+            "start_frame": 854,
+            "status_id": 1
+        }
+        ,
+        {
+            "end_frame": 973,
+            "start_frame": 938,
+            "status_id": 1
+        },
+        {
+            "end_frame": 984,
+            "start_frame": 1013,
+            "status_id": 1
+        }
+      ],
+      "file": "62.mp4",
+      "humans": 9,
+      "counter_in": 1,
+        "counter_out": 8
+    }
+  ,
+    {
+      "deviations": [
+        {
+            "end_frame": 395,
+            "start_frame": 351,
+            "status_id": 1
+        }
+        ,
+        {
+            "end_frame": 350,
+            "start_frame": 292,
+            "status_id": 1
+        }
+        ,
+        {
+            "end_frame": 290,
+            "start_frame": 250,
+            "status_id": 1
+        }
+        ,
+        {
+            "end_frame": 236,
+            "start_frame": 180,
+            "status_id": 2
+        }
+        ,
+        {
+            "end_frame": 130,
+            "start_frame": 84,
+            "status_id": 1
+        },
+        {
+            "end_frame": 83,
+            "start_frame": 65,
+            "status_id": 1
+        }
+      ],
+      "file": "63.mp4",
+      "humans": 7,
+      "counter_in": 0,
+        "counter_out": 7
+    },
+    {
+      "deviations": [
+        {
+            "end_frame": 1613, "start_frame": 1583, "status_id": 1
+        },
+        {
+            "end_frame": 1574, "start_frame": 1504, "status_id": 1
+        },
+        {
+            "end_frame": 1398, "start_frame": 1260, "status_id": 1
+        },
+        {
+            "end_frame": 1259, "start_frame": 1151, "status_id": 1
+        },
+        {
+            "end_frame": 902, "start_frame": 881, "status_id": 1
+        },
+        {
+            "end_frame": 546,  "start_frame": 519, "status_id": 1
+        },
+        {
+            "end_frame": 107, "start_frame": 143, "status_id": 2
+        },
+        {
+            "end_frame": 69, "start_frame": 105, "status_id": 1
+        },
+        {
+            "end_frame": 42, "start_frame": 68, "status_id": 1
+        }
+      ],
+      "file": "64.mp4", "humans": 9, "counter_in": 4, "counter_out": 5
+    },
+    {
+      "deviations": [
+        {
+            "end_frame": 743,  "start_frame": 691, "status_id": 1
+        },
+        {
+            "end_frame": 681,  "start_frame": 663, "status_id": 1
+        },
+        {
+            "end_frame": 650, "start_frame": 478, "status_id": 2
+        },
+        {
+            "end_frame": 372, "start_frame": 347, "status_id": 1
+        },
+        {
+            "end_frame": 346, "start_frame": 320, "status_id": 1
+        }
+      ],
+      "file": "65.mp4", "humans": 6, "counter_in": 0, "counter_out": 6
+    },
+    {
+      "deviations": [
+        {
+            "end_frame": 537,  "start_frame": 510, "status_id": 1
+        },
+        {
+            "end_frame": 173, "start_frame": 119, "status_id": 2
+        },
+        {
+            "end_frame": 113, "start_frame": 58, "status_id": 1
+        },
+        {
+            "end_frame": 56, "start_frame": 32, "status_id": 1
+        }
+      ],
+      "file": "66.mp4", "humans": 4, "counter_in": 0, "counter_out": 4
+    },
+    {
+      "deviations": [
+        {
+            "end_frame": 850,  "start_frame": 807, "status_id": 1
+        },
+        {
+            "end_frame": 780, "start_frame": 712, "status_id": 2
+        },
+        {
+            "end_frame": 498, "start_frame": 450, "status_id": 1
+        },
+        {
+            "end_frame": 443, "start_frame": 395, "status_id": 1
+        },
+        {
+            "end_frame": 232,  "start_frame": 197, "status_id": 1
+        },
+        {
+            "end_frame": 196, "start_frame": 165, "status_id": 2
+        },
+        {
+            "end_frame": 110, "start_frame": 81, "status_id": 1
+        },
+        {
+            "end_frame": 80, "start_frame": 31, "status_id": 1
+        }
+      ],
+      "file": "67.mp4", "humans": 9, "counter_in": 4, "counter_out": 5
+    },
+    {
+      "file": "53.mp4",
+      "humans": 24,
+      "counter_in": 2,
+      "counter_out": 22,
+      "deviations": [
+        {
+          "start_frame": 21, "end_frame": 74, "status_id": 1
+        },
+        {
+          "start_frame": 75,  "end_frame": 159, "status_id": 1
+        },
+        {
+          "start_frame": 160, "end_frame": 215,  "status_id": 1
+        },
+        {
+          "start_frame": 216,
+          "end_frame": 263,
+          "status_id": 1
+        },
+        {
+          "start_frame": 265,
+          "end_frame": 320,
+          "status_id": 1
+        },
+        {
+          "start_frame": 321,
+          "end_frame": 263,
+          "status_id": 0
+        },
+        {
+          "start_frame": 441,
+          "end_frame": 464,
+          "status_id": 1
+        },
+        {
+          "start_frame": 519,
+          "end_frame": 541,
+          "status_id": 0
+        },
+        {
+          "start_frame": 542,
+          "end_frame": 583,
+          "status_id": 2
+        },
+        {
+          "start_frame": 706,
+          "end_frame": 741,
+          "status_id": 0
+        },
+        {
+          "start_frame": 742,
+          "end_frame": 789,
+          "status_id": 1
+        },
+        {
+          "start_frame": 800,
+          "end_frame": 836,
+          "status_id": 1
+        },
+        {
+          "start_frame": 844,
+          "end_frame": 878,
+          "status_id": 1
+        },
+        {
+          "start_frame": 879,
+          "end_frame": 929,
+          "status_id": 1
+        },
+        {
+          "start_frame": 930,
+          "end_frame": 980,
+          "status_id": 1
+        },
+        {
+          "start_frame": 981,
+          "end_frame": 1016,
+          "status_id": 1
+        },
+        {
+          "start_frame": 1020,
+          "end_frame": 1064,
+          "status_id": 1
+        },
+        {
+          "start_frame": 1065,
+          "end_frame": 1130,
+          "status_id": 1
+        },
+        {
+          "start_frame": 1131,
+          "end_frame": 1169,
+          "status_id": 1
+        },
+        {
+          "start_frame": 1170,
+          "end_frame": 1240,
+          "status_id": 1
+        },
+        {
+          "start_frame": 1260,
+          "end_frame": 1280,
+          "status_id": 1
+        },
+        {
+          "start_frame": 1310,
+          "end_frame": 1330,
+          "status_id": 1
+        },
+        {
+          "start_frame": 1338,
+          "end_frame": 1379,
+          "status_id": 1
+        },
+        {
+          "start_frame": 1381,
+          "end_frame": 1415,
+          "status_id": 1
+        }
+      ]
+    },
+    {
+      "file": "54.mp4",
+      "humans": 10,
+      "counter_in": 2,
+      "counter_out": 8,
+      "deviations": [
+        {
+          "start_frame": 160, "end_frame": 197, "status_id": 1
+        },
+        {
+          "start_frame": 230, "end_frame": 255, "status_id": 1
+        },
+        {
+          "start_frame": 260, "end_frame": 315, "status_id": 1
+        },
+        {
+          "start_frame": 317, "end_frame": 360, "status_id": 1
+        },
+        {
+          "start_frame": 365, "end_frame": 423, "status_id": 1
+        },
+        {
+          "start_frame": 511, "end_frame": 555, "status_id": 1
+        },
+        {
+          "start_frame": 603, "end_frame": 639, "status_id": 1
+        },
+        {
+          "start_frame": 640, "end_frame": 705, "status_id": 1
+        },
+        {
+          "start_frame": 706, "end_frame": 746, "status_id": 1
+        }
+      ]
+    },
+  {
+    "file": "44.mp4",
+    "counter_in": 6,
+    "counter_out": 1,
+    "deviations": [
+      {
+        "start_frame": 50,
+        "end_frame": 85,
+        "status_id": 1
+      },
+      {
+        "start_frame": 100,
+        "end_frame": 130,
+        "status_id": 1
+      },
+      {
+        "start_frame": 220,
+        "end_frame": 245,
+        "status_id": 1
+      },
+      {
+        "start_frame": 325,
+        "end_frame": 395,
+        "status_id": 1
+      },
+      {
+        "start_frame": 460,
+        "end_frame": 500,
+        "status_id": 1
+      },
+      {
+        "start_frame": 510,
+        "end_frame": 580,
+        "status_id": 1
+      },
+      {
+        "start_frame": 735,
+        "end_frame": 785,
+        "status_id": 1
+      }
+    ]
+  },
+  {
+    "file": "45.mp4",
+    "counter_in": 1,
+    "counter_out": 5,
+    "deviations": [
+      {
+        "start_frame": 440,
+        "end_frame": 490,
+        "status_id": 1
+      },
+      {
+        "start_frame": 725,
+        "end_frame": 745,
+        "status_id": 1
+      },
+      {
+        "start_frame": 750,
+        "end_frame": 845,
+        "status_id": 1
+      },
+      {
+        "start_frame": 846,
+        "end_frame": 890,
+        "status_id": 1
+      },
+      {
+        "start_frame": 891,
+        "end_frame": 950,
+        "status_id": 1
+      },
+      {
+        "start_frame": 995,
+        "end_frame": 1105,
+        "status_id": 1
+      }
+    ]
+  },
+  {
+    "file": "46.mp4",
+    "counter_in": 2,
+    "counter_out": 1,
+    "deviations": [
+      {
+        "start_frame": 65,
+        "end_frame": 125,
+        "status_id": 1
+      },
+      {
+        "start_frame": 540,
+        "end_frame": 565,
+        "status_id": 1
+      },
+      {
+        "start_frame": 640,
+        "end_frame": 750,
+        "status_id": 3
+      }
+    ]
+  },
+  {
+    "file": "47.mp4",
+    "counter_in": 3,
+    "counter_out": 4,
+    "deviations": [
+      {
+        "start_frame": 70,
+        "end_frame": 115,
+        "status_id": 1
+      },
+      {
+        "start_frame": 725,
+        "end_frame": 770,
+        "status_id": 1
+      },
+      {
+        "start_frame": 905,
+        "end_frame": 960,
+        "status_id": 1
+      },
+      {
+        "start_frame": 972,
+        "end_frame": 1015,
+        "status_id": 1
+      },
+      {
+        "start_frame": 1070,
+        "end_frame": 1100,
+        "status_id": 2
+      },
+      {
+        "start_frame": 1160,
+        "end_frame": 1190,
+        "status_id": 1
+      }
+    ]
+  },
+    {
+        "file": "48.mp4",
+        "counter_in": 0,
+        "counter_out": 26,
+        "deviations": [
+            {"start_frame": 30, "end_frame": 84, "status_id": 1},
+            {"start_frame": 85, "end_frame": 115, "status_id": 1},
+            {"start_frame": 116, "end_frame": 180, "status_id": 1},
+            {"start_frame": 181, "end_frame": 210, "status_id": 1},
+            {"start_frame": 211, "end_frame": 245, "status_id": 1},
+            {"start_frame": 246, "end_frame": 295, "status_id": 1},
+            {"start_frame": 296, "end_frame": 335, "status_id": 1},
+            {"start_frame": 336, "end_frame": 375, "status_id": 1},
+            {"start_frame": 376, "end_frame": 440, "status_id": 1},
+            {"start_frame": 441, "end_frame": 474, "status_id": 1},
+            {"start_frame": 475, "end_frame": 514, "status_id": 1},
+            {"start_frame": 515, "end_frame": 554, "status_id": 1},
+            {"start_frame": 555, "end_frame": 589, "status_id": 1},
+            {"start_frame": 590, "end_frame": 619, "status_id": 1},
+            {"start_frame": 620, "end_frame": 690, "status_id": 1},
+            {"start_frame": 691, "end_frame": 750, "status_id": 3},
+            {"start_frame": 845, "end_frame": 895, "status_id": 1},
+            {"start_frame": 960, "end_frame": 1015, "status_id": 1},
+            {"start_frame": 1016, "end_frame": 1045, "status_id": 1},
+            {"start_frame": 1055, "end_frame": 1079, "status_id": 1},
+            {"start_frame": 1080, "end_frame": 1119, "status_id": 1},
+            {"start_frame": 1120, "end_frame": 1169, "status_id": 1},
+            {"start_frame": 1170, "end_frame": 1219, "status_id": 1},
+            {"start_frame": 1220, "end_frame": 1290, "status_id": 1}
+        ]
+    },
+    {
+        "file": "49.mp4",
+        "counter_in": 1,
+        "counter_out": 3,
+        "deviations": [
+            {"start_frame": 230, "end_frame": 259, "status_id": 1},
+            {"start_frame": 260, "end_frame": 313, "status_id": 1},
+            {"start_frame": 330, "end_frame": 365, "status_id": 1},
+            {"start_frame": 405, "end_frame": 605, "status_id": 1}
+        ]
+    },
+    {
+        "file": "50.mp4",
+        "counter_in": 0,
+        "counter_out": 15,
+        "deviations": [
+            {
+                "start_frame": 165,
+                "end_frame": 224,
+                "status_id": 1
+            },
+            {
+                "start_frame": 225,
+                "end_frame": 259,
+                "status_id": 1
+            },
+            {
+                "start_frame": 260,
+                "end_frame": 294,
+                "status_id": 1
+            },
+            {
+                "start_frame": 295,
+                "end_frame": 344,
+                "status_id": 1
+            },
+            {
+                "start_frame": 345,
+                "end_frame": 394,
+                "status_id": 1
+            },
+            {
+                "start_frame": 395,
+                "end_frame": 434,
+                "status_id": 3
+            },
+            {
+                "start_frame": 435,
+                "end_frame": 474,
+                "status_id": 1
+            },
+            {
+                "start_frame": 475,
+                "end_frame": 505,
+                "status_id": 1
+            },
+            {
+                "start_frame": 530,
+                "end_frame": 604,
+                "status_id": 1
+            },
+            {
+                "start_frame": 605,
+                "end_frame": 654,
+                "status_id": 1
+            },
+            {
+                "start_frame": 655,
+                "end_frame": 685,
+                "status_id": 1
+            },
+            {
+                "start_frame": 712,
+                "end_frame": 730,
+                "status_id": 1
+            },
+            {
+                "start_frame": 980,
+                "end_frame": 1010,
+                "status_id": 1
+            },
+            {
+                "start_frame": 1011,
+                "end_frame": 1046,
+                "status_id": 2
+            }
+        ]
+    },
+    {
+        "file": "51.mp4",
+        "counter_in": 1,
+        "counter_out": 6,
+        "deviations": [
+            {
+                "start_frame": 50,
+                "end_frame": 85,
+                "status_id": 1
+            },
+            {
+                "start_frame": 215,
+                "end_frame": 242,
+                "status_id": 1
+            },
+            {
+                "start_frame": 930,
+                "end_frame": 954,
+                "status_id": 1
+            },
+            {
+                "start_frame": 955,
+                "end_frame": 979,
+                "status_id": 1
+            },
+            {
+                "start_frame": 980,
+                "end_frame": 1035,
+                "status_id": 1
+            },
+            {
+                "start_frame": 1333,
+                "end_frame": 1370,
+                "status_id": 1
+            }
+        ]
+    },
+    {
+    "file": "52.mp4",
+    "counter_in": 6,
+    "counter_out": 5,
+    "deviations": [
+      {
+        "start_frame": 17,
+        "end_frame": 41,
+        "status_id": 1
+      },
+      {
+        "start_frame": 45,
+        "end_frame": 85,
+        "status_id": 1
+      },
+      {
+        "start_frame": 175,
+        "end_frame": 207,
+        "status_id": 1
+      },
+      {
+        "start_frame": 208,
+        "end_frame": 256,
+        "status_id": 1
+      },
+      {
+        "start_frame": 270,
+        "end_frame": 560,
+        "status_id": 1
+      },
+      {
+        "start_frame": 628,
+        "end_frame": 667,
+        "status_id": 1
+      },
+      {
+        "start_frame": 690,
+        "end_frame": 726,
+        "status_id": 1
+      },
+      {
+        "start_frame": 727,
+        "end_frame": 772,
+        "status_id": 1
+      },
+      {
+        "start_frame": 773,
+        "end_frame": 810,
+        "status_id": 1
+      },
+      {
+        "start_frame": 850,
+        "end_frame": 900,
+        "status_id": 1
+      },
+      {
+        "start_frame": 933,
+        "end_frame": 1456,
+        "status_id": 1
+      }
+    ]
+  },
+  {
+    "file": "68.mp4",
+    "counter_in": 3,
+    "counter_out": 2,
+    "deviations": [
+      {
+        "start_frame": 80,
+        "end_frame": 95,
+        "status_id": 1
+      },
+      {
+        "start_frame": 200,
+        "end_frame": 250,
+        "status_id": 1
+      },
+      {
+        "start_frame": 280,
+        "end_frame": 310,
+        "status_id": 1
+      },
+      {
+        "start_frame": 340,
+        "end_frame": 365,
+        "status_id": 1
+      }
+    ]
+  },
+  {
+    "file": "69.mp4",
+    "counter_in": 4,
+    "counter_out": 4,
+    "deviations": [
+      {
+        "start_frame": 85,
+        "end_frame": 100,
+        "status_id": 3
+      },
+      {
+        "start_frame": 230,
+        "end_frame": 250,
+        "status_id": 1
+      },
+      {
+        "start_frame": 260,
+        "end_frame": 280,
+        "status_id": 1
+      },
+      {
+        "start_frame": 360,
+        "end_frame": 380,
+        "status_id": 1
+      },
+      {
+        "start_frame": 410,
+        "end_frame": 425,
+        "status_id": 1
+      },
+      {
+        "start_frame": 490,
+        "end_frame": 520,
+        "status_id": 1
+      },
+      {
+        "start_frame": 600,
+        "end_frame": 615,
+        "status_id": 1
+      },
+      {
+        "start_frame": 650,
+        "end_frame": 680,
+        "status_id": 1
+      }
+    ]
+  },
+  {
+    "file": "70.mp4",
+    "counter_in": 3,
+    "counter_out": 1,
+    "deviations": [
+      {
+        "start_frame": 30,
+        "end_frame": 120,
+        "status_id": 3
+      },
+      {
+        "start_frame": 150,
+        "end_frame": 165,
+        "status_id": 1
+      },
+      {
+        "start_frame": 270,
+        "end_frame": 280,
+        "status_id": 1
+      },
+      {
+        "start_frame": 560,
+        "end_frame": 620,
+        "status_id": 3
+      }
+    ]
+  },
+  {
+    "file": "71.mp4",
+    "counter_in": 3,
+    "counter_out": 3,
+    "deviations": [
+      {
+        "start_frame": 30,
+        "end_frame": 80,
+        "status_id": 3
+      },
+      {
+        "start_frame": 110,
+        "end_frame": 130,
+        "status_id": 1
+      },
+      {
+        "start_frame": 210,
+        "end_frame": 235,
+        "status_id": 1
+      },
+      {
+        "start_frame": 730,
+        "end_frame": 760,
+        "status_id": 1
+      },
+      {
+        "start_frame": 880,
+        "end_frame": 910,
+        "status_id": 1
+      },
+      {
+        "start_frame": 960,
+        "end_frame": 1050,
+        "status_id": 1
+      },
+      {
+        "start_frame": 1120,
+        "end_frame": 1140,
+        "status_id": 1
+      }
+    ]
+  },
+  {
+    "file": "72.mp4",
+    "counter_in": 2,
+    "counter_out": 0,
+    "deviations": [
+        {
+            "start_frame": 320,
+            "end_frame": 370,
+            "status_id": 3
+        },
+        {
+            "start_frame": 440,
+            "end_frame": 470,
+            "status_id": 1
+        },
+        {
+            "start_frame": 510,
+            "end_frame": 525,
+            "status_id": 1
+        },
+        {
+            "start_frame": 540,
+            "end_frame": 590,
+            "status_id": 3
+        }
+    ]
+  },
+  {
+    "file": "55.mp4",
+    "counter_in": 2,
+    "counter_out": 6,
+    "deviations": [
+      {
+        "start_frame": 110,
+        "end_frame": 139,
+        "status_id": 0
+      },
+      {
+        "start_frame": 265,
+        "end_frame": 287,
+        "status_id": 1
+      },
+      {
+        "start_frame": 610,
+        "end_frame": 697,
+        "status_id": 1
+      },
+      {
+        "start_frame": 710,
+        "end_frame": 724,
+        "status_id": 1
+      },
+      {
+        "start_frame": 753,
+        "end_frame": 776,
+        "status_id": 1
+      },
+      {
+        "start_frame": 844,
+        "end_frame": 862,
+        "status_id": 1
+      },
+      {
+        "start_frame": 868,
+        "end_frame": 903,
+        "status_id": 1
+      },
+      {
+        "start_frame": 947,
+        "end_frame": 975,
+        "status_id": 1
+      }
+    ]
+  },
+  {
+    "file": "56.mp4",
+    "counter_in": 2,
+    "counter_out": 4,
+    "deviations": [
+      {
+        "start_frame": 183,
+        "end_frame": 212,
+        "status_id": 1
+      },
+      {
+        "start_frame": 224,
+        "end_frame": 256,
+        "status_id": 0
+      },
+      {
+        "start_frame": 300,
+        "end_frame": 325,
+        "status_id": 2
+      },
+      {
+        "start_frame": 355,
+        "end_frame": 385,
+        "status_id": 1
+      },
+      {
+        "start_frame": 424,
+        "end_frame": 485,
+        "status_id": 1
+      },
+      {
+        "start_frame": 557,
+        "end_frame": 579,
+        "status_id": 1
+      }
+    ]
+  },
+  {
+    "file": "57.mp4",
+    "counter_in": 0,
+    "counter_out": 3,
+    "deviations": [
+      {
+        "start_frame": 87,
+        "end_frame": 104,
+        "status_id": 3
+      },
+      {
+        "start_frame": 148,
+        "end_frame": 164,
+        "status_id": 1
+      }
+    ]
+  },
+  {
+    "file": "58.mp4",
+    "counter_in": 2,
+    "counter_out": 2,
+    "deviations": [
+      {
+        "start_frame": 63,
+        "end_frame": 78,
+        "status_id": 1
+      },
+      {
+        "start_frame": 98,
+        "end_frame": 118,
+        "status_id": 1
+      },
+      {
+        "start_frame": 496,
+        "end_frame": 526,
+        "status_id": 1
+      },
+      {
+        "start_frame": 780,
+        "end_frame": 809,
+        "status_id": 1
+      }]
+  },
+  {
+    "file": "59.mp4",
+    "counter_in": 1,
+    "counter_out": 3,
+    "deviations": [
+      {"start_frame": 343, "end_frame": 363, "status_id": 1},
+      {"start_frame": 530, "end_frame": 660, "status_id": 1},
+      {"start_frame": 744, "end_frame": 764, "status_id": 3},
+      {"start_frame": 782, "end_frame": 807, "status_id": 1}
+    ]
+  },
+  {
+    "file": "60.mp4",
+    "counter_in": 0,
+    "counter_out": 3,
+    "deviations": [
+      {"start_frame": 55, "end_frame": 72, "status_id": 1},
+      {"start_frame": 80, "end_frame": 130, "status_id": 1},
+      {"start_frame": 186, "end_frame": 211, "status_id": 1}
+    ]
+  },
+  {
+    "file": "73.mp4",
+    "counter_in": 3,
+    "counter_out": 3,
+    "deviations": [
+      {"start_frame": 488, "end_frame": 502, "status_id": 2}
+    ]
+  },
+  {
+    "file": "74.mp4",
+    "counter_in": 4,
+    "counter_out": 6,
+    "deviations": [
+      {"start_frame": 227, "end_frame": 235, "status_id": 1},
+      {"start_frame": 236, "end_frame": 275, "status_id": 1}
+    ]
+  },
+  {
+    "file": "75.mp4",
+    "counter_in": 9,
+    "counter_out": 1,
+    "deviations": [
+      {"start_frame": 127, "end_frame": 147, "status_id": 1}
+    ]
+  },
+  {
+    "file": "76.mp4",
+    "counter_in": 2,
+    "counter_out": 1,
+    "deviations": [  ]
+  },
+  {
+    "file": "77.mp4",
+    "counter_in": 0,
+    "counter_out": 1,
+    "deviations": [
+      {"start_frame": 736, "end_frame": 780, "status_id": 3}
+    ]
+  },
+  {
+    "file": "78.mp4",
+    "counter_in": 1,
+    "counter_out": 0,
+    "deviations": [  ]
+  },
+  {
+    "file": "79.mp4",
+    "counter_in": 1,
+    "counter_out": 6,
+    "deviations": [
+      {"start_frame": 460, "end_frame": 475, "status_id": 1}
+    ]
+  },
+  {
+    "file": "80.mp4",
+    "counter_in": 2,
+    "counter_out": 0,
+    "deviations": [
+      {"start_frame": 256, "end_frame": 274, "status_id": 1},
+      {"start_frame": 710, "end_frame": 737, "status_id": 1}
+    ]
+  },
+  {
+    "file": "81.mp4",
+    "counter_in": 1,
+    "counter_out": 0,
+    "deviations": [    ]
+  },
+  {
+    "file": "82.mp4",
+    "counter_in": 0,
+    "counter_out": 3,
+    "deviations": [
+      {"start_frame": 1755, "end_frame": 1796, "status_id": 1},
+      {"start_frame": 1867, "end_frame": 1889, "status_id": 1}
+    ]
+  }
+]
