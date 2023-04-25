@@ -1,8 +1,7 @@
-# Группа №2
+# people_tracking
 
-people_tracking
+ветка main - объединенное хранилище кода всех групп.
 
-Также наш рабочий репозиторий:
+Для демонстрации функций из main.py
 
-https://github.com/dimarsoft/yolov7.git
-
+https://colab.research.google.com/drive/1-VUWah63B7HU0CBqGASJrXG2x-j1Bsoq?usp=sharing
