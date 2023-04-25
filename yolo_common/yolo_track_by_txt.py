@@ -7,7 +7,7 @@ from pathlib import Path
 from configs import load_default_bound_line, CAMERAS_PATH, get_all_trackers_full_path, get_select_trackers, \
     TEST_TRACKS_PATH, ROOT, get_bound_line
 from post_processing.group_1 import group_1_count_humans
-from post_processing.stanislav import stanislav_count_humans
+from post_processing.stanislav_post import stanislav_count_humans
 from tools.labeltools import TrackWorker
 from tools.path_tools import get_video_files
 from post_processing.alex import alex_count_humans
