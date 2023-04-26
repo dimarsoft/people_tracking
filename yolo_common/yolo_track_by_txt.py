@@ -251,7 +251,9 @@ def run_track_yolo(txt_source_folder: str, source: str, tracker_type, tracker_co
 
                 run_single_video_yolo(txt_source_folder, item, tracker, tracker_config,
                                       tracker_session_folder,
-                                      reid_weights, test_results, test_func, classes,
+                                      test_results, test_func,
+                                      reid_weights=reid_weights,
+                                      classes=classes,
                                       change_bb=change_bb,
                                       conf=conf,
                                       save_vid=save_vid, log=log, ext=ext)
@@ -320,7 +322,7 @@ def run_example():
     tracker_config = None  # all_trackers.get(tracker_name)
 
     files = None
-    # files = ['3']
+    files = ['3']
     # files = ['6', "8", "26", "36"]
     # files = ['1', "2", "3"]
 
