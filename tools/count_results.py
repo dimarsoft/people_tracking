@@ -1,3 +1,20 @@
+"""
+Ответ имеет структуру словаря:
+{
+    "file": 'файл видео',
+    "fps": 'fps видео',
+    "counter_in" : целое число,     # число вошедших
+    "counter_out" : целое число     # число вышедших
+    "deviations":                   # нарушения
+    [
+        {
+            "start_frame": целое число,
+            "end_frame": целое число,
+            "status_id": код нарушения  # 1, 2, 3: см. get_status()
+        }
+    ]
+}
+"""
 
 
 class Deviation(object):
@@ -38,3 +55,19 @@ def get_status(status) -> str:
     if status == 3:
         return "без каски"
     return ""
+
+
+def from_status(status_id: int) -> tuple[int, int]:
+    """
+    Возвращает информацию о каске и жилете по коду нарушения
+    :param status_id: Код нарушения
+    :return: пара чисел каска, жилет
+    1 - нарушение, т.е. нет жилета или каски
+    """
+    if status_id == 0:
+        return 0, 0
+    if status_id == 1:
+        return 1, 1
+    if status_id == 2:
+        return 0, 1
+    return 1, 0
