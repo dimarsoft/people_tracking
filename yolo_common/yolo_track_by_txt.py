@@ -25,7 +25,8 @@ cameras_info = {}
 
 
 def run_single_video_yolo(txt_source_folder, source, tracker_type: str, tracker_config, output_folder,
-                          reid_weights, test_file, test_func,
+                          test_file, test_func,
+                          reid_weights="osnet_x0_25_msmt17.pt",
                           classes=None, change_bb=False, conf=0.3, save_vid=False,
                           log: bool = True, ext: str = "txt"):
     print(f"start {source}, {txt_source_folder}")
@@ -124,8 +125,8 @@ def run_single_video_yolo(txt_source_folder, source, tracker_type: str, tracker_
             save_exception(e, text_ex_path, "post processing")
 
 
-def run_track_yolo(txt_source_folder: str, source: str, tracker_type, tracker_config, output_folder, reid_weights,
-                   test_result_file, test_func=None, files=None,
+def run_track_yolo(txt_source_folder: str, source: str, tracker_type, tracker_config, output_folder,
+                   test_result_file, test_func=None, reid_weights="osnet_x0_25_msmt17.pt", files=None,
                    classes=None, change_bb=None, conf=0.3, save_vid=False,
                    log: bool = True, ext: str = "txt"):
     """
@@ -143,7 +144,7 @@ def run_track_yolo(txt_source_folder: str, source: str, tracker_type, tracker_co
         classes: список классов, None все, [0, 1, 2....]
         test_func: внешняя функция пользователя для постобработки
         test_result_file: эталонный файл разметки проходов людей
-        reid_weights: веса для трекера, некоторым нужны
+        reid_weights: веса для трекера, некоторым нужны (osnet_x0_25_msmt17.pt)
         conf: conf для трекера
         save_vid: Создаем наше видео с центром человека
         output_folder: путь к папке для результатов работы, txt
@@ -302,7 +303,6 @@ def run_example():
     video_source = "d:\\AI\\2023\\corridors\\dataset-v1.1\\test\\"
     test_file = TEST_TRACKS_PATH
     output_folder = "d:\\AI\\2023\\corridors\\dataset-v1.1\\"
-    reid_weights = "osnet_x0_25_msmt17.pt"
 
     # reid_weights = "D:\\AI\\2023\\Github\\dimar_yolov7\\weights\\mars-small128.pb"
     # tracker_config = "trackers/NorFairTracker/configs/norfair_track.yaml"
@@ -347,7 +347,7 @@ def run_example():
     # txt_source_folder = "D:\\AI\\2023\\Detections\\2023_04_18_20_03_05_YoloVersion.yolo_v8ul_detect"
     # txt_source_folder = "D:\\AI\\2023\\Detections\\2023_04_24_20_19_07_YoloVersion.yolo_v8ul_detect"
     run_track_yolo(txt_source_folder, video_source, tracker_name, tracker_config,
-                   output_folder, reid_weights, test_file, test_func=test_func,
+                   output_folder, test_file, test_func=test_func,
                    files=files, save_vid=False,  change_bb=change_bb, classes=classes, log=False)
 
 
@@ -360,8 +360,7 @@ def run_cli(opt_info):
     test_file, test_func = opt_info.test_file, opt_info.test_func
 
     run_track_yolo(txt_source_folder, source, tracker_name, tracker_config, output_folder,
-                   opt_info.reid_weights,
-                   test_file, test_func=test_func, files=files,
+                   test_file, reid_weights=opt_info.reid_weights, test_func=test_func, files=files,
                    conf=opt_info.conf, save_vid=opt_info.save_vid, classes=opt_info.classes)
 
 
@@ -374,7 +373,7 @@ if __name__ == '__main__':
     parser.add_argument('--tracker_name', type=str, help='tracker_name')
     parser.add_argument('--tracker_config', type=str, help='tracker_config')
     parser.add_argument('--output_folder', type=str, help='output_folder')  # output folder
-    parser.add_argument('--reid_weights', type=str, help='reid_weights')
+    parser.add_argument('--reid_weights', type=str, default="osnet_x0_25_msmt17.pt", help='reid_weights')
     parser.add_argument('--test_file', type=str, help='test_file')
     parser.add_argument('--test_func', type=str, help='test_func')
     parser.add_argument('--files', type=list, default=None, help='files names list')  # files from list
