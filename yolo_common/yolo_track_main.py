@@ -42,7 +42,12 @@ def get_link(yolo_version: YoloVersion) -> str:
     return 'https://drive.google.com/uc?id=1pyuTy4w1GPaPZKwJP9aKI0PlqTVW5xw9'
 
 
-def get_model_file(yolo_version: YoloVersion):
+def get_model_file(yolo_version: YoloVersion) -> str:
+    """
+    Скачать и получить путь к модели Yolo
+    :param yolo_version: Версия Yolo, 7,8
+    :return: Путь к файлу модели
+    """
     output_path = get_local_path(yolo_version)
 
     output = str(output_path)
