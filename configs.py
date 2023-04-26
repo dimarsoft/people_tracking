@@ -16,8 +16,11 @@ WEIGHTS = ROOT / 'weights'
 
 DETECTIONS_ROOT = ROOT / 'Detections'
 
-DETECTIONS_FOLDER = DETECTIONS_ROOT / '2023_03_29_10_35_01_YoloVersion.yolo_v7_detect'
-DETECTIONS_ZIP = DETECTIONS_ROOT / '2023_03_29_10_35_01_YoloVersion.yolo_v7_detect.zip'
+# DETECTIONS_FOLDER = DETECTIONS_ROOT / '2023_03_29_10_35_01_YoloVersion.yolo_v7_detect'
+# DETECTIONS_ZIP = DETECTIONS_ROOT / '2023_03_29_10_35_01_YoloVersion.yolo_v7_detect.zip'
+
+DETECTIONS_FOLDER = DETECTIONS_ROOT / '2023_04_24_20_19_07_YoloVersion.yolo_v8ul_detect'
+DETECTIONS_ZIP = DETECTIONS_ROOT / '2023_04_24_20_19_07_YoloVersion.yolo_v8ul_detect.zip'
 
 TEST_VIDEOS = TEST_ROOT / "test_video"
 
