@@ -37,6 +37,12 @@ def create_empty_dict(video_source) -> dict:
 
 def run_group1_detection(video_source: Union[str, Path],
                          model: Union[str, Path, None] = None) -> dict:
+    """
+    Вызов обработки видео файла кодом группы №1.
+    :param video_source: Путь к файлу.
+    :param model: Путь к модели, можно не указывать, тогда загрузится из гугл диска.
+    :return: Возвращаем словарь с результатом
+    """
     return group_1_detect(video_source, model_path=model)
 
 
