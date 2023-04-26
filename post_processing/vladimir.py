@@ -1,4 +1,7 @@
 import operator
+from pathlib import Path
+from typing import Union
+
 import numpy as np
 from ultralytics import YOLO
 from ultralytics.tracker.track import on_predict_start
@@ -112,18 +115,23 @@ class MyDetectionPredictor(DetectionPredictor):
         return log_string
 
 
-def init_model(barrier):
+def init_model(barrier, path_to_model: Union[str, Path, None] = None):
     # "/content/gdrive/MyDrive/My_dataset/runs/detect/train/weights/best.pt"
-    path_to_model = get_model_file(yolo_version=YoloVersion.yolo_v8ul)
+
+    if path_to_model is None:
+        path_to_model = get_model_file(yolo_version=YoloVersion.yolo_v8ul)
 
     my_model = YOLO(model=path_to_model)
     my_model.predictor = MyDetectionPredictor(barrier=barrier)
     return my_model
 
 
-def predict_model(source=None, barrier=370, **kwargs):
+def predict_model(source: Union[str, Path, None] = None,
+                  path_to_model: Union[str, Path, None] = None,
+                  barrier=370,
+                  **kwargs):
     event = 'on_predict_start'
-    my_model = init_model(barrier)
+    my_model = init_model(barrier, path_to_model)
     # setup Botsort
     conf = 0.1
     kwargs['conf'] = conf

@@ -7,6 +7,7 @@ from typing import Union, Optional
 import torch
 
 from post_processing.group_1_detect import group_1_detect
+from post_processing.vladimir_detect import vladimir_detect
 from utils.torch_utils import date_modified, git_describe
 from yolo_common.yolo_track_main import get_results_video_yolo
 
@@ -40,7 +41,7 @@ def run_group1_detection(video_source: Union[str, Path],
     """
     Вызов обработки видео файла кодом группы №1.
     :param video_source: Путь к файлу.
-    :param model: Путь к модели, можно не указывать, тогда загрузится из гугл диска.
+    :param model: Путь к модели, можно не указывать, тогда загрузится с гуглдиска.
     :return: Возвращаем словарь с результатом
     """
     return group_1_detect(video_source, model_path=model)
@@ -60,6 +61,12 @@ def run_group2_detection(video_source: Union[str, Path],
                                   log=log)
 
 
+def run_vladimir_detection(video_source: Union[str, Path],
+                           model: Union[str, Path, None] = None) -> dict:
+    return vladimir_detect(video_source,
+                           model_path=model)
+
+
 def run_detection(version: Union[str, int],
                   source: Union[str, Path],
                   model: Union[str, Path, None] = None,
@@ -71,6 +78,9 @@ def run_detection(version: Union[str, int],
     if version == '2' or version == 2:
         return run_group2_detection(source, model=model,
                                     tracker_name=tracker_name, tracker_config=tracker_config)
+
+    if version == '3' or version == 3:
+        return run_vladimir_detection(source, model=model)
 
 
 def run_cli(opt_info) -> dict:
@@ -88,7 +98,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
 
     parser.add_argument('--version', type=str,
-                        help='version of post processing: "1" - group 1, "2" - group 2')  #
+                        help='version of post processing: "1" - group 1, "2" - group 2, 3 - Владимир')  #
     parser.add_argument('--source', type=str, help='path to video file')  #
     parser.add_argument('--model', type=str, default=None, help='path to yolo model')  #
     parser.add_argument('--tracker_name', type=str, default=None, help='tracker_name')
