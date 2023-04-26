@@ -8,7 +8,7 @@ import numpy as np
 from pandas import DataFrame
 
 from configs import TEST_TRACKS_PATH, TEST_ROOT
-from tools.count_results import Result, Deviation, get_status
+from tools.count_results import Result, Deviation, get_status, from_status
 from tools.exception_tools import save_exception, print_exception
 
 
@@ -738,6 +738,59 @@ def test_results_to_table(results: list, csv_file_path, excel_file_path, sep: st
     df.to_excel(excel_file_path, index=False)
 
 
+def convert_test_json_to_df_group_1():
+    """
+    Сохранить разметку нарушений в excel файл
+    :return:
+    """
+
+
+    json_file_path = TEST_ROOT / 'all_track_results.json'
+
+    # считываем файл
+    with open(json_file_path, "r") as read_file:
+        results = json.loads(read_file.read())
+
+    # сортируем по ключу, а ключ номер видео
+    results = sort_test_results(results)
+
+    table = []
+
+    for key in results:
+        results_info = key
+
+        file_name = results_info["file"]
+        file_id = int(Path(file_name).stem)
+
+        counter_in = results_info["counter_in"]
+        counter_out = results_info["counter_out"]
+
+        deviations = results_info['deviations']
+
+        for i, dev in enumerate(deviations):
+            start_frame = dev["start_frame"]
+            end_frame = dev["end_frame"]
+            status_id = dev["status_id"]
+
+            helmet, uniform = from_status(status_id)
+
+            table.append(
+                [file_id, helmet, uniform, start_frame, end_frame, status_id, get_status(status_id)])
+
+    # создаем датафрейм
+
+    df = DataFrame(table, columns=["vid",
+                                   "helmet",
+                                   "uniform",
+                                   "first_frame",
+                                   "last_frame", "status_id", "Тип"])
+
+    excel_file_path = TEST_ROOT / "all_track_results_g1.xlsx"
+
+    # excel
+    df.to_excel(excel_file_path, index=False)
+
+
 def convert_test_json_to_csv():
     json_file_path = TEST_ROOT / 'all_track_results.json'
     csv_file_path = TEST_ROOT / "all_track_results.csv"
@@ -805,6 +858,7 @@ def gr1():
 if __name__ == '__main__':
     # gr1()
     # test_tracks_file(test_file=TEST_TRACKS_PATH)
-    convert_test_json_to_csv()
+    # convert_test_json_to_csv()
+    convert_test_json_to_df_group_1()
 
     # results_to_table()
