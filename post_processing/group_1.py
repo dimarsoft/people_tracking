@@ -67,10 +67,8 @@ def convert_track_to_ny(tracks: list, w, h) -> ndarray:
     return np.asarray(new_track)
 
 
-
 # Постобработка Группа №1
 def group_1_count_humans(tracks: list, num, w, h, bound_line, log: bool = True) -> Result:
-
     if len(tracks) == 0:
         return Result(0, 0, 0, [])
 
