@@ -17,7 +17,6 @@ from trackers.multi_tracker_zoo import create_tracker
 def group_1_detect(source,
                    model_path: Union[str, Path, None] = None,
                    tracker_config: Union[dict, Path, None] = None) -> dict:
-
     if tracker_config is None:
         tracker_config = ROOT / "trackers/ocsort/configs/ocsort_group1.yaml"
 
@@ -66,7 +65,7 @@ def group_1_detect(source,
         helmet = violation["helmet"].iloc[row]
         uniform = violation['uniform'].iloc[row]
 
-        status = get_status(helmet == 1, uniform == 1)
+        status = get_status(helmet == 0, uniform == 0)
         deviations.append(Deviation(int(start_frame), int(end_frame), status))
 
     results = Result(incoming2 + exiting2, incoming2, exiting2, deviations)
@@ -77,5 +76,57 @@ def group_1_detect(source,
     num, w, h, fps = get_camera(source)
 
     results["fps"] = fps
+
+    return results
+
+
+def group_1_detect_npy(source: Union[str, Path],
+                       tracker_config: Union[dict, Path, None] = None) -> Result:
+    """
+    Трекинг по сохраненным файлам
+    :param source: Путь к файлу
+    :param tracker_config: Настройка трекера, если None, то будет использоваться в репы
+    :return: Result
+    """
+    if tracker_config is None:
+        tracker_config = ROOT / "trackers/ocsort/configs/ocsort_group1.yaml"
+
+    # ocsort_v2 = OCSort, именно который использовала группа №1
+    ocsort_tracker = create_tracker("ocsort_v2", tracker_config)
+
+    all_boxes_and_shp = np.load(source, allow_pickle=True)
+    orig_shp = all_boxes_and_shp[0]  # Здесь формат
+    all_boxes = all_boxes_and_shp[1]  # Здесь боксы
+
+    # Отправляем боксы в трекинг + пробрасываем мимо трекинга каски и нетрекованные боксы людей
+    out_boxes = tracking_on_detect(all_boxes, ocsort_tracker, orig_shp)
+
+    # Смотрим у какого айди есть каски и жилеты (по порогу от доли кадров где был зафиксирован
+    # айди человека + каска и жилет в его бб и без них)
+    men = get_men(out_boxes)
+
+    # здесь переназначаем айди входящий/выходящий (временное решение для MVP, надо думать над продом)
+    men_clean, incoming1, exiting1 = get_count_men(men, orig_shp[1])
+
+    # Здесь принимаем переназначенные айди смотрим нарушения,
+    # а также повторно считаем входящих по дистанции, проверяем
+    violation, incoming2, exiting2, df, clothing_helmet, clothing_unif = \
+        get_count_vialotion(men_clean, orig_shp[1])
+    deviations = []
+
+    # 'helmet', 'uniform', 'first_frame', 'last_frame'
+
+    for row in range(len(violation)):
+        start_frame = violation["first_frame"].iloc[row]
+        end_frame = violation['last_frame'].iloc[row]
+
+        helmet = violation["helmet"].iloc[row]
+        uniform = violation['uniform'].iloc[row]
+
+        status = get_status(helmet == 0, uniform == 0)
+        deviations.append(Deviation(int(start_frame), int(end_frame), status))
+
+    results = Result(incoming2 + exiting2, incoming2, exiting2, deviations)
+    results.file = str(source)
 
     return results
