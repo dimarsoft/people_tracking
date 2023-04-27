@@ -36,7 +36,7 @@ class MyDetectionPredictor(DetectionPredictor):
         """Значения ключей будут категории нарушения:
             1: человек без каски и без жилета,
             2: человек с каской без жилета,
-            3: человек с жилетом, но без каски
+            3: человек с жилетом но без каски
         """
         list_violations = [1, 2, 3]
         name_video_batch = self.batch[4]
@@ -75,8 +75,10 @@ class MyDetectionPredictor(DetectionPredictor):
 
         im0s = self.batch[2]
         im0s = im0s if isinstance(im0s, list) else [im0s]
+
         tracks = self.trackers[0].update(det_track_human, im0s[0])
         self.track_data = tracks
+
         if len(tracks) == 0:
             return super().write_results(idx, results, batch)
         # central
