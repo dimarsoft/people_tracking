@@ -7,7 +7,7 @@ from types import SimpleNamespace
 import numpy as np
 from pandas import DataFrame
 
-from configs import TEST_TRACKS_PATH, TEST_ROOT
+from configs import TEST_ROOT
 from tools.count_results import Result, Deviation, get_status, from_status
 from tools.exception_tools import save_exception, print_exception
 
@@ -71,7 +71,8 @@ class TestResults:
     @staticmethod
     def get_for(x, file):
         for item in x:
-            if item.file == file:
+            # Сравниваем по имени, без расширения
+            if Path(item.file).stem == Path(file).stem:
                 return item
         return None
 
@@ -743,7 +744,6 @@ def convert_test_json_to_df_group_1():
     Сохранить разметку нарушений в excel файл
     :return:
     """
-
 
     json_file_path = TEST_ROOT / 'all_track_results.json'
 
