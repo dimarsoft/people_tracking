@@ -1,0 +1,18 @@
+Установка один необходимого для сервера.
+
+из архива YoloApi\env_dev.zip
+распаковать файл (.env_dev) в корень, где файл manage.py
+
+Сделать отдельный envs для серверных пакетов.
+И уже туда устанавливать пакеты
+
+pip install -r requirements_server.txt
+
+python.exe  manage.py makemigrations
+
+python.exe manage.py migrate
+
+python.exe manage.py createsuperuser
+
+укажите почту (свою).
+пользовать admin и пароль такой же
