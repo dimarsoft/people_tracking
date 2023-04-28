@@ -1,3 +1,4 @@
+from numpy import ndarray
 from ultralytics import YOLO
 import numpy as np
 import pandas as pd
@@ -67,9 +68,20 @@ def forward(bbox, tracks,
     return person
 
 
-def tracking_on_detect(all_boxes, tracker,
-                       orig_shp):  # эта функция отправляет нетрекованные боксы людей в треккер прокидывая остальные классы мимо треккера
+def tracking_on_detect(all_boxes, tracker, orig_shp) -> ndarray:
+    """
+    эта функция отправляет нетрекованные боксы людей в треккер прокидывая
+    остальные классы мимо треккера
+    :param all_boxes:
+    :param tracker:
+    :param orig_shp:
+    :return:
+    """
     all_boxes_tr = np.empty((0, 8))
+
+    if len(all_boxes[:, -1]) == 0:
+        return all_boxes_tr
+
     for i in range(int(max(all_boxes[:, -1]))):
         bbox = all_boxes[all_boxes[:, -1] == i]
         bbox_unif = bbox[np.where(bbox[:, 5] != 0)][:,
@@ -154,6 +166,10 @@ def get_men(out_boxes):
     men = np.empty((0, 9))
     inter_helm = 60  # поле вокруг бб человека для детекции касок
     inter_unif = 15  # поле вокруг бб человека для детекции жилетов
+
+    if len(out_boxes[:, -1]) == 0:
+        return men
+
     for i in range(int(max(out_boxes[:, -1]))):
 
         # Только люди
@@ -181,11 +197,14 @@ def get_men(out_boxes):
                                             i, i,
                                             helmet, vest])))
             # Формируем датафрейм. Будем считать низ вначале и в конце, также первый кадр
-            # и последний кадр, где был этот id (пока это одно и тоже значение)
+            # и последний кадр, где был этот id (пока это одно и то же значение)
     return men
 
 
 def get_count_men(men, orig_shape):  # определяем все сами
+    if len(men[:, 0]) == 0:
+        return men, 0, 0
+
     n_ = int(max(men[:, 0]))
     orig_shape = int(orig_shape)
     incoming = 0  # количество вошедших
