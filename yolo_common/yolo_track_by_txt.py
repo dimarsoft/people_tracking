@@ -7,6 +7,7 @@ from pathlib import Path
 from configs import load_default_bound_line, CAMERAS_PATH, get_all_trackers_full_path, get_select_trackers, \
     TEST_TRACKS_PATH, ROOT, get_bound_line
 from post_processing.group_1 import group_1_count_humans
+from post_processing.group_1_detect import group_1_detect_npy
 from post_processing.stanislav_post import stanislav_count_humans
 from tools.labeltools import TrackWorker
 from tools.path_tools import get_video_files
@@ -36,6 +37,21 @@ def run_single_video_yolo(txt_source_folder, source, tracker_type: str, tracker_
     json_file = Path(output_folder) / f"{source_path.stem}.json"
 
     txt_source = Path(txt_source_folder) / f"{source_path.stem}.{ext}"
+
+    # запуск оригинального кода
+    if isinstance(test_func, str):
+        if test_func == "group_1":
+            txt_source = Path(txt_source_folder) / f"{source_path.stem}.npy"
+
+            try:
+                humans_result = group_1_detect_npy(txt_source)
+
+                test_file.add_test(humans_result)
+            except Exception as e:
+                text_ex_path = Path(output_folder) / f"{source_path.stem}_pp_ex.log"
+                save_exception(e, text_ex_path, "post processing")
+
+            return
 
     model = YoloTrackBbox()
 
@@ -88,7 +104,7 @@ def run_single_video_yolo(txt_source_folder, source, tracker_type: str, tracker_
                 if test_func == "stanislav":
                     humans_result = stanislav_count_humans(tracks_new, num, w, h, bound_line, log=log)
                     pass
-                if test_func == "group_1":
+                if test_func == "group_1.1":  # только постобработка, трекер выбранный
                     humans_result = group_1_count_humans(tracks_new, num, w, h, bound_line, log=log)
                     pass
                 if test_func == "timur":
@@ -303,6 +319,7 @@ def run_track_yolo(txt_source_folder: str, source: str, tracker_type, tracker_co
 
 def run_example():
     video_source = "d:\\AI\\2023\\corridors\\dataset-v1.1\\test\\"
+    video_source = "D:\\AI\\2023\\Goup1\\npy_1_82"
     test_file = TEST_TRACKS_PATH
     output_folder = "d:\\AI\\2023\\corridors\\dataset-v1.1\\"
 
@@ -322,9 +339,9 @@ def run_example():
     tracker_config = None  # all_trackers.get(tracker_name)
 
     files = None
-    files = ['3']
+    # files = ['41']
     # files = ['6', "8", "26", "36"]
-    # files = ['1', "2", "3"]
+    # files = ['44', "45", "46"]
 
     classes = [0]
     classes = None
@@ -334,8 +351,8 @@ def run_example():
     test_func = "popov_alex"
     # test_func = "group_3"
     test_func = "timur"
-    #test_func = "stanislav"
-    # test_func = "group_1"
+    # test_func = "stanislav"
+    test_func = "group_1"
 
     # tracker_name = "ocsort"
     # tracker_config = ROOT / "trackers/ocsort/configs/ocsort_group1.yaml"
@@ -348,6 +365,9 @@ def run_example():
     txt_source_folder = "D:\\AI\\2023\\Detect\\2023_03_29_10_35_01_YoloVersion.yolo_v7_detect"
     # txt_source_folder = "D:\\AI\\2023\\Detections\\2023_04_18_20_03_05_YoloVersion.yolo_v8ul_detect"
     # txt_source_folder = "D:\\AI\\2023\\Detections\\2023_04_24_20_19_07_YoloVersion.yolo_v8ul_detect"
+
+    txt_source_folder = "D:\\AI\\2023\\Goup1\\npy_1_82"
+
     run_track_yolo(txt_source_folder, video_source, tracker_name, tracker_config,
                    output_folder, test_file, test_func=test_func,
                    files=files, save_vid=False,  change_bb=change_bb, classes=classes, log=False)
