@@ -3,6 +3,7 @@ import sys
 import traceback
 from pathlib import Path
 from types import SimpleNamespace
+from typing import Union
 
 import numpy as np
 from pandas import DataFrame
@@ -57,10 +58,24 @@ def results_to_dict(humans_result: Result) -> dict:
 
 
 class TestResults:
-    def __init__(self, test_file):
+    """
+    Объект для сравнения результатов с эталоном
+    """
+
+    def __init__(self, test_file: Union[str, Path]):
+        """
+        Конструктор
+        Parameters
+        ----------
+        test_file: Путь к шаблону (тестовая, правильная разметка)
+        """
         self.test_file = test_file
 
+        # считываем эталон из файла
         self.test_items = TestResults.read_info(test_file)
+
+        # список результатов
+
         self.result_items = []
 
     @staticmethod
@@ -88,7 +103,17 @@ class TestResults:
             for i, div in enumerate(item.deviations):
                 print(f"\t{i + 1}, status = {div.status_id}, frame: [{div.start_frame} - {div.end_frame}]")
 
-    def add_test(self, test_info):
+    def add_test(self, test_info: Result):
+        """
+        Добавление результатов в список.
+        Parameters
+        ----------
+        test_info Результат постобработки
+
+        Returns
+        -------
+
+        """
         if isinstance(test_info, Result):
             self.result_items.append(test_info)
         else:
@@ -100,96 +125,6 @@ class TestResults:
         with open(result_json_file, "w") as write_file:
             write_file.write(json.dumps(self.result_items, indent=4, default=lambda o: o.__dict__))
 
-    def compare_to_file(self, output_folder):
-        self.compare_list_to_file(output_folder, self.test_items)
-
-    def compare_one_to_file(self, output_folder):
-
-        new_test = []
-        for item in self.result_items:
-            result_item = TestResults.get_for(self.test_items, item.file)
-            new_test.append(result_item)
-
-        self.compare_list_to_file(output_folder, new_test)
-
-    def compare_list_to_file(self, output_folder, test_items):
-
-        # 1 версия считаем вход/выход
-
-        in_equals = 0  # количество не совпадений
-        out_equals = 0
-
-        sum_delta_in = 0
-        sum_delta_out = 0
-
-        by_item_info = []
-
-        total = len(test_items)
-        total_equal = 0
-
-        for item in test_items:
-            result_item = TestResults.get_for(self.result_items, item.file)
-
-            if result_item is not None:
-                actual_counter_in = result_item.counter_in
-                actual_counter_out = result_item.counter_out
-            else:
-                actual_counter_in = 0
-                actual_counter_out = 0
-
-            delta_in = item.counter_in - actual_counter_in
-            delta_out = item.counter_out - actual_counter_out
-
-            if delta_in == 0 and delta_out == 0:
-                total_equal += 1
-            if delta_in == 0:
-                in_equals += 1
-            if delta_out == 0:
-                out_equals += 1
-
-            if delta_in != 0:
-                item_info = dict()
-
-                item_info["file"] = item.file
-                item_info["expected_in"] = item.counter_in
-                item_info["actual_in"] = actual_counter_in
-
-                by_item_info.append(item_info)
-
-            if delta_out != 0:
-                item_info = dict()
-
-                item_info["file"] = item.file
-                item_info["expected_out"] = item.counter_out
-                item_info["actual_out"] = actual_counter_out
-
-                by_item_info.append(item_info)
-
-            sum_delta_in += abs(delta_in)
-            sum_delta_out += abs(delta_out)
-
-        results_info = dict()
-
-        results_info['equals_in'] = in_equals
-        results_info['equals_out'] = out_equals
-
-        results_info['delta_in_sum'] = sum_delta_in
-        results_info['delta_out_sum'] = sum_delta_out
-
-        results_info['not_equal_items'] = by_item_info
-
-        results_info['total_records'] = total
-        results_info['total_equal'] = total_equal
-        results_info['total_equal_percent'] = (100.0 * total_equal) / total
-
-        result_json_file = Path(output_folder) / "compare_track_results.json"
-
-        print(f"Save compare results info '{str(result_json_file)}'")
-
-        with open(result_json_file, "w") as write_file:
-            write_file.write(json.dumps(results_info, indent=4, default=lambda o: o.__dict__))
-
-        return results_info
 
     def compare_to_file_v2(self, output_folder):
         return self.compare_list_to_file_v2(output_folder, self.test_items)
@@ -203,7 +138,7 @@ class TestResults:
             return True
         return False
 
-    def compare_deviations(self, actual_deviations: list, expected_deviations: list) -> int:
+    def compare_deviations(self, actual_deviations: list, expected_deviations: list) -> (int, list):
         """
 
         Args:
@@ -211,7 +146,8 @@ class TestResults:
             expected_deviations: Ожидаемые нарушения (шаблон, разметка)
 
         Returns:
-            Количество совпадений, т.е. правильный нарушений
+            Количество совпадений, т.е. правильных нарушений.
+            И список не совпавших.
 
         """
         # Копия нужна, т.к. при нахождении совпадения, одно будет удаляться
@@ -219,15 +155,23 @@ class TestResults:
 
         count_equal = 0
 
+        false_positive = []
+
         for a_div in actual_deviations:
+
+            is_true_positive = False
 
             for e_div in expected_deviations:
                 if self.intersect_deviation(a_div, e_div):
                     count_equal += 1
                     expected_deviations.remove(e_div)
+                    is_true_positive = True
                     break
 
-        return count_equal
+            if not is_true_positive:
+                false_positive.append(a_div)
+
+        return count_equal, false_positive
 
     def compare_list_to_file_v2(self, output_folder, test_items) -> dict:
 
@@ -307,7 +251,7 @@ class TestResults:
 
                 by_item_info.append(item_info)
 
-            count_correct = self.compare_deviations(actual_deviations, expected_deviations)
+            count_correct, false_positive = self.compare_deviations(actual_deviations, expected_deviations)
 
             actual_devs = len(actual_deviations)
             expected_devs = len(expected_deviations)
@@ -327,6 +271,8 @@ class TestResults:
 
             dev_info["delta_in"] = delta_in
             dev_info["delta_out"] = delta_out
+
+            dev_info["false_positive"] = false_positive
 
             if actual_devs > 0:
                 dev_info["dev_precision"] = count_correct / actual_devs
