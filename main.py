@@ -109,4 +109,4 @@ if __name__ == '__main__':
     print(run_cli(opt))
     # для проверки
     # file_video_source = "d:\\AI\\2023\\corridors\\dataset-v1.1\\test\\3.mp4"
-    # print(run_group2_detection(file_video_source))
+    # print(run_vladimir_detection(file_video_source))
