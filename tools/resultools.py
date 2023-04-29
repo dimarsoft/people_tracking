@@ -275,12 +275,12 @@ class TestResults:
             dev_info["false_positive"] = false_positive
 
             if actual_devs > 0:
-                dev_info["dev_precision"] = count_correct / actual_devs
+                dev_info["dev_precision"] = (100.0 * count_correct) / actual_devs
             else:
                 dev_info["dev_precision"] = 0
 
             if expected_devs > 0:
-                dev_info["dev_recall"] = count_correct / expected_devs
+                dev_info["dev_recall"] = (100.0 * count_correct) / expected_devs
             else:
                 dev_info["dev_recall"] = 0
 
