@@ -18,7 +18,7 @@ def gsutil_getsize(url=''):
 
 def attempt_download(file, repo='WongKinYiu/yolov7'):
     # Attempt file download if does not exist
-    file = Path(str(file).strip().replace("'", '').lower())
+    file = Path(str(file).strip().replace("'", ''))
 
     if not file.exists():
         try:
@@ -37,7 +37,7 @@ def attempt_download(file, repo='WongKinYiu/yolov7'):
             try:  # GitHub
                 url = f'https://github.com/{repo}/releases/download/{tag}/{name}'
                 print(f'Downloading {url} to {file}...')
-                torch.hub.download_url_to_file(url, file)
+                torch.hub.download_url_to_file(url, str(file))
                 assert file.exists() and file.stat().st_size > 1E6  # check
             except Exception as e:  # GCP
                 print(f'Download error: {e}')
