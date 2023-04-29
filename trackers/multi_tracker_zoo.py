@@ -11,15 +11,21 @@ def create_tracker(tracker_type: str,
                    tracker_config: Union[str, Path, dict],
                    reid_weights: Union[str, Path, None] = None,
                    device: Optional[torch.device] = None,
-                   half: Union[bool, None] = None):
+                   half: Union[bool, None] = None,
+                   fps: Optional[int] = None):
     """
     Создание трекера
+    Parameters
+    ----------
     :param tracker_type:  Тип трекера: ocsort, ocsort_v2, deepsort, bytetrack....
     :param tracker_config: Настройка трекера: Путь к yaml файлу или словарь параметров
     :param reid_weights: Некоторым трекерам нужна модель для предсказаний ИД
     :param device: GPU/CPU, указывается для тех, кому нужен reid_weights
     :param half:
+    :param fps: Частота кадров видео, некоторым трекерам нужна, если None то из настройки
     :return: Инстанс трекера или исключение если указанный трекер не поддерживается
+
+
     """
     cfg = get_config()
 
@@ -79,7 +85,7 @@ def create_tracker(tracker_type: str,
             track_thresh=cfg.bytetrack.track_thresh,
             match_thresh=cfg.bytetrack.match_thresh,
             track_buffer=cfg.bytetrack.track_buffer,
-            frame_rate=cfg.bytetrack.frame_rate
+            frame_rate=cfg.bytetrack.frame_rate if fps is None else fps
         )
         return bytetracker
 
@@ -96,7 +102,7 @@ def create_tracker(tracker_type: str,
             proximity_thresh=cfg.botsort.proximity_thresh,
             appearance_thresh=cfg.botsort.appearance_thresh,
             cmc_method=cfg.botsort.cmc_method,
-            frame_rate=cfg.botsort.frame_rate,
+            frame_rate=cfg.botsort.frame_rate if fps is None else fps,
             lambda_=cfg.botsort.lambda_,
             with_reid=cfg.botsort.with_reid
         )

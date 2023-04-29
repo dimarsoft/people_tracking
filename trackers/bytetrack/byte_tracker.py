@@ -1,16 +1,9 @@
 import numpy as np
-from collections import deque
-import os
-import os.path as osp
-import copy
-import torch
-import torch.nn.functional as F
-
 from ultralytics.yolo.utils.ops import xywh2xyxy, xyxy2xywh
 
-from trackers.bytetrack.kalman_filter import KalmanFilter
 from trackers.bytetrack import matching
 from trackers.bytetrack.basetrack import BaseTrack, TrackState
+from trackers.bytetrack.kalman_filter import KalmanFilter
 
 
 class STrack(BaseTrack):
@@ -79,7 +72,6 @@ class STrack(BaseTrack):
         Update a matched track
         :type new_track: STrack
         :type frame_id: int
-        :type update_feature: bool
         :return:
         """
         self.frame_id = frame_id
@@ -164,6 +156,10 @@ class BYTETracker(object):
         self.buffer_size = int(frame_rate / 30.0 * track_buffer)
         self.max_time_lost = self.buffer_size
         self.kalman_filter = KalmanFilter()
+
+    @property
+    def need_image(self):
+        return False
 
     def update(self, dets, _):
         self.frame_id += 1

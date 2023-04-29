@@ -1,18 +1,13 @@
-import cv2
-import matplotlib.pyplot as plt
-import numpy as np
 from collections import deque
 
-from trackers.botsort import matching
-from trackers.botsort.gmc import GMC
-from trackers.botsort.basetrack import BaseTrack, TrackState
-from trackers.botsort.kalman_filter import KalmanFilter
-
-# from fast_reid.fast_reid_interfece import FastReIDInterface
-
-# from reid_multibackend import ReIDDetectMultiBackend
-from trackers.strongsort.reid_multibackend import ReIDDetectMultiBackend
+import numpy as np
 from ultralytics.yolo.utils.ops import xyxy2xywh, xywh2xyxy
+
+from trackers.botsort import matching
+from trackers.botsort.basetrack import BaseTrack, TrackState
+from trackers.botsort.gmc import GMC
+from trackers.botsort.kalman_filter import KalmanFilter
+from trackers.strongsort.reid_multibackend import ReIDDetectMultiBackend
 
 
 class STrack(BaseTrack):
@@ -144,7 +139,6 @@ class STrack(BaseTrack):
         Update a matched track
         :type new_track: STrack
         :type frame_id: int
-        :type update_feature: bool
         :return:
         """
         self.frame_id = frame_id
@@ -268,10 +262,16 @@ class BoTSORT(object):
         self.appearance_thresh = appearance_thresh
         self.match_thresh = match_thresh
 
+        self.height, self.width = 1, 1
+
         if self.with_reid:
             self.model = ReIDDetectMultiBackend(weights=model_weights, device=device, fp16=fp16)
 
         self.gmc = GMC(method=cmc_method, verbose=[None, False])
+
+    @property
+    def need_image(self):
+        return self.with_reid
 
     def update(self, output_results, img):
         self.frame_id += 1
@@ -304,7 +304,8 @@ class BoTSORT(object):
         classes_keep = classes[remain_inds]
         clss_second = classes[inds_second]
 
-        self.height, self.width = img.shape[:2]
+        if self.need_image:
+            self.height, self.width = img.shape[:2]
 
         '''Extract embeddings '''
         features_keep = self._get_features(dets, img)
@@ -333,9 +334,11 @@ class BoTSORT(object):
         STrack.multi_predict(strack_pool)
 
         # Fix camera motion
-        warp = self.gmc.apply(img, dets)
-        STrack.multi_gmc(strack_pool, warp)
-        STrack.multi_gmc(unconfirmed, warp)
+
+        if self.need_image:
+            warp = self.gmc.apply(img, dets)
+            STrack.multi_gmc(strack_pool, warp)
+            STrack.multi_gmc(unconfirmed, warp)
 
         # Associate with high score detection boxes
         raw_emb_dists = matching.embedding_distance(strack_pool, detections)

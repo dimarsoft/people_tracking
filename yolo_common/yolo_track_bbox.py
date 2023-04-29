@@ -16,10 +16,11 @@ from utils.torch_utils import select_device, time_synchronized
 class YoloTrackBbox:
 
     def __init__(self, half=False, device=''):
-        self.device = select_device(device)
 
         self.half = half
-        if half:
+        self.device = select_device(device)
+
+        if self.half:
             self.half = self.device.type != 'cpu'  # half precision only supported on CUDA
 
         # print(f"device = {self.device}, half = {self.half}")
@@ -57,12 +58,36 @@ class YoloTrackBbox:
 
         tracker_dict = {}
 
+        input_video = cv2.VideoCapture(source)
+
+        fps = int(input_video.get(cv2.CAP_PROP_FPS))
+        # ширина
+        w = int(input_video.get(cv2.CAP_PROP_FRAME_WIDTH))
+        # высота
+        h = int(input_video.get(cv2.CAP_PROP_FRAME_HEIGHT))
+
+        # количество кадров в видео
+        frames_in_video = int(input_video.get(cv2.CAP_PROP_FRAME_COUNT))
+
         need_camera_update = False
+        need_image = False
         # создаем трекеры по каждому классу
+
         for class_id in classes:
             tracker_dict[class_id] = create_tracker(tracker_type, tracker_config,
-                                                    self.reid_weights, self.device, self.half)
+                                                    self.reid_weights, self.device, self.half, fps=fps)
             need_camera_update = hasattr(tracker_dict[class_id], 'camera_update')
+            need_image = hasattr(tracker_dict[class_id], 'need_image')
+
+            if need_image:
+                need_image = tracker_dict[class_id].need_image
+            else:
+                need_image = True
+
+        need_image = need_camera_update or need_image
+
+        if log:
+            print(f"read frame from video = {need_camera_update}")
 
         # tracker = create_tracker(tracker_type, tracker_config, self.reid_weights, self.device, self.half)
 
@@ -91,16 +116,6 @@ class YoloTrackBbox:
         if log:
             print(f"file '{txt_source}' read in ({(1E3 * (file_t2 - file_t1)):.1f}ms)")
 
-        input_video = cv2.VideoCapture(source)
-
-        fps = int(input_video.get(cv2.CAP_PROP_FPS))
-        # ширина
-        w = int(input_video.get(cv2.CAP_PROP_FRAME_WIDTH))
-        # высота
-        h = int(input_video.get(cv2.CAP_PROP_FRAME_HEIGHT))
-
-        # количество кадров в видео
-        frames_in_video = int(input_video.get(cv2.CAP_PROP_FRAME_COUNT))
 
         if log:
             print(f"input = {source}, w = {w}, h = {h}, fps = {fps}, frames_in_video = {frames_in_video}")
@@ -124,11 +139,14 @@ class YoloTrackBbox:
 
             video_t0 = time_synchronized()
 
-            ret, frame = input_video.read()
+            if need_image:
+                ret, frame = input_video.read()
 
-            if frame is None:
-                print(f"frame {frame_id} is None, ret = {ret}")
-                continue
+                if frame is None:
+                    print(f"frame {frame_id} is None, ret = {ret}")
+                    continue
+            else:
+                ret, frame = True, None
 
             video_t1 = time_synchronized()
 
@@ -249,7 +267,7 @@ class YoloTrackBbox:
             for detection in bbox_no_track.values:
                 info = [detection[0],
                         detection[3], detection[4],  # l t
-                        detection[5], detection[5],  # w h
+                        detection[5], detection[6],  # w h
                         # id
                         -1,
                         # cls

@@ -43,9 +43,6 @@ class YOLO8UL:
               classes=None, change_bb=False, log: bool = True) -> list:
 
         self.reid_weights = Path(WEIGHTS) / reid_weights
-        tracker = create_tracker(tracker_type, tracker_config, self.reid_weights, self.device, self.half)
-
-        update_camera = hasattr(tracker, 'camera_update')
 
         input_video = cv2.VideoCapture(source)
 
@@ -57,6 +54,10 @@ class YOLO8UL:
 
         # количество кадров в видео
         frames_in_video = int(input_video.get(cv2.CAP_PROP_FRAME_COUNT))
+
+        tracker = create_tracker(tracker_type, tracker_config, self.reid_weights, self.device, self.half, fps=fps)
+
+        update_camera = hasattr(tracker, 'camera_update')
 
         if log:
             print(f"input = {source}, w = {w}, h = {h}, fps = {fps}, frames_in_video = {frames_in_video}")
