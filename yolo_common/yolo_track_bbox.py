@@ -115,9 +115,6 @@ class YoloTrackBbox:
 
         if log:
             print(f"file '{txt_source}' read in ({(1E3 * (file_t2 - file_t1)):.1f}ms)")
-
-
-        if log:
             print(f"input = {source}, w = {w}, h = {h}, fps = {fps}, frames_in_video = {frames_in_video}")
 
         file_name = Path(source).name
