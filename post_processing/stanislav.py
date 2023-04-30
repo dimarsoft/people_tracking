@@ -1,8 +1,3 @@
-<<<<<<< HEAD
-#tttttt
-=======
-
->>>>>>> a7e7226 (Update stanislav.py)
 import pandas as pd
 #Классы
 class Human():
