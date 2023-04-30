@@ -8,7 +8,7 @@ import os
 from sklearn.metrics import precision_recall_fscore_support
 
 
-def get_boxes(
+# def get_boxes(
         result):  # эта функция сохраняет боксы от предикта в файл .npy для того что бы не возвращаться больше к детекции
     orig_shp = result[0].orig_shape
     all_boxes = np.empty((0, 7))
