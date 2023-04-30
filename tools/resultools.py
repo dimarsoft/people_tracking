@@ -125,18 +125,21 @@ class TestResults:
         with open(result_json_file, "w") as write_file:
             write_file.write(json.dumps(self.result_items, indent=4, default=lambda o: o.__dict__))
 
-
     def compare_to_file_v2(self, output_folder):
         return self.compare_list_to_file_v2(output_folder, self.test_items)
 
     @staticmethod
     def intersect_deviation(dev_1: Deviation, dev_2: Deviation) -> bool:
-        if (dev_1.start_frame >= dev_2.start_frame) and (dev_1.start_frame <= dev_2.end_frame):
-            return True
+        # if (dev_1.start_frame >= dev_2.start_frame) and (dev_1.start_frame <= dev_2.end_frame):
+        #    return True
 
-        if (dev_1.end_frame >= dev_2.start_frame) and (dev_1.end_frame <= dev_2.end_frame):
-            return True
-        return False
+        # if (dev_1.end_frame >= dev_2.start_frame) and (dev_1.end_frame <= dev_2.end_frame):
+        #    return True
+
+        if (dev_1.end_frame < dev_2.start_frame) or (dev_2.end_frame < dev_1.start_frame):
+            return False
+
+        return True
 
     def compare_deviations(self, actual_deviations: list, expected_deviations: list) -> (int, list):
         """
