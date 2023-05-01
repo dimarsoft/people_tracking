@@ -298,7 +298,7 @@ def run_example():
     # files = ['6', "8", "26", "36"]
     # files = ['44', "45", "46"]
 
-    files = ["50", "51", "52"]
+    files = ["50"]
 
     classes = [0]
     classes = None
@@ -347,7 +347,7 @@ def run_cli(opt_info):
 
 
 if __name__ == '__main__':
-    run_example()
+    # run_example()
 
     parser = argparse.ArgumentParser()
     parser.add_argument('--txt_source_folder', type=str, help='txt_source_folder')
@@ -366,4 +366,4 @@ if __name__ == '__main__':
     opt = parser.parse_args()
     # print(opt)
 
-    # run_cli(opt)
+    run_cli(opt)
