@@ -110,7 +110,7 @@ def convert_and_save(folder_path):
 
 
 def timur_count_humans(tracks, source, bound_line, log: bool = True) -> Result:
-    print(f"Timur postprocessing v1.7_24.04.2023")
+    print(f"Timur postprocessing v1.8_01.05.2023")
 
     camera_num, w, h, fps = get_camera(source)
 
@@ -158,9 +158,10 @@ def timur_count_humans(tracks, source, bound_line, log: bool = True) -> Result:
         if start_frame > end_frame:
             start_frame, end_frame = end_frame, start_frame
 
+        # как вариант, но перенесу в другой тим постобработки
         # -+ 1 сек от пересечения, но не забегая за границы человека по треку
-        start_frame = max(frame_id - 2*fps, start_frame)
-        end_frame = min(frame_id + 2*fps, end_frame)
+        # start_frame = max(frame_id - 2*fps, start_frame)
+        # end_frame = min(frame_id + 2*fps, end_frame)
 
         if start_frame <= frame_id <= end_frame:
             pass
