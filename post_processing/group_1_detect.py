@@ -12,6 +12,7 @@ from tools.count_results import Deviation, Result
 from tools.labeltools import get_status
 from tools.resultools import results_to_dict
 from trackers.multi_tracker_zoo import create_tracker
+from utils.torch_utils import git_describe, date_modified
 
 
 def group_1_detect(source,
@@ -80,6 +81,18 @@ def group_1_detect(source,
     return results
 
 
+def print_version():
+    git_info = git_describe()
+
+    if git_info is None:
+        git_info = f"{date_modified()}"
+    else:
+        git_info = f"git: {git_info}, {date_modified()}"
+
+    version = f'Version: {git_info}'
+    print(f"group_1_detect_npy. {version}")
+
+
 def group_1_detect_npy(source: Union[str, Path],
                        tracker_config: Union[dict, Path, None] = None) -> Result:
     """
@@ -88,6 +101,9 @@ def group_1_detect_npy(source: Union[str, Path],
     :param tracker_config: Настройка трекера, если None, то будет использоваться в репы
     :return: Result
     """
+
+    print_version()
+
     if tracker_config is None:
         tracker_config = ROOT / "trackers/ocsort/configs/ocsort_group1.yaml"
 
