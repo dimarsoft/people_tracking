@@ -48,12 +48,12 @@ def group_1_detect(source,
     men = get_men(out_boxes)
 
     # здесь переназначаем айди входящий/выходящий (временное решение для MVP, надо думать над продом)
-    men_clean, incoming1, exiting1 = get_count_men(men, orig_shp[1])
+    men_clean, incoming1, exiting1 = get_count_men(men, orig_shp[0])
 
     # Здесь принимаем переназначенные айди смотрим нарушения,
     # а также повторно считаем входящих по дистанции, проверяем
     violation, incoming2, exiting2, df, clothing_helmet, clothing_unif = \
-        get_count_vialotion(men_clean, orig_shp[1])
+        get_count_vialotion(men_clean, orig_shp[0])
     deviations = []
 
     # 'helmet', 'uniform', 'first_frame', 'last_frame'
@@ -106,12 +106,12 @@ def group_1_detect_npy(source: Union[str, Path],
     men = get_men(out_boxes)
 
     # здесь переназначаем айди входящий/выходящий (временное решение для MVP, надо думать над продом)
-    men_clean, incoming1, exiting1 = get_count_men(men, orig_shp[1])
+    men_clean, incoming1, exiting1 = get_count_men(men, orig_shp[0])
 
     # Здесь принимаем переназначенные айди смотрим нарушения,
     # а также повторно считаем входящих по дистанции, проверяем
     violation, incoming2, exiting2, df, clothing_helmet, clothing_unif = \
-        get_count_vialotion(men_clean, orig_shp[1])
+        get_count_vialotion(men_clean, orig_shp[0])
     deviations = []
 
     # 'helmet', 'uniform', 'first_frame', 'last_frame'
