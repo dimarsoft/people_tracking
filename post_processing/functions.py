@@ -274,10 +274,11 @@ def iou_prop(people, helmet, vest):
             people[frid] = calc_iou(people[frid], vest[frid], "vest", upbbox=False)
 
 
-def get_deviations(people_tracks, helmet_tracks, vest_tracks, bound_line, log: bool = True) \
+def get_deviations(people_tracks, helmet_tracks, vest_tracks, bound_line, helmet_or_uniform_conf=0.5, log: bool = True) \
         -> Tuple[list[dict], dict]:
     people_info = get_people_info(people_tracks, helmet_tracks, vest_tracks)
-    return find_deviations(people_info, bound_line, False, log)
+    return find_deviations(people_info, bound_line, False,
+                           helmet_or_uniform_conf=helmet_or_uniform_conf, log=log)
 
 
 def get_people_info(people_tracks, helmet_tracks, vest_tracks):
