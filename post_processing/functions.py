@@ -85,7 +85,7 @@ def ccw(A, B, C):
     return (C[1] - A[1]) * (B[0] - A[0]) > (B[1] - A[1]) * (C[0] - A[0])
 
 
-def intersect(A, B, C, D):
+def is_intersect(A, B, C, D) -> bool:
     return ccw(A, C, D) != ccw(B, C, D) and ccw(A, B, C) != ccw(A, B, D)
 
 
@@ -103,12 +103,7 @@ def get_buff(dh, line_p):
     return dx, dy
 
 
-def crossing_bound(people_path, bound_line):
-    def ccw(A, B, C):
-        return (C[1] - A[1]) * (B[0] - A[0]) > (B[1] - A[1]) * (C[0] - A[0])
-
-    def intersect(A, B, C, D):
-        return ccw(A, C, D) != ccw(B, C, D) and ccw(A, B, C) != ccw(A, B, D)
+def crossing_bound(people_path, bound_line) -> dict:
 
     dh = 3
 
@@ -130,28 +125,10 @@ def crossing_bound(people_path, bound_line):
     p1_proj = get_proj(*line_norm, p1)
     p2_proj = get_proj(*line_norm, p2)
 
-    intersect_left = intersect(p1_proj, p2_proj, bound_left[0], bound_left[1])
-    intersect_rght = intersect(p1_proj, p2_proj, bound_rght[0], bound_rght[1])
+    intersect_left = is_intersect(p1_proj, p2_proj, bound_left[0], bound_left[1])
+    intersect_rght = is_intersect(p1_proj, p2_proj, bound_rght[0], bound_rght[1])
     intersect = intersect_left and intersect_rght
     return {"direction": direction, "intersect": intersect, "bound_left": bound_left, "bound_rght": bound_rght}
-
-
-# def crossing_bound(people_path, bound_line):
-#     if len(people_path) >= 4:
-#         p1 = [(people_path[0][0] + people_path[1][0]) / 2, (people_path[0][1] + people_path[1][1]) / 2]
-#         p2 = [(people_path[-2][0] + people_path[-1][0]) / 2, (people_path[-2][1] + people_path[-1][1]) / 2]
-#     else:
-#         p1 = [people_path[0][0], people_path[0][1]]
-#         p2 = [people_path[-1][0], people_path[-1][1]]
-#
-#     direction = "up" if p2[1] - p1[1] < 0 else "down"
-#
-#     line_norm = get_norm(*bound_line)
-#     p1_proj = get_proj(*line_norm, p1)
-#     p2_proj = get_proj(*line_norm, p2)
-#
-#     intersect_ = intersect(p1_proj, p2_proj, bound_line[0], bound_line[1])
-#     return {"direction": direction, "intersect": intersect_}
 
 
 def calc_inp_outp_people(tracks_info) -> dict:
@@ -335,14 +312,15 @@ def search_frame(people_info: dict, bound_line) -> Optional[int]:
     for i in range(n - 1, 0, -1):
         p1_proj = get_proj(*line_norm, people_info["path"][i])
         p2_proj = get_proj(*line_norm, people_info["path"][i - 1])
-        intersect_val = intersect(p1_proj, p2_proj, bound_line[0], bound_line[1])
+        intersect_val = is_intersect(p1_proj, p2_proj, bound_line[0], bound_line[1])
         if intersect_val:
             res = i  # [max(i - 10, 0), int(i + 0.65 * (n - 1 - i))]
             break
     return res
 
 
-def find_deviations(people_tracks: dict, bound_line, only_down: bool = True, log: bool = True) \
+def find_deviations(people_tracks: dict, bound_line, only_down: bool = True,
+                    helmet_or_uniform_conf=0.5, log: bool = True) \
         -> Tuple[list[dict], dict]:
     """
 
@@ -350,6 +328,7 @@ def find_deviations(people_tracks: dict, bound_line, only_down: bool = True, log
         people_tracks: Треки людей
         bound_line: линия турникета
         only_down(bool): нарушения только по входящим
+        helmet_or_uniform_conf: Соотношение
         log: вкл/выкл лог, для отладки
 
     Returns:
@@ -369,8 +348,8 @@ def find_deviations(people_tracks: dict, bound_line, only_down: bool = True, log
         if tr_info["intersect"]:
             helmet = np.array(people_tracks[p_id]["helmet"], dtype=bool)
             vest = np.array(people_tracks[p_id]["vest"], dtype=bool)
-            in_helm = len(helmet[helmet]) / len(helmet) >= 0.5
-            in_vest = len(vest[vest]) / len(vest) >= 0.5
+            in_helm = (len(helmet[helmet]) / len(helmet)) >= helmet_or_uniform_conf
+            in_vest = (len(vest[vest]) / len(vest)) >= helmet_or_uniform_conf
 
             id_frame_ind = search_frame(people_tracks[p_id], bound_line)
 
@@ -379,6 +358,10 @@ def find_deviations(people_tracks: dict, bound_line, only_down: bool = True, log
 
                 start_frame = people_tracks[p_id]["frid"][0]
                 end_frame = people_tracks[p_id]["frid"][-1]
+
+                # Использовалось для отладки
+                # if in_vest and in_helm:
+                #     print(f"in_vest and in_helm: start_frame = {start_frame}, end_frame = {end_frame}")
 
                 no_dev = in_helm and in_vest
                 dir_val = True if not only_down else True if tr_info["direction"] == 'down' else False
@@ -395,55 +378,3 @@ def find_deviations(people_tracks: dict, bound_line, only_down: bool = True, log
     # подсчет вход/выход
     calc_person = calc_inp_outp_people(tracks_info)
     return deviations, calc_person
-
-# def find_deviations(people_tracks, bound_line, only_down: bool = True, log: bool = True):
-#     tracks_info = []
-#     intrs_pid = []
-#
-#     devs = []
-#     # подсчет вход/выход
-#     inp_otp = {}
-#     for p_id in people_tracks.keys():
-#         people_path = people_tracks[p_id]['path']
-#         tr_info = crossing_bound(people_path, bound_line)
-#         tracks_info.append(tr_info)
-#
-#         if tr_info["intersect"]:
-#             intrs_pid.append(p_id)
-#             if only_down:
-#                 process = tr_info["direction"] == 'down'
-#             else:
-#                 process = True
-#         else:
-#             process = False
-#
-#         if process:
-#             helmet = np.array(people_tracks[p_id]["helmet"], dtype=bool)
-#             vest = np.array(people_tracks[p_id]["vest"], dtype=bool)
-#             in_helm = len(helmet[helmet]) / len(helmet) >= 0.5
-#             in_vest = len(vest[vest]) / len(vest) >= 0.5
-#
-#             truefalse = "Нет" if in_helm == True and in_vest == True else "Да"
-#
-#             no_dev = in_helm and in_vest
-#
-#             id_frame_ind = search_frame(people_tracks[p_id], bound_line)
-#             if not id_frame_ind is None:
-#                 id_frame = people_tracks[p_id]["frid"][id_frame_ind]
-#                 if not no_dev:
-#                     bbox = people_tracks[p_id]["bbox"][id_frame_ind]
-#                     devs.append({
-#                         "frame_id": id_frame,
-#                         "has_helmet": in_helm,
-#                         "has_uniform": in_vest,
-#                         "box": bbox})
-#
-#                 if in_vest == False or in_helm == False:
-#                     # print(file, p_id, "Тут есть нарушение? - ", truefalse, f"id_frame = {id_frame}")
-#
-#                     if log:
-#                         print(p_id, "Тут есть нарушение? - ", truefalse, f"id_frame = {id_frame}")
-#                         print(f"Жилетка: {in_vest} / Каска: {in_helm}")
-#                     # save_frame(fn, id_frame, people_tracks[p_id]["bbox"][id_frame_ind], bound_line, folder_with_video)
-#
-#     return devs
