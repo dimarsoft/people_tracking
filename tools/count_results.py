@@ -33,7 +33,8 @@ class Result:
         self.humans = int(humans)
         self.counter_in = int(c_in)
         self.counter_out = int(c_out)
-        self.deviations = deviations
+        # список отсортируем по начальному фрейму
+        self.deviations = sorted(deviations, key=lambda a: a.start_frame)
 
     def __str__(self):
         return f"file = {self.file}, in = {self.counter_in}, " \

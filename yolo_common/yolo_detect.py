@@ -131,13 +131,13 @@ def run_example():
 
     files = ['1']
 
-    #  model = "D:\\AI\\2023\\models\\Yolov7\\25.02.2023_dataset_1.1_yolov7_best.pt"
+    model = "D:\\AI\\2023\\models\\Yolov7\\25.02.2023_dataset_1.1_yolov7_best.pt"
 
-    #  run_detect_yolo(7, model, video_source, output_folder, files=files, conf=0.25, save_txt=True, save_vid=True)
+    run_detect_yolo(7, model, video_source, output_folder, files=files, conf=0.25, save_txt=True, save_vid=True)
 
     model = "D:\\AI\\2023\\models\\Yolo8s_batch32_epoch100.pt"
 
-    run_detect_yolo("8ul", model, video_source, output_folder, files=files, conf=0.25, save_txt=True, save_vid=True)
+    # run_detect_yolo("8ul", model, video_source, output_folder, files=files, conf=0.25, save_txt=True, save_vid=True)
 
 
 # запуск из командной строки: python yolo_detect.py  --yolo 7 --weights "" source ""

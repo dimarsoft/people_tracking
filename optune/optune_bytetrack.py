@@ -24,6 +24,8 @@ bytetrack:
     # files = ['1', "2", "3"]
     # files = ["3"]
     # files = ['6', "8", "26", "36"]
+    files = range(1, 56)
+    files = [f"{x}" for x in files]
 
     # classes = [0]
     classes = None
@@ -35,22 +37,22 @@ bytetrack:
 
     txt_source_folder = str(get_detections_path())
 
-    track_thresh = trial.suggest_float('track_thresh', 0.3, 0.9, step=0.1)
-    track_buffer = trial.suggest_int('track_buffer', 5, 50, step=5)
-    match_thresh = trial.suggest_float('match_thresh', 0.3, 1.0, step=0.1)
-    frame_rate = int(trial.suggest_categorical('frame_rate', [3, 12, 20, 30]))
-    conf_thres = trial.suggest_float('conf_thres', 0.3, 0.9, step=0.1)
+    # track_thresh = trial.suggest_float('track_thresh', 0.3, 0.9, step=0.1)
+    track_buffer = trial.suggest_int('track_buffer', 50, 150, step=5)
+    # match_thresh = trial.suggest_float('match_thresh', 0.3, 1.0, step=0.1)
+    # frame_rate = int(trial.suggest_categorical('frame_rate', [3, 12, 20, 30]))
+    # conf_thres = trial.suggest_float('conf_thres', 0.3, 0.9, step=0.1)
 
     tracker_name = "bytetrack"
     tracker_config = \
         {
             tracker_name:
                 {
-                    "track_thresh": track_thresh,
-                    "frame_rate": frame_rate,
+                    "track_thresh": 0.4, # track_thresh,
+                    # "frame_rate": frame_rate,
                     "track_buffer": track_buffer,
-                    "match_thresh": match_thresh,
-                    "conf_thres": conf_thres,
+                    "match_thresh": 0.8, # match_thresh,
+                    "conf_thres": 0.5, # conf_thres,
                 }
         }
 
@@ -58,7 +60,7 @@ bytetrack:
                                  test_func=test_func,
                                  files=files, change_bb=change_bb, classes=classes)
 
-    accuracy = cmp_results["total_equal_percent"]
+    accuracy = cmp_results["total_dev_precision"]
 
     return accuracy
 

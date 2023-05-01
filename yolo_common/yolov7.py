@@ -242,7 +242,6 @@ class YOLO7:
               conf_threshold=0.3, iou=0.4, classes=None, change_bb=False, log: bool = True) -> list:
 
         self.reid_weights = Path(WEIGHTS) / reid_weights
-        tracker = create_tracker(tracker_type, tracker_config, self.reid_weights, self.device, self.half)
 
         file_id = Path(source).stem
 
@@ -256,6 +255,8 @@ class YOLO7:
 
         # количество кадров в видео
         frames_in_video = int(input_video.get(cv2.CAP_PROP_FRAME_COUNT))
+
+        tracker = create_tracker(tracker_type, tracker_config, self.reid_weights, self.device, self.half, fps=fps)
 
         if log:
             print(f"input = {source}, w = {w}, h = {h}, fps = {fps}, frames_in_video = {frames_in_video}")

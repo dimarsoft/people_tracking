@@ -1,15 +1,18 @@
 from pathlib import Path
+from typing import Union
 
 from post_processing.alex import alex_count_humans
+from post_processing.dimar_prcessing import dimar_count_humans
 from post_processing.group_1 import group_1_count_humans
 from post_processing.group_3 import group_3_count
 from post_processing.stanislav_post import stanislav_count_humans
 from post_processing.timur import timur_count_humans
 from tools.count_results import Result
-from tools.exception_tools import print_exception
+from tools.exception_tools import print_exception, save_exception
 
 
-def get_post_process_results(test_func, track, num, w, h, fps, bound_line, source, log: bool) -> Result:
+def get_post_process_results(test_func, track, num, w, h, fps, bound_line, source, log: bool,
+                             text_ex_path: Union[str, Path, None] = None) -> Result:
     # count humans
 
     humans_result = Result(0, 0, 0, [])
@@ -31,11 +34,14 @@ def get_post_process_results(test_func, track, num, w, h, fps, bound_line, sourc
                 if test_func == "stanislav":
                     humans_result = stanislav_count_humans(tracks_new, num, w, h, bound_line, log=log)
                     pass
-                if test_func == "group_1":
+                if test_func == "group_1.1":
                     humans_result = group_1_count_humans(tracks_new, num, w, h, bound_line, log=log)
                     pass
                 if test_func == "timur":
                     humans_result = timur_count_humans(tracks_new, source, bound_line, log=log)
+                    pass
+                if test_func == "dimar":
+                    humans_result = dimar_count_humans(tracks_new, source, bound_line, log=log)
                     pass
                 if test_func == "group_3":
                     humans_result = group_3_count(tracks_new, num, w, h, fps)
@@ -54,6 +60,9 @@ def get_post_process_results(test_func, track, num, w, h, fps, bound_line, sourc
 
         except Exception as e:
             print_exception(e, "post processing")
+
+            if text_ex_path is not None:
+                save_exception(e, text_ex_path, "post processing")
 
     humans_result.file = Path(source).name
 
