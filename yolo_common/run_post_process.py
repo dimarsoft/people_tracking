@@ -1,6 +1,7 @@
 from pathlib import Path
 
 from post_processing.alex import alex_count_humans
+from post_processing.dimar_prcessing import dimar_count_humans
 from post_processing.group_1 import group_1_count_humans
 from post_processing.group_3 import group_3_count
 from post_processing.stanislav_post import stanislav_count_humans
@@ -36,6 +37,9 @@ def get_post_process_results(test_func, track, num, w, h, fps, bound_line, sourc
                     pass
                 if test_func == "timur":
                     humans_result = timur_count_humans(tracks_new, source, bound_line, log=log)
+                    pass
+                if test_func == "dimar":
+                    humans_result = dimar_count_humans(tracks_new, source, bound_line, log=log)
                     pass
                 if test_func == "group_3":
                     humans_result = group_3_count(tracks_new, num, w, h, fps)
