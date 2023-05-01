@@ -493,7 +493,8 @@ def save_results_to_csv(results: dict, csv_file_path, excel_file_path, sep=";") 
         files_str = get_files_str(not_equal_items)
         files_dev_str = get_files_str(get_no_correct_dev(by_item_dev_info))
 
-        print(f"{key} : accuracy_in = {accuracy_in}, accuracy_out = {accuracy_out}, {files_str}")
+        print(f"{key} : accuracy_in = {accuracy_in}, accuracy_out = {accuracy_out}, "
+              f"total_dev_precision = {total_dev_precision}, in/out problem files = {files_str}")
 
         table.append([key,
                       accuracy_in, accuracy_out,
@@ -506,11 +507,11 @@ def save_results_to_csv(results: dict, csv_file_path, excel_file_path, sep=";") 
                                    "accuracy_in", "accuracy_out",
                                    "total_equal_percent",
                                    "total_equal", "total_records", "not_equal_items",
-                                   "total_dev_precision", "total_dev_recall",
-                                   "total_count_correct", "total_actual_devs", "total_expected_devs",
+                                   "total_devs_precision", "total_devs_recall",
+                                   "total_true_positive_devs", "total_positive_devs", "total_true_devs",
                                    "total_dev_actual_percent",
                                    "no_correct_dev"])
-    df.sort_values(by=['total_equal_percent'], inplace=True, ascending=False)
+    df.sort_values(by=['total_devs_precision'], inplace=True, ascending=False)
 
     # print(df)
     df.to_csv(csv_file_path, sep=sep, index=False)
@@ -591,9 +592,9 @@ def test_dev_results_to_table(results: list[dict], csv_file_path, excel_file_pat
                                    "accuracy_in", "accuracy_out",
                                    "delta_in", "delta_out",
                                    "precision", "recall",
-                                   "actual_devs",
-                                   "count_correct",
-                                   "expected_devs"])
+                                   "total_positive_devs",
+                                   "true_positive_devs",
+                                   "true_devs"])
 
     df.sort_values(by=['file'], inplace=True, ascending=True)
     # csv
