@@ -274,17 +274,23 @@ def get_men(out_boxes, helmet_limit=0.5, vest_limit=0.5, metric=find_intersectio
     return men
 
 
-def get_count_men(men, orig_shape):  # определяем все сами
-    if len(men[:, 0]) == 0:
-        return men, 0, 0
-
+# эта длинная функция по сути работает как фильтр людей(пропускает дальше тех кто либо вошел либо вышел)
+def get_count_men(men, orig_shape, **glob_kwarg):
     n_ = int(max(men[:, 0]))
     orig_shape = int(orig_shape)
-    incoming = 0  # количество вошедших
-    exiting = 0  # количество вышедших
-    barier = 337
 
-    gate_y = barier * orig_shape / 640  # определяем барьер сами
+    barier = glob_kwarg['barier']
+    re_id_mark = glob_kwarg['re_id_mark']
+    re_id_frame = glob_kwarg['re_id_frame']
+    tail_for_count_mark = glob_kwarg['tail_for_count_mark']
+    tail_for_count = glob_kwarg['tail_for_count']
+    two_lines_buff_mark = glob_kwarg['two_lines_buff_mark']
+    buff = glob_kwarg['buff']
+    go_men_forward = glob_kwarg['go_men_forward']
+
+    format = orig_shape / 640
+
+    gate_y = barier * format  # 
 
     box_y_top = [None] + [list() for _ in range(int(n_))]
     box_y_bottom = [None] + [list() for _ in range(int(n_))]
@@ -295,31 +301,71 @@ def get_count_men(men, orig_shape):  # определяем все сами
         frame_n = int(m[-4])
         box_frame[id].append(frame_n)
 
-    if len(box_frame[id]) < 21:  # удаляем айди чей трек короче n кадров
-        men = men[~np.isin(men[:, 0], id)]
+        if re_id_mark:  # Если  значение True  то переназначаем айди принудительно в случае отсутсвия айди более чем re_id_frame кадров
+            y_top = float(m[2])
+            y_bottom = float(m[4])
+            box_y_top[id].append(y_top)
+            box_y_bottom[id].append(y_bottom)
 
-    # иначе возникает исключение при поиске max
-    if len(men[:, 0]) == 0:
-        return men, incoming, exiting
+            # принудительно переназначаем айди на входе и выходе если треккер не переназначил (актуально для непотимизированных треккеров)
+            if len(box_frame[id]) > re_id_frame:
+                condition = box_frame[id][-1] - box_frame[id][-2] > 10 and (
+                    (box_y_top[id][-1] / orig_shape < 0.2) or (box_y_bottom[id][-1] / orig_shape > 0.8))
+                # условие смены id:
+                # верхняя граница бб в верхней части кадра  или нижняя граница бб в нижней части кадра
+                # бб не детектировался в течение 20 предыдущих кадров
+                if condition:
+                    n_ += 1
+                    box_y_top.append([])
+                    box_y_bottom.append([])
+                    box_frame.append([])
+                    for j in range(i, len(men)):
+                        if men[j][0] == id:
+                            men[j][0] = n_
+
+    # if len(box_frame[id]) < 21: # удаляем айди чей трек короче n кадров
+    #   men = men[~np.isin(men[:,0], id)]
 
     n = int(max(men[:, 0]))
     human_c = [None] + [list() for _ in range(int(n))]
     for m in men:
         num = int(m[0])
-        box_center = (float(m[4]) - float(m[2])) / 2 + float(m[2])
+        box_center = (float(m[4]) - float(m[2]))/2+float(m[2])  # центр масс
+
+        if tail_for_count_mark:  # Если  значение True  то считаем не центр масс а y_top + tail_for_count
+            if float(m[2]) + tail_for_count * format < 640 * format:
+                box_center = float(m[2]) + tail_for_count * format
+            else:
+                box_center = 640 * format
+
         human_c[num].append(box_center)
 
     ind = []
     for i, h in enumerate(human_c):
-        if h and h[0] < gate_y < h[-1]:
-            incoming += 1
-            ind.append(i)
-        elif h and h[0] > gate_y > h[-1]:
-            exiting += 1
-            ind.append(i)
-    men = men[np.isin(men[:, 0], ind)]
 
-    return men, incoming, exiting
+        if two_lines_buff_mark:  # если стоит маркер считать по одной из двух линий
+            if h and h[0] < gate_y < h[-1]:
+                ind.append(i)
+            elif h and h[0] < (gate_y-buff) < h[-1]:
+                ind.append(i)
+            elif h and h[0] > gate_y > h[-1]:
+                ind.append(i)
+            elif h and h[0] > (gate_y-buff) > h[-1]:
+                ind.append(i)
+
+        if not two_lines_buff_mark:  # Считаем по одной линии
+            if h and h[0] < gate_y < h[-1]:
+                ind.append(i)
+            elif h and h[0] > gate_y > h[-1]:
+                ind.append(i)
+
+    if not go_men_forward:
+        # Здесь при False (default) дальше в массиве остаются только те айди
+        # которые зафиксировались как вошедшие или вышедшие
+        # (этот же маркер используется в следующей функции при подсчете нарушений)
+        men = men[np.isin(men[:, 0], ind)]
+
+    return men
 
 
 def get_count_vialotion(men, orig_shape):  # step height определяем сами
