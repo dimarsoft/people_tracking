@@ -180,6 +180,28 @@ def create_video_with_bbox(bboxes, video_source, video_out):
     # Заклинание cv2
     cv2.destroyAllWindows()
 
+def find_iou(cover_coords, man_coords):
+    x1, y1, x2, y2 = cover_coords
+    x3, y3, x4, y4 = man_coords
+    if x1 >= x4 or x3 >= x2 or y1 >= y4 or y3 >= y2:
+        return 0
+    int1x, int1y = max(x1, x3), max(y1, y3)
+    int2x, int2y = min(x2, x4), min(y2, y4)
+    area_int = (int2x - int1x) * (int2y - int1y)
+    area_1 = (x2 - x1) * (y2 - y1)
+    area_2 = (x4 - x3) * (y4 - y3)
+    return area_int / (area_1 + area_2 - area_int)
+
+def find_intersection(cover_coords, man_coords):
+    x1, y1, x2, y2 = cover_coords
+    x3, y3, x4, y4 = man_coords
+    if x1 >= x4 or x3 >= x2 or y1 >= y4 or y3 >= y2:
+        return 0
+    int1x, int1y = max(x1, x3), max(y1, y3)
+    int2x, int2y = min(x2, x4), min(y2, y4)
+    int_area = (int2x - int1x) * (int2y - int1y)
+    cover_area = (x2 - x1) * (y2 - y1)
+    return int_area / cover_area
 
 def get_men(out_boxes):
     men = np.empty((0, 9))
