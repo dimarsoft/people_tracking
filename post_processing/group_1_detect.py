@@ -33,7 +33,6 @@ def group_1_detect(source,
     model = YOLO(model_path)
     all_boxes, orig_shape = get_boxes(model.predict(source, stream=True, save=False))
 
-    return all_boxes, orig_shape
     all_boxes_and_shp = np.array((orig_shape, all_boxes))
 
     ocsort_tracker = create_tracker("ocsort_v2", tracker_config)
