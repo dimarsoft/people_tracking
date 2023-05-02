@@ -45,7 +45,7 @@ def group_1_detect(source,
     all_boxes = all_boxes_and_shp[1]  # Здесь боксы
 
     # Отправляем боксы в трекинг + пробрасываем мимо трекинга каски и нетрекованные боксы людей
-    out_boxes = tracking_on_detect(all_boxes, ocsort_tracker, orig_shp)
+    out_boxes = tracking_on_detect(all_boxes, ocsort_tracker, orig_shp, **glob_kwarg)
 
     # Смотрим у какого айди есть каски и жилеты (по порогу от доли кадров где был зафиксирован
     # айди человека + каска и жилет в его бб и без них)
