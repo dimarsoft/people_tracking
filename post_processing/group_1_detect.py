@@ -30,12 +30,13 @@ def group_1_detect(source,
         model_path = str(local_path)
 
     glob_kwarg = {'barier': 358, 'tail_mark': False, 'tail': 200, 're_id_mark': False, 're_id_frame': 11,
-              'tail_for_count_mark': False, 'tail_for_count': 200, 'two_lines_buff_mark': False, 'buff': 40,
-              'go_men_forward': False, 'step': 45, 'height': 100}
-    
+                  'tail_for_count_mark': False, 'tail_for_count': 200, 'two_lines_buff_mark': False, 'buff': 40,
+                  'go_men_forward': False, 'step': 45, 'height': 100}
+
     # каждый раз инициализируем модель в колабе иначе выдает ошибочный результат
     model = YOLO(model_path)
-    all_boxes, orig_shape = get_boxes(model.predict(source, stream=True, save=False))
+    all_boxes, orig_shape = get_boxes(
+        model.predict(source, stream=True, save=False))
 
     all_boxes_and_shp = np.array((orig_shape, all_boxes))
 
@@ -45,13 +46,14 @@ def group_1_detect(source,
     all_boxes = all_boxes_and_shp[1]  # Здесь боксы
 
     # Отправляем боксы в трекинг + пробрасываем мимо трекинга каски и нетрекованные боксы людей
-    out_boxes = tracking_on_detect(all_boxes, ocsort_tracker, orig_shp, **glob_kwarg)
+    out_boxes = tracking_on_detect(
+        all_boxes, ocsort_tracker, orig_shp, **glob_kwarg)
 
     # Смотрим у какого айди есть каски и жилеты (по порогу от доли кадров где был зафиксирован
     # айди человека + каска и жилет в его бб и без них)
     men = get_men(out_boxes)
 
-    # здесь переназначаем айди входящий/выходящий 
+    # здесь переназначаем айди входящий/выходящий
     men_clean = get_count_men(men, orig_shp[0], **glob_kwarg)
 
     # Здесь принимаем переназначенные айди смотрим нарушения,
@@ -93,8 +95,9 @@ def group_1_detect_npy(source: Union[str, Path],
     :return: Result
     """
     glob_kwarg = {'barier': 358, 'tail_mark': False, 'tail': 200, 're_id_mark': False, 're_id_frame': 11,
-              'tail_for_count_mark': False, 'tail_for_count': 200, 'two_lines_buff_mark': False, 'buff': 40,
-              'go_men_forward': False, 'step': 45, 'height': 100}
+                  'tail_for_count_mark': False, 'tail_for_count': 200, 'two_lines_buff_mark': False, 'buff': 40,
+                  'go_men_forward': False, 'step': 45, 'height': 100}
+    
     if tracker_config is None:
         tracker_config = ROOT / "trackers/ocsort/configs/ocsort_group1.yaml"
 
@@ -106,13 +109,14 @@ def group_1_detect_npy(source: Union[str, Path],
     all_boxes = all_boxes_and_shp[1]  # Здесь боксы
 
     # Отправляем боксы в трекинг + пробрасываем мимо трекинга каски и нетрекованные боксы людей
-    out_boxes = tracking_on_detect(all_boxes, ocsort_tracker, orig_shp, **glob_kwarg)
+    out_boxes = tracking_on_detect(
+        all_boxes, ocsort_tracker, orig_shp, **glob_kwarg)
 
     # Смотрим у какого айди есть каски и жилеты (по порогу от доли кадров где был зафиксирован
     # айди человека + каска и жилет в его бб и без них)
     men = get_men(out_boxes)
 
-    # здесь переназначаем айди входящий/выходящий 
+    # здесь переназначаем айди входящий/выходящий
     men_clean = get_count_men(men, orig_shp[0], **glob_kwarg)
 
     # Здесь принимаем переназначенные айди смотрим нарушения,

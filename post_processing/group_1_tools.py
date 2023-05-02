@@ -276,6 +276,9 @@ def get_men(out_boxes, helmet_limit=0.5, vest_limit=0.5, metric=find_intersectio
 
 # эта длинная функция по сути работает как фильтр людей(пропускает дальше тех кто либо вошел либо вышел)
 def get_count_men(men, orig_shape, **glob_kwarg):
+    if len(men[:, 0]) == 0:
+    return men, 0, 0
+
     n_ = int(max(men[:, 0]))
     orig_shape = int(orig_shape)
 
@@ -446,60 +449,73 @@ def get_count_vialotion(men, orig_shape, **glob_kwarg):
 """
 
 
-def track_on_detect(path_model, tracker_path, video_source, tracker, 
-                    save_vid = False, start_vid = 1, end_vid = 1, prnt_res = False, **glob_kwarg):
-  if end_vid == 1:
-    length = len([f for f in os.listdir(path_model) 
-      if f.endswith('.npy') and os.path.isfile(os.path.join(path_model, f))]) # подсчитаем количество видео в папке
-  else:
-    length = end_vid
-
-  # создаем пустые словари которые будем наполнять предсказаниями вошедших /вышедших первым  и вторым алгоритмом
-  d_in = {str(n): 0 for n in list(range(start_vid,length+1))} 
-  d_out = {str(n): 0 for n in list(range(start_vid,length+1))}
-
-
-  # создаем пустые словари которые будем наполнять предсказаниями нарушениями по каске (используются в следующем разделе)
-  # создаем пустые словари которые будем наполнять предсказаниями нарушениями по униформе (используются в следующем разделе)
-  d_helmet = {str(n): [] for n in list(range(start_vid,length+1))} 
-  d_unif = {str(n): [] for n in list(range(start_vid,length+1))} 
-
-  viol_all = pd.DataFrame(columns=['vid', 'helmet', 'uniform', 'first_frame', 'last_frame'])
-
-  for N in range(start_vid,length+1): # устанавливаем какие видео смотрим
-    if os.path.isfile(path_model +f'{N}.npy'):
-        with open(path_model +f'{N}.npy', 'rb') as files:  #Загружаем объект содержащий формат исходного изображения и детекции
-          all_boxes_and_shp = np.load(files, allow_pickle=True)
-          orig_shp = all_boxes_and_shp[0] # Здесь формат
-          all_boxes = all_boxes_and_shp[1]  # Здесь боксы
-          if len(all_boxes) != 0: # если есть хотя бы 1 бокс
-            out_boxes = tracking_on_detect(all_boxes,tracker, orig_shp, **glob_kwarg)   # Отправляем боксы в трекинг + пробрасываем мимо трекинга каски и нетрекованные боксы людей
-            if np.count_nonzero(np.isnan(out_boxes[:,-2]) != True) > 0: # если есть хотя бы 1 айди после треккера
-              if save_vid:
-                create_video_with_bbox(out_boxes, video_source + f'{N}.mp4', path_model + tracker_path + f'{N}_track.mp4') # функция отрисовки боксов на соответсвующем видео
-              # out_boxes_pd = pd.DataFrame(out_boxes)
-              # out_boxes_pd.to_excel(path + tracker_path + f"df_{N}_{round(orig_shp[0])}_.xlsx") # сохраняем что бы было)
-              men = get_men(out_boxes)   # Смотрим у какого айди есть каски и жилеты (по порогу от доли кадров где был зафиксирован айди человека + каска и жилет в его бб и без них)
-              men_clean = get_count_men(men, orig_shp[0], **glob_kwarg) # здесь переназначаем айди входящий/выходящий (временное решение для MVP, надо думать над продом)
-              violation, incoming, exiting, clothing_helmet, clothing_unif = get_count_vialotion(men_clean, orig_shp[0], **glob_kwarg) # Здесь принимаем переназначенные айди смотрим нарушения а также повторно считаем входящих по дистанции, проверяем
-              violation.insert(loc = 0, column = 'vid', value = N)
-              viol_all = pd.concat([viol_all, violation], ignore_index = True)
-
-              d_in[f'{N}'] = incoming
-              d_out[f'{N}'] = exiting
-              d_helmet[f'{N}'] = clothing_helmet         
-              d_unif[f'{N}'] = clothing_unif       
-            else:
-              if prnt_res: # Если хотим видеть результаты (сравнивать с видео)
-                print(f'Детекции на видео {N} подходящие для треккера: отсутствуют')
-              else:
-                pass
-              
+def track_on_detect(path_model, tracker_path, video_source, tracker,
+                    save_vid=False, start_vid=1, end_vid=1, prnt_res=False, **glob_kwarg):
+    if end_vid == 1:
+        length = len([f for f in os.listdir(path_model)
+                      if f.endswith('.npy') and os.path.isfile(os.path.join(path_model, f))])  # подсчитаем количество видео в папке
     else:
-      if prnt_res: # Если хотим видеть результаты (сравнивать с видео)
-        print(f'Видео {N}: отсутствует')
-      else:
-        pass
-      
+        length = end_vid
 
-  return d_in, d_out, d_helmet, d_unif, viol_all
+    # создаем пустые словари которые будем наполнять предсказаниями вошедших /вышедших первым  и вторым алгоритмом
+    d_in = {str(n): 0 for n in list(range(start_vid, length+1))}
+    d_out = {str(n): 0 for n in list(range(start_vid, length+1))}
+
+    # создаем пустые словари которые будем наполнять предсказаниями нарушениями по каске (используются в следующем разделе)
+    # создаем пустые словари которые будем наполнять предсказаниями нарушениями по униформе (используются в следующем разделе)
+    d_helmet = {str(n): [] for n in list(range(start_vid, length+1))}
+    d_unif = {str(n): [] for n in list(range(start_vid, length+1))}
+
+    viol_all = pd.DataFrame(
+        columns=['vid', 'helmet', 'uniform', 'first_frame', 'last_frame'])
+
+    for N in range(start_vid, length+1):  # устанавливаем какие видео смотрим
+        if os.path.isfile(path_model + f'{N}.npy'):
+            # Загружаем объект содержащий формат исходного изображения и детекции
+            with open(path_model + f'{N}.npy', 'rb') as files:
+                all_boxes_and_shp = np.load(files, allow_pickle=True)
+                orig_shp = all_boxes_and_shp[0]  # Здесь формат
+                all_boxes = all_boxes_and_shp[1]  # Здесь боксы
+                if len(all_boxes) != 0:  # если есть хотя бы 1 бокс
+                    # Отправляем боксы в трекинг + пробрасываем мимо трекинга каски и нетрекованные боксы людей
+                    out_boxes = tracking_on_detect(
+                        all_boxes, tracker, orig_shp, **glob_kwarg)
+                    # если есть хотя бы 1 айди после треккера
+                    if np.count_nonzero(np.isnan(out_boxes[:, -2]) != True) > 0:
+                        if save_vid:
+                            # функция отрисовки боксов на соответсвующем видео
+                            create_video_with_bbox(
+                                out_boxes, video_source + f'{N}.mp4', path_model + tracker_path + f'{N}_track.mp4')
+                        # out_boxes_pd = pd.DataFrame(out_boxes)
+                        # out_boxes_pd.to_excel(path + tracker_path + f"df_{N}_{round(orig_shp[0])}_.xlsx") # сохраняем что бы было)
+                        # Смотрим у какого айди есть каски и жилеты (по порогу от доли кадров где был зафиксирован айди человека + каска и жилет в его бб и без них)
+                        men = get_men(out_boxes)
+                        # здесь переназначаем айди входящий/выходящий (временное решение для MVP, надо думать над продом)
+                        men_clean = get_count_men(
+                            men, orig_shp[0], **glob_kwarg)
+                        # Здесь принимаем переназначенные айди смотрим нарушения а также повторно считаем входящих по дистанции, проверяем
+                        violation, incoming, exiting, clothing_helmet, clothing_unif = get_count_vialotion(
+                            men_clean, orig_shp[0], **glob_kwarg)
+                        violation.insert(loc=0, column='vid', value=N)
+                        viol_all = pd.concat(
+                            [viol_all, violation], ignore_index=True)
+
+                        d_in[f'{N}'] = incoming
+                        d_out[f'{N}'] = exiting
+                        d_helmet[f'{N}'] = clothing_helmet
+                        d_unif[f'{N}'] = clothing_unif
+                    else:
+                        # Если хотим видеть результаты (сравнивать с видео)
+                        if prnt_res:
+                            print(
+                                f'Детекции на видео {N} подходящие для треккера: отсутствуют')
+                        else:
+                            pass
+
+        else:
+            if prnt_res:  # Если хотим видеть результаты (сравнивать с видео)
+                print(f'Видео {N}: отсутствует')
+            else:
+                pass
+
+    return d_in, d_out, d_helmet, d_unif, viol_all
