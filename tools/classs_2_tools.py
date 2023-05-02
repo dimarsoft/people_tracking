@@ -3,6 +3,46 @@ import shutil
 from pathlib import Path
 
 
+def delete_and_change(src_labels, out_folder) -> None:
+
+    src_labels = Path(src_labels)
+    out_folder = Path(out_folder)
+
+    count_0 = 0
+    count_1 = 0
+
+    total_count = 0
+
+    for label in src_labels.iterdir():
+        if label.is_file() and label.suffix == ".txt":
+            # пустые (нет детекций), но размер не всегда ноль
+            if label.stat().st_size > 1:
+
+                out_l = out_folder / label.name
+
+                with open(out_l, 'a') as out_file:
+                    with open(label, 'r') as src_file:
+                        for line in src_file:
+                            total_count += 1
+                            words = line.split(' ')
+                            if words[0] == '0':
+                                new_line = " ".join(words)
+                                out_file.write(new_line)
+
+                                count_0 += 1
+
+                            if words[0] == '3':
+                                words[0] = '1'
+                                new_line = " ".join(words)
+                                out_file.write(new_line)
+
+                                count_1 += 1
+            else:
+                shutil.copy(label, out_folder)
+
+    print(f"count_0 = {count_0}, count_1 = {count_1}, total_count = {total_count}")
+
+
 def copy_labels_image(src_labels, src_images, out_folder, lb_info_file) -> None:
     """
     Туулза для датасета с двумя классами.
@@ -46,6 +86,17 @@ def copy_labels_image(src_labels, src_images, out_folder, lb_info_file) -> None:
     pass
 
 
+def change_labels():
+    source_folder = Path('c:\\AI\\02.05.2023\\train\\labels\\')
+    out_folder = Path('c:\\AI\\test\\train')
+
+    delete_and_change(source_folder, out_folder)
+
+    source_folder = Path('c:\\AI\\02.05.2023\\val\\labels\\')
+    out_folder = Path('c:\\AI\\test\\val')
+
+    delete_and_change(source_folder, out_folder)
+
 def split_labels():
     train_batches = 8
     val_batches = 2
@@ -60,19 +111,20 @@ def split_labels():
     lb_info_file = source_folder / "labels.txt"
 
     for i in range(train_batches):
-        lb = source_folder / "train" / f"labels_new{i+1}"
+        lb = source_folder / "train" / f"labels_new{i + 1}"
 
-        batch_out_folder = out_folder / f"train_batch_{i+1}"
+        batch_out_folder = out_folder / f"train_batch_{i + 1}"
 
         copy_labels_image(lb, train_images, batch_out_folder, lb_info_file)
 
     for i in range(val_batches):
-        lb = source_folder / "val" / f"labels_new{i+1}"
+        lb = source_folder / "val" / f"labels_new{i + 1}"
 
-        batch_out_folder = out_folder / f"val_batch_{i+1}"
+        batch_out_folder = out_folder / f"val_batch_{i + 1}"
 
         copy_labels_image(lb, val_images, batch_out_folder, lb_info_file)
 
 
 if __name__ == '__main__':
-    split_labels()
+    # split_labels()
+    change_labels()
