@@ -7,14 +7,15 @@ import cv2
 import os
 from sklearn.metrics import precision_recall_fscore_support
 
-glob_kwarg = {'barier' : 337, 'tail_mark' : False, 'tail' : 200, 're_id_mark' : False, 're_id_frame' : 11, 
-              'tail_for_count_mark' : False, 'tail_for_count' : 200, 'two_lines_buff_mark' : False, 'buff' : 40,
-              'go_men_forward' : False, 'step' :45, 'height' : 100 }
+glob_kwarg = {'barier': 337, 'tail_mark': False, 'tail': 200, 're_id_mark': False, 're_id_frame': 11,
+              'tail_for_count_mark': False, 'tail_for_count': 200, 'two_lines_buff_mark': False, 'buff': 40,
+              'go_men_forward': False, 'step': 45, 'height': 100}
 
-ocsort_kwarg = {'det_thresh' : 0.49428431641933235, 'max_age' : 7, 
-                  'min_hits' : 7, 'iou_threshold' : 0.6247364818234254, 
-                  'delta_t' : 5, 'asso_func' : 'iou', 
-                  'inertia' : 0.6758806605183052, 'use_byte' : True} # default
+ocsort_kwarg = {'det_thresh': 0.49428431641933235, 'max_age': 7,
+                'min_hits': 7, 'iou_threshold': 0.6247364818234254,
+                'delta_t': 5, 'asso_func': 'iou',
+                'inertia': 0.6758806605183052, 'use_byte': True}  # default
+
 
 def get_boxes(result):  # эта функция сохраняет боксы от предикта в файл .npy для того что бы не возвращаться больше к детекции
     all_boxes = np.empty((0, 7))
@@ -45,7 +46,8 @@ def detect_videos(path_model, model_in_path, video_source, start_vid=1, end_vid=
             print(f'Видео {N}: отсутствует')
 
 
-def change_bbox(bbox, **glob_kwarg): # Если обрезаем бокс (функцию можно модифицировать по необходимости проверки той или иной гипотезы)
+# Если обрезаем бокс (функцию можно модифицировать по необходимости проверки той или иной гипотезы)
+def change_bbox(bbox, **glob_kwarg):
     tail = glob_kwarg['tail']
     y2 = bbox[:, [1]] + tail
     bbox[:, [3]] = y2
@@ -61,21 +63,21 @@ def forward(bbox, tracks,
             if round(t[0]) == round(bb[0]) and round(t[1]) == round(bb[1]) and round(t[2]) == round(bb[2]) and round(
                     t[3]) == round(bb[3]):  # Если у них совпадают координаты
                 bb_tr = np.copy(bb)
-                bb_tr = np.insert(bb_tr, 6, t[
-                    4])  # Добавляем к нетрекованному боксу трек определенный треккером (таким образом сохраняя конфиденс и класс)
-                person = np.vstack((person,
-                                    bb_tr))  # Складываем массив. На этом этапе остались в стеке только трекованные боксы. Но нам хотелось бы сохранить их все для фиксации нарушений или последующей перетрековки
+                # Добавляем к нетрекованному боксу трек определенный треккером (таким образом сохраняя конфиденс и класс)
+                bb_tr = np.insert(bb_tr, 6, t[4])
+                # Складываем массив. На этом этапе остались в стеке только трекованные боксы. Но нам хотелось бы сохранить их все для фиксации нарушений или последующей перетрековки
+                person = np.vstack((person, bb_tr))
             else:
                 pass
         if fwd:
-            if sum(np.in1d(bb[:4], tracks[:,
-                                          :4])) < 4:  # добавим в оттрекованный массив то что треккер отсеял (на случай перетрековки)
+            # добавим в оттрекованный массив то что треккер отсеял (на случай перетрековки)
+            if sum(np.in1d(bb[:4], tracks[:, :4])) < 4:
                 person = np.vstack((person, np.insert(bb, 6, -1)))
 
     return person
 
 
-def tracking_on_detect(all_boxes, tracker, orig_shp) -> ndarray:
+def tracking_on_detect(all_boxes, tracker, orig_shp, **glob_kwarg) -> ndarray:
     """
     эта функция отправляет нетрекованные боксы людей в треккер прокидывая
     остальные классы мимо треккера
@@ -84,29 +86,30 @@ def tracking_on_detect(all_boxes, tracker, orig_shp) -> ndarray:
     :param orig_shp:
     :return:
     """
+    tail_mark = glob_kwarg['tail_mark']
     all_boxes_tr = np.empty((0, 8))
-
-    if len(all_boxes[:, -1]) == 0:
-        return all_boxes_tr
-
-    for i in range(int(max(all_boxes[:, -1]))):
-        bbox = all_boxes[all_boxes[:, -1] == i]
-        bbox_unif = bbox[np.where(bbox[:, 5] != 0)][:,
-                                                    :6]  # отбираем форму и каски в отдельный массив который прокинем мимо трека
-        bbox_unif = np.hstack(
-            (bbox_unif, np.tile(np.nan, (bbox_unif.shape[0], 1))))  # добавляем столбец с айди нан для касок и жилетов
-        # сохраняем номер кадра
-        bbox_unif = np.hstack((bbox_unif, np.tile(i, (bbox_unif.shape[0], 1))))
-        bbox = bbox[np.where(bbox[:, 5] == 0)]  # в трек идут только люди
-        # bbox = change_bbox(bbox, tail)
-        tracks = tracker.update(
-            bbox[:, :-2], img_size=orig_shp, img_info=orig_shp)  # трекуем людей
-        person = forward(bbox, tracks,
-                         fwd=False)  # эта функция позволяет использовать далее лист детекций в который внесены айди от трека (трек фильтрует и удаляет боксы)
-        # складываем людей в массив
-        all_boxes_tr = np.vstack((all_boxes_tr, person))
-        # складываем каски и жилеты в массив
-        all_boxes_tr = np.vstack((all_boxes_tr, bbox_unif))
+    if len(all_boxes) != 0:
+        for i in range(int(max(all_boxes[:, -1]))):
+            bbox = all_boxes[all_boxes[:, -1] == i]
+            # отбираем форму и каски в отдельный массив который прокинем мимо трека
+            bbox_unif = bbox[np.where(bbox[:, 5] != 0)][:, :6]
+            # добавляем столбец с айди нан для касок и жилетов
+            bbox_unif = np.hstack(
+                (bbox_unif, np.tile(np.nan, (bbox_unif.shape[0], 1))))
+            # сохраняем номер кадра
+            bbox_unif = np.hstack(
+                (bbox_unif, np.tile(i, (bbox_unif.shape[0], 1))))
+            bbox = bbox[np.where(bbox[:, 5] == 0)]  # в трек идут только люди
+            if tail_mark:  # Если обрезаем бокс
+                bbox = change_bbox(bbox, **glob_kwarg)
+            tracks = tracker.update(
+                bbox[:, :-2], img_size=orig_shp, img_info=orig_shp)  # трекуем людей
+            # эта функция позволяет использовать далее лист детекций в который внесены айди от трека (трек фильтрует и удаляет боксы)
+            person = forward(bbox, tracks, fwd=False)
+            # складываем людей в массив
+            all_boxes_tr = np.vstack((all_boxes_tr, person))
+            # складываем каски и жилеты в массив
+            all_boxes_tr = np.vstack((all_boxes_tr, bbox_unif))
     return all_boxes_tr
 
 
