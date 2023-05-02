@@ -290,7 +290,7 @@ def get_count_men(men, orig_shape, **glob_kwarg):
 
     format = orig_shape / 640
 
-    gate_y = barier * format  # 
+    gate_y = barier * format  #
 
     box_y_top = [None] + [list() for _ in range(int(n_))]
     box_y_bottom = [None] + [list() for _ in range(int(n_))]
@@ -368,8 +368,14 @@ def get_count_men(men, orig_shape, **glob_kwarg):
     return men
 
 
-def get_count_vialotion(men, orig_shape):  # step height определяем сами
+def get_count_vialotion(men, orig_shape, **glob_kwarg):
     orig_shape = int(orig_shape)
+    format = orig_shape/640
+
+    go_men_forward = glob_kwarg['go_men_forward']
+    step = glob_kwarg['step']
+    height = glob_kwarg['height']
+
     df = pd.DataFrame(men, columns=['id',
                                     'first_top_y', 'last_top_y',
                                     'first_bottom_y', 'last_bottom_y',
@@ -385,16 +391,34 @@ def get_count_vialotion(men, orig_shape):  # step height определяем с
     df1 = df.groupby('id').agg(agg_func)
     # Чтобы не выводилось предупреждение
     pd.options.mode.chained_assignment = None
-    # Определяем пройденное расстояние
-    df1.loc[:, 'distance'] = df1.last_bottom_y - df1.first_bottom_y
-    df2 = df1.copy()
+
+    # Определяем количество вошедших и вышедших
+    if go_men_forward:
+        # Если  mark True то центр масс считается расстоянием от y_top. Если при этом координата центра масс больше формата то она приравнивается формату
+        df1.loc[:, 'last_cent_y_stand'] = df1.last_top_y+height*format
+        # здесь считаем низ от макушки а не по низу бокса, фиксируем, но если он ниже размера картинки то лимитируем по низу картинки
+        df1.loc[df1['last_cent_y_stand'] > orig_shape,
+                "last_cent_y_stand"] = orig_shape
+        df1.loc[:, 'first_cent_y_stand'] = df1.first_top_y+height*format
+        # здесь считаем низ от макушки а не по низу бокса, фиксируем, но если он ниже размера картинки то лимитируем по низу картинки
+        df1.loc[df1['first_cent_y_stand'] > orig_shape,
+                "first_cent_y_stand"] = orig_shape
+        df1.loc[:, 'distance'] = df1.last_bottom_y - df1.first_bottom_y
+        # здесь если человек вошел к турникету и вернулся ко входу то его дистанция будет около нуля и он отсеется, также как и охранник в обратном случае
+        df2 = df1.loc[(np.abs(df1.distance) > (step*format))]
+
+    if not go_men_forward:
+        # Если  mark False то просто считаем дистанцию по y_top (если в get_count_men в массиве остались только люди посчитанные как вошедшие/вышедшие)
+        df1.loc[:, 'distance'] = df1.last_bottom_y - df1.first_bottom_y
+        df2 = df1.copy()
     # Считаем входящих (сверху вниз)
     incoming = df2.loc[df2.distance > 0].shape[0]
     # Считаем выходящих
     exiting = df2.loc[df2.distance < 0].shape[0]
 
-    V_helm = 0.15
-    V_unif = 0.5
+    # Определяем нарушения
+    V_helm = 0.8
+    V_unif = 0.70
     dictinex = {'incoming': incoming, 'exiting': exiting}
     df2.loc[df2.helmet < V_helm, 'helmet'] = 0
     df2.loc[df2.helmet >= V_helm, 'helmet'] = 1
@@ -407,10 +431,12 @@ def get_count_vialotion(men, orig_shape):  # step height определяем с
     for i, ds in enumerate(df2.values):
         clothing_helmet.append(int(ds[6]))
         clothing_unif.append(int(ds[7]))
-    violations = df2.loc[((df2.helmet == 0) | (df2.uniform == 0)),
-                         ['helmet', 'uniform', 'first_frame', 'last_frame']]  # а это сами нарушения с номерами кадров
-
-    return violations, incoming, exiting, df2, clothing_helmet, clothing_unif
+    violations = df2.loc[((df2.helmet == 1) | (df2.uniform == 1)),
+                         ['helmet', 'uniform', 'first_frame', 'last_frame']]   # а это сами нарушения с номерами кадров
+    # Можно отдельно отобрать три группы нарушителей, но здесь все вместе
+    # Пока только вывод на экран первых, можно сохранить в csv
+    # return men
+    return violations, incoming, exiting, clothing_helmet, clothing_unif
 
 
 """
