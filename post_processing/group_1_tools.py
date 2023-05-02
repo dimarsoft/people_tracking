@@ -45,11 +45,10 @@ def detect_videos(path_model, model_in_path, video_source, start_vid=1, end_vid=
             print(f'Видео {N}: отсутствует')
 
 
-def change_bbox(bbox, tail):  # функция для изменения размеров бокса подаваемого в треккер
+def change_bbox(bbox, **glob_kwarg): # Если обрезаем бокс (функцию можно модифицировать по необходимости проверки той или иной гипотезы)
+    tail = glob_kwarg['tail']
     y2 = bbox[:, [1]] + tail
-
     bbox[:, [3]] = y2
-
     return bbox
 
 
