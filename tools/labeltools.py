@@ -17,7 +17,9 @@ class Labels(IntEnum):
     # Каска
     helmet: int = 1
     # Жилет
-    uniform: int = 2
+    uniform: int = 2,
+    # Человек нарушитель: без каски или жилета
+    human_bad: int = 3
 
 
 # положение человека относительно турникета
@@ -32,7 +34,8 @@ class HumanPos(Enum):
 label_colors = {
     Labels.human: (255, 255, 0),
     Labels.helmet: (255, 0, 255),
-    Labels.uniform: (255, 255, 255)
+    Labels.uniform: (255, 255, 255),
+    Labels.human_bad: (127, 127, 0)
 }
 
 # 10 различных цветов для объектов
@@ -116,6 +119,8 @@ class DetectedLabel:
     def label_str(self) -> str:
         if self.label is Labels.human:
             return f"human: {self.conf:.2f}"
+        if self.label is Labels.human_bad:
+            return f"human_bad: {self.conf:.2f}"
         if self.label is Labels.uniform:
             return "uniform"
         if self.label is Labels.helmet:

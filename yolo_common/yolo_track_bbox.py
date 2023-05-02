@@ -176,7 +176,7 @@ class YoloTrackBbox:
                         predict = self.det_to_tensor(df_by_class, w, h)
 
                         # ббокс если и меняем, то только у человека
-                        if key == int(Labels.human):
+                        if key == int(Labels.human) or key == int(Labels.human_bad):
                             predict = change_bbox(predict, change_bb, file_id)
                     else:
                         predict = empty_tensor
