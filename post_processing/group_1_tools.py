@@ -8,32 +8,31 @@ import os
 from sklearn.metrics import precision_recall_fscore_support
 
 
-def get_boxes(
-        result):  # эта функция сохраняет боксы от предикта в файл .npy для того что бы не возвращаться больше к детекции
-    orig_shp = result[0].orig_shape
+def get_boxes(result):  # эта функция сохраняет боксы от предикта в файл .npy для того что бы не возвращаться больше к детекции
     all_boxes = np.empty((0, 7))
-    for i in range(len(result)):
-        bbox = result[i].cpu().boxes.data.numpy()
+    for i, r in enumerate(result):
+        bbox = r.cpu().boxes.data.numpy()
         bbox = np.hstack((bbox, np.tile(i, (bbox.shape[0], 1))))
         all_boxes = np.vstack((all_boxes, bbox))
-    return result, all_boxes, orig_shp
+        orig_shp = r.orig_shape
+    return all_boxes, orig_shp
 
 
 def detect_videos(path_model, model_in_path, video_source, start_vid=1, end_vid=1):
     if end_vid == 1:
         length = len([f for f in os.listdir(video_source)
-                      if f.endswith('.mp4') and os.path.isfile(
-                os.path.join(video_source, f))])  # подсчитаем количество видео в папке
+                      if f.endswith('.mp4') and os.path.isfile(os.path.join(video_source, f))])  # подсчитаем количество видео в папке
     else:
         length = end_vid
-    for N in range(start_vid, length + 1):  # устанавливаем какие видео смотрим
+    for N in range(start_vid, length+1):  # устанавливаем какие видео смотрим
         try:
             with open(video_source + f'{N}.mp4', 'r') as f:
-                model = YOLO(
-                    path_model + model_in_path)  ## каждый раз инициализируем модель в колабе иначе выдает ошибочный результат
-                results, all_boxes, orig_shape = get_boxes(model.predict(video_source + f'{N}.mp4',
-                                                                         line_thickness=2, vid_stride=1, save=True))
-                np.save(path_model + f"{N}.npy", np.array((orig_shape, all_boxes)))
+                # каждый раз инициализируем модель в колабе иначе выдает ошибочный результат
+                model = YOLO(path_model+model_in_path)
+                all_boxes, orig_shape = get_boxes(model.predict(source=video_source + f'{N}.mp4',
+                                                                line_thickness=2, vid_stride=1, stream=True, save=False))
+                np.save(
+                    path_model + f"{N}.npy", np.array((orig_shape, all_boxes), dtype=object))
         except:
             print(f'Видео {N}: отсутствует')
 
@@ -48,7 +47,8 @@ def change_bbox(bbox, tail):  # функция для изменения раз�
 
 def forward(bbox, tracks,
             fwd=False):  # эта функция позволяет сохранить лист детекций в который внесены айди от трека сохраняя нетрекованные боксы на случай последующей перетрековки
-    person = np.empty((0, 8))  # Создадим пустой массив для каждого кадра который будем наполнять
+    # Создадим пустой массив для каждого кадра который будем наполнять
+    person = np.empty((0, 8))
     for i, bb in enumerate(bbox):  # Сравним каждый первичный не треккованный бокс
         for k, t in enumerate(tracks):  # С каждым треккованым
             if round(t[0]) == round(bb[0]) and round(t[1]) == round(bb[1]) and round(t[2]) == round(bb[2]) and round(
@@ -62,7 +62,7 @@ def forward(bbox, tracks,
                 pass
         if fwd:
             if sum(np.in1d(bb[:4], tracks[:,
-                                   :4])) < 4:  # добавим в оттрекованный массив то что треккер отсеял (на случай перетрековки)
+                                          :4])) < 4:  # добавим в оттрекованный массив то что треккер отсеял (на случай перетрековки)
                 person = np.vstack((person, np.insert(bb, 6, -1)))
 
     return person
@@ -85,21 +85,26 @@ def tracking_on_detect(all_boxes, tracker, orig_shp) -> ndarray:
     for i in range(int(max(all_boxes[:, -1]))):
         bbox = all_boxes[all_boxes[:, -1] == i]
         bbox_unif = bbox[np.where(bbox[:, 5] != 0)][:,
-                    :6]  # отбираем форму и каски в отдельный массив который прокинем мимо трека
+                                                    :6]  # отбираем форму и каски в отдельный массив который прокинем мимо трека
         bbox_unif = np.hstack(
             (bbox_unif, np.tile(np.nan, (bbox_unif.shape[0], 1))))  # добавляем столбец с айди нан для касок и жилетов
-        bbox_unif = np.hstack((bbox_unif, np.tile(i, (bbox_unif.shape[0], 1))))  # сохраняем номер кадра
+        # сохраняем номер кадра
+        bbox_unif = np.hstack((bbox_unif, np.tile(i, (bbox_unif.shape[0], 1))))
         bbox = bbox[np.where(bbox[:, 5] == 0)]  # в трек идут только люди
         # bbox = change_bbox(bbox, tail)
-        tracks = tracker.update(bbox[:, :-2], img_size=orig_shp, img_info=orig_shp)  # трекуем людей
+        tracks = tracker.update(
+            bbox[:, :-2], img_size=orig_shp, img_info=orig_shp)  # трекуем людей
         person = forward(bbox, tracks,
                          fwd=False)  # эта функция позволяет использовать далее лист детекций в который внесены айди от трека (трек фильтрует и удаляет боксы)
-        all_boxes_tr = np.vstack((all_boxes_tr, person))  # складываем людей в массив
-        all_boxes_tr = np.vstack((all_boxes_tr, bbox_unif))  # складываем каски и жилеты в массив
+        # складываем людей в массив
+        all_boxes_tr = np.vstack((all_boxes_tr, person))
+        # складываем каски и жилеты в массив
+        all_boxes_tr = np.vstack((all_boxes_tr, bbox_unif))
     return all_boxes_tr
 
 
-def create_video_with_bbox(bboxes, video_source, video_out):  # функция отрисовки боксов на соответсвующем видео
+# функция отрисовки боксов на соответсвующем видео
+def create_video_with_bbox(bboxes, video_source, video_out):
     '''Функция записывает видео с рамками объектов, которые передаются в:
   bboxes - ndarray(x1, y1, x2, y2, conf, class, id, frame),
   если последовательность нарушена надо менять внутри функции.
@@ -122,7 +127,8 @@ def create_video_with_bbox(bboxes, video_source, video_out):  # функция �
         for i in range(len_frm):
             ret, frame = vid_src.read()
             # На всякий пожарный случай выход
-            if not ret: break
+            if not ret:
+                break
             # Отбираем рамки для кадра
             bbox = bboxes[bboxes[:, -1] == i, :-1]
             if len(bbox) > 0:
@@ -132,11 +138,14 @@ def create_video_with_bbox(bboxes, video_source, video_out):  # функция �
                     # Добавим рамки
                     x1, y1 = int(p[0]), int(p[1])
                     x2, y2 = int(p[2]), int(p[3])
-                    cv2.rectangle(frame, (x1, y1), (x2, y2), (153, 153, 153), 2)
+                    cv2.rectangle(frame, (x1, y1), (x2, y2),
+                                  (153, 153, 153), 2)
                     # Добавим надпись в виде идентификатора объекта  и conf
                     msg = 'id' + str(int(p[6])) + ' ' + str(round(p[4], 2))
-                    (w, h), _ = cv2.getTextSize(msg, cv2.FONT_HERSHEY_DUPLEX, 0.45, 1)
-                    cv2.rectangle(frame, (x1, y1 - 20), (x1 + w, y1), (153, 153, 153), -1)
+                    (w, h), _ = cv2.getTextSize(
+                        msg, cv2.FONT_HERSHEY_DUPLEX, 0.45, 1)
+                    cv2.rectangle(frame, (x1, y1 - 20),
+                                  (x1 + w, y1), (153, 153, 153), -1)
                     cv2.putText(frame, msg, (x1, y1 - 5), cv2.FONT_HERSHEY_DUPLEX, 0.45,
                                 (255, 255, 255), 1)
                 # Отрисовываем рамки касок
@@ -173,7 +182,8 @@ def get_men(out_boxes):
     for i in range(int(max(out_boxes[:, -1]))):
 
         # Только люди
-        humans = out_boxes[(out_boxes[:, -3] == 0) & (out_boxes[:, -2] != -1) & (out_boxes[:, -1] == i)]
+        humans = out_boxes[(out_boxes[:, -3] == 0) &
+                           (out_boxes[:, -2] != -1) & (out_boxes[:, -1] == i)]
         # Только каски
         helmets = out_boxes[(out_boxes[:, -3] == 1) & (out_boxes[:, -1] == i)]
         # Только жилетки
@@ -184,11 +194,11 @@ def get_men(out_boxes):
             # Сколько касок в пределах рамок человека (либо 1, либо 0)
             helmet = 1 if len(helmets[(helmets[:, 0] >= man[0] - inter_helm) & (helmets[:, 1] >= man[1] - inter_helm) &
                                       (helmets[:, 2] <= man[2] + inter_helm) & (
-                                              helmets[:, 3] <= man[3] + inter_helm)]) >= 1 else 0
+                helmets[:, 3] <= man[3] + inter_helm)]) >= 1 else 0
             # Сколько жилеток в пределах рамок человека (либо 1, либо 0)
             vest = 1 if len(vests[(vests[:, 0] >= man[0] - inter_unif) & (vests[:, 1] >= man[1] - inter_unif) &
                                   (vests[:, 2] <= man[2] + inter_unif) & (
-                                          vests[:, 3] <= man[3] + inter_unif)]) >= 1 else 0
+                vests[:, 3] <= man[3] + inter_unif)]) >= 1 else 0
             # Это просто добавление в массив men. Часть параметров нужны нам дважды для выявления макс и мин.
             # Поэтому дважды повторяются ордината низа и номер кадра
             men = np.vstack((men, np.array([man[-2],
@@ -282,13 +292,14 @@ def get_count_vialotion(men, orig_shape):  # step height определяем с
     df2.loc[df2.uniform < V_unif, 'uniform'] = 0
     df2.loc[df2.uniform >= V_unif, 'uniform'] = 1
 
-    clothing_helmet = []  # соберем данные по одежде в отдельный массив для последующей проверки на этапе проверки P и R
+    # соберем данные по одежде в отдельный массив для последующей проверки на этапе проверки P и R
+    clothing_helmet = []
     clothing_unif = []
     for i, ds in enumerate(df2.values):
         clothing_helmet.append(int(ds[6]))
         clothing_unif.append(int(ds[7]))
     violations = df2.loc[((df2.helmet == 0) | (df2.uniform == 0)),
-    ['helmet', 'uniform', 'first_frame', 'last_frame']]  # а это сами нарушения с номерами кадров
+                         ['helmet', 'uniform', 'first_frame', 'last_frame']]  # а это сами нарушения с номерами кадров
 
     return violations, incoming, exiting, df2, clothing_helmet, clothing_unif
 
@@ -304,7 +315,7 @@ def track_on_detect(path_model, tracker_path, video_source, tracker, start_vid=1
     if end_vid == 1:
         length = len([f for f in os.listdir(path_model)
                       if f.endswith('.npy') and os.path.isfile(
-                os.path.join(path_model, f))])  # подсчитаем количество видео в папке
+            os.path.join(path_model, f))])  # подсчитаем количество видео в папке
     else:
         length = end_vid
 
