@@ -51,7 +51,7 @@ def group_1_detect(source,
     # айди человека + каска и жилет в его бб и без них)
     men = get_men(out_boxes)
 
-    # здесь переназначаем айди входящий/выходящий (временное решение для MVP, надо думать над продом)
+    # здесь переназначаем айди входящий/выходящий 
     men_clean = get_count_men(men, orig_shp[0], **glob_kwarg)
 
     # Здесь принимаем переназначенные айди смотрим нарушения,
@@ -103,19 +103,19 @@ def group_1_detect_npy(source: Union[str, Path],
     all_boxes = all_boxes_and_shp[1]  # Здесь боксы
 
     # Отправляем боксы в трекинг + пробрасываем мимо трекинга каски и нетрекованные боксы людей
-    out_boxes = tracking_on_detect(all_boxes, ocsort_tracker, orig_shp)
+    out_boxes = tracking_on_detect(all_boxes, ocsort_tracker, orig_shp, **glob_kwarg)
 
     # Смотрим у какого айди есть каски и жилеты (по порогу от доли кадров где был зафиксирован
     # айди человека + каска и жилет в его бб и без них)
     men = get_men(out_boxes)
 
-    # здесь переназначаем айди входящий/выходящий (временное решение для MVP, надо думать над продом)
-    men_clean, incoming1, exiting1 = get_count_men(men, orig_shp[0])
+    # здесь переназначаем айди входящий/выходящий 
+    men_clean = get_count_men(men, orig_shp[0], **glob_kwarg)
 
     # Здесь принимаем переназначенные айди смотрим нарушения,
     # а также повторно считаем входящих по дистанции, проверяем
-    violation, incoming2, exiting2, df, clothing_helmet, clothing_unif = \
-        get_count_vialotion(men_clean, orig_shp[0])
+    violation, incoming, exiting, clothing_helmet, clothing_unif = \
+        get_count_vialotion(men_clean, orig_shp[0], **glob_kwarg)
     deviations = []
 
     # 'helmet', 'uniform', 'first_frame', 'last_frame'
@@ -130,7 +130,7 @@ def group_1_detect_npy(source: Union[str, Path],
         status = get_status(helmet == 0, uniform == 0)
         deviations.append(Deviation(int(start_frame), int(end_frame), status))
 
-    results = Result(incoming2 + exiting2, incoming2, exiting2, deviations)
+    results = Result(incoming + exiting, incoming, exiting, deviations)
     results.file = str(source)
 
     return results
