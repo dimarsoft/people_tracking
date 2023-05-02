@@ -29,6 +29,10 @@ def group_1_detect(source,
 
         model_path = str(local_path)
 
+    glob_kwarg = {'barier': 358, 'tail_mark': False, 'tail': 200, 're_id_mark': False, 're_id_frame': 11,
+              'tail_for_count_mark': False, 'tail_for_count': 200, 'two_lines_buff_mark': False, 'buff': 40,
+              'go_men_forward': False, 'step': 45, 'height': 100}
+    
     # каждый раз инициализируем модель в колабе иначе выдает ошибочный результат
     model = YOLO(model_path)
     all_boxes, orig_shape = get_boxes(model.predict(source, stream=True, save=False))
@@ -48,12 +52,12 @@ def group_1_detect(source,
     men = get_men(out_boxes)
 
     # здесь переназначаем айди входящий/выходящий (временное решение для MVP, надо думать над продом)
-    men_clean, incoming1, exiting1 = get_count_men(men, orig_shp[0])
+    men_clean = get_count_men(men, orig_shp[0], **glob_kwarg)
 
     # Здесь принимаем переназначенные айди смотрим нарушения,
     # а также повторно считаем входящих по дистанции, проверяем
-    violation, incoming2, exiting2, df, clothing_helmet, clothing_unif = \
-        get_count_vialotion(men_clean, orig_shp[0])
+    violation, incoming, exiting, clothing_helmet, clothing_unif = \
+        get_count_vialotion(men_clean, orig_shp[0], **glob_kwarg)
     deviations = []
 
     # 'helmet', 'uniform', 'first_frame', 'last_frame'
@@ -68,7 +72,7 @@ def group_1_detect(source,
         status = get_status(helmet == 0, uniform == 0)
         deviations.append(Deviation(int(start_frame), int(end_frame), status))
 
-    results = Result(incoming2 + exiting2, incoming2, exiting2, deviations)
+    results = Result(incoming + exiting, incoming, exiting, deviations)
     results.file = str(source)
 
     results = results_to_dict(results)
