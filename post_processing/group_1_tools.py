@@ -180,6 +180,7 @@ def create_video_with_bbox(bboxes, video_source, video_out):
     # Заклинание cv2
     cv2.destroyAllWindows()
 
+
 def find_iou(cover_coords, man_coords):
     x1, y1, x2, y2 = cover_coords
     x3, y3, x4, y4 = man_coords
@@ -192,6 +193,7 @@ def find_iou(cover_coords, man_coords):
     area_2 = (x4 - x3) * (y4 - y3)
     return area_int / (area_1 + area_2 - area_int)
 
+
 def find_intersection(cover_coords, man_coords):
     x1, y1, x2, y2 = cover_coords
     x3, y3, x4, y4 = man_coords
@@ -203,16 +205,11 @@ def find_intersection(cover_coords, man_coords):
     cover_area = (x2 - x1) * (y2 - y1)
     return int_area / cover_area
 
-def get_men(out_boxes):
+
+def get_men(out_boxes, helmet_limit=0.5, vest_limit=0.5, metric=find_intersection):
     men = np.empty((0, 9))
-    inter_helm = 60  # поле вокруг бб человека для детекции касок
-    inter_unif = 15  # поле вокруг бб человека для детекции жилетов
-
-    if len(out_boxes[:, -1]) == 0:
-        return men
-
-    for i in range(int(max(out_boxes[:, -1]))):
-
+    frames = int(max(out_boxes[:, -1])) if out_boxes.shape[0] > 0 else 0
+    for i in range(frames + 1):
         # Только люди
         humans = out_boxes[(out_boxes[:, -3] == 0) &
                            (out_boxes[:, -2] != -1) & (out_boxes[:, -1] == i)]
@@ -221,25 +218,59 @@ def get_men(out_boxes):
         # Только жилетки
         vests = out_boxes[(out_boxes[:, -3] == 2) & (out_boxes[:, -1] == i)]
 
-        # Персональный подход к каждому человеку
-        for man in humans:
-            # Сколько касок в пределах рамок человека (либо 1, либо 0)
-            helmet = 1 if len(helmets[(helmets[:, 0] >= man[0] - inter_helm) & (helmets[:, 1] >= man[1] - inter_helm) &
-                                      (helmets[:, 2] <= man[2] + inter_helm) & (
-                helmets[:, 3] <= man[3] + inter_helm)]) >= 1 else 0
-            # Сколько жилеток в пределах рамок человека (либо 1, либо 0)
-            vest = 1 if len(vests[(vests[:, 0] >= man[0] - inter_unif) & (vests[:, 1] >= man[1] - inter_unif) &
-                                  (vests[:, 2] <= man[2] + inter_unif) & (
-                vests[:, 3] <= man[3] + inter_unif)]) >= 1 else 0
-            # Это просто добавление в массив men. Часть параметров нужны нам дважды для выявления макс и мин.
-            # Поэтому дважды повторяются ордината низа и номер кадра
-            men = np.vstack((men, np.array([man[-2],
-                                            man[1], man[1],
-                                            man[3], man[3],
-                                            i, i,
-                                            helmet, vest])))
+        if metric:
+            helmet_men = []  # Создаем список айди людей в касках
+            for cover in helmets:  # Заполняем список
+                for man in humans:
+                    if metric(cover[:4], man[:4]) > helmet_limit and man[-2] not in helmet_men:
+                        helmet_men.append(man[-2])
+                        continue
+
+            vest_men = []  # Создаем список айди людей в жилетах
+            for cover in vests:  # Заполняем список
+                for man in humans:
+                    if metric(cover[:4], man[:4]) > vest_limit and man[-2] not in vest_men:
+                        vest_men.append(man[-2])
+                        continue
+
+            # Персональный подход к каждому человеку
+            for man in humans:
+                # Есть ли на человеке каска
+                helmet = 0 if man[-2] in helmet_men else 1
+                # Есть ли на человеке жилет
+                vest = 0 if man[-2] in vest_men else 1
+                # Это условие нужно для начала работы, потому что несколько первых кадров
+                # не имеют идентификатора. Можно отбросить первые кадры, здесь так и делается
+                # Это просто добавление в массив men. Часть параметров нужны нам дважды для выявления макс и мин.
+                # Поэтому дважды повторяются ордината низа и номер кадра
+                men = np.vstack((men, np.array([man[-2],
+                                                man[1], man[1],
+                                                man[3], man[3],
+                                                i, i,
+                                                helmet, vest])))
             # Формируем датафрейм. Будем считать низ вначале и в конце, также первый кадр
-            # и последний кадр, где был этот id (пока это одно и то же значение)
+            # и последний кадр, где был этот id (пока это одно и тоже значение)
+
+        if not metric:
+            inter_helm = 90  # поле вокруг бб человека для детекции касок
+            inter_unif = 90  # поле вокруг бб человека для детекции жилетов
+            # Персональный подход к каждому человеку
+            for man in humans:
+                # Сколько касок в пределах рамок человека (либо 1, либо 0)
+                helmet = 0 if len(helmets[(helmets[:, 0] >= (man[0] - inter_helm)) & (helmets[:, 1] >= (man[1] - inter_helm)) &
+                                          (helmets[:, 2] <= (man[2] + inter_helm)) & (helmets[:, 3] <= (man[3] + inter_helm))]) >= 1 else 1
+            # Сколько жилеток в пределах рамок человека (либо 1, либо 0)
+                vest = 0 if len(vests[(vests[:, 0] >= (man[0] - inter_unif)) & (vests[:, 1] >= (man[1] - inter_unif)) &
+                                      (vests[:, 2] <= (man[2] + inter_unif)) & (vests[:, 3] <= (man[3] + inter_unif))]) >= 1 else 1
+            # Это условие нужно для начала работы, потому что несколько первых кадров
+            # не имеют идентификатора. Можно отбросить первые кадры, здесь так и делается
+                # Это просто добавление в массив men. Часть параметров нужны нам дважды для выявления макс и мин.
+                # Поэтому дважды повторяются ордината низа и номер кадра
+                men = np.vstack((men, np.array([man[-2],
+                                                man[1], man[1],
+                                                man[3], man[3],
+                                                i, i,
+                                                helmet, vest])))
     return men
 
 
