@@ -277,7 +277,7 @@ def get_men(out_boxes, helmet_limit=0.5, vest_limit=0.5, metric=find_intersectio
 # эта длинная функция по сути работает как фильтр людей(пропускает дальше тех кто либо вошел либо вышел)
 def get_count_men(men, orig_shape, **glob_kwarg):
     if len(men[:, 0]) == 0:
-        return men, 0, 0
+        return men
 
     n_ = int(max(men[:, 0]))
     orig_shape = int(orig_shape)
