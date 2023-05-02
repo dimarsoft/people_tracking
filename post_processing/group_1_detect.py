@@ -92,6 +92,9 @@ def group_1_detect_npy(source: Union[str, Path],
     :param tracker_config: Настройка трекера, если None, то будет использоваться в репы
     :return: Result
     """
+    glob_kwarg = {'barier': 358, 'tail_mark': False, 'tail': 200, 're_id_mark': False, 're_id_frame': 11,
+              'tail_for_count_mark': False, 'tail_for_count': 200, 'two_lines_buff_mark': False, 'buff': 40,
+              'go_men_forward': False, 'step': 45, 'height': 100}
     if tracker_config is None:
         tracker_config = ROOT / "trackers/ocsort/configs/ocsort_group1.yaml"
 
