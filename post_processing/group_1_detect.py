@@ -31,8 +31,9 @@ def group_1_detect(source,
 
     # каждый раз инициализируем модель в колабе иначе выдает ошибочный результат
     model = YOLO(model_path)
-    results, all_boxes, orig_shape = get_boxes(model.predict(source, stream=False, save=False))
+    all_boxes, orig_shape = get_boxes(model.predict(source, stream=True, save=False))
 
+    return all_boxes, orig_shape
     all_boxes_and_shp = np.array((orig_shape, all_boxes))
 
     ocsort_tracker = create_tracker("ocsort_v2", tracker_config)
