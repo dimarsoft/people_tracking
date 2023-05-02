@@ -7,6 +7,14 @@ import cv2
 import os
 from sklearn.metrics import precision_recall_fscore_support
 
+glob_kwarg = {'barier' : 337, 'tail_mark' : False, 'tail' : 200, 're_id_mark' : False, 're_id_frame' : 11, 
+              'tail_for_count_mark' : False, 'tail_for_count' : 200, 'two_lines_buff_mark' : False, 'buff' : 40,
+              'go_men_forward' : False, 'step' :45, 'height' : 100 }
+
+ocsort_kwarg = {'det_thresh' : 0.49428431641933235, 'max_age' : 7, 
+                  'min_hits' : 7, 'iou_threshold' : 0.6247364818234254, 
+                  'delta_t' : 5, 'asso_func' : 'iou', 
+                  'inertia' : 0.6758806605183052, 'use_byte' : True} # default
 
 def get_boxes(result):  # эта функция сохраняет боксы от предикта в файл .npy для того что бы не возвращаться больше к детекции
     all_boxes = np.empty((0, 7))
