@@ -24,6 +24,17 @@ def print_version():
     print(f"Humans, helmets and uniforms. {version}")
 
 
+def get_version() -> str:
+    git_info = git_describe()
+
+    if git_info is None:
+        git_info = f"{date_modified()}"
+    else:
+        git_info = f"git: {git_info}, {date_modified()}"
+
+    return f'{__version__}, {git_info}, torch {torch.__version__}'
+
+
 def create_empty_dict(video_source) -> dict:
     results = \
         {

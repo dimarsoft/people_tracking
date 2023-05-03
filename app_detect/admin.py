@@ -1,13 +1,13 @@
 from django.contrib import admin
 
+
 # Register your models here.
 from .models import VideoLoadingProcessing
 
 
-
-
 class VideoLoadingAdmin(admin.ModelAdmin):
     list_display = ('email', 'name')
+    fields = ('email', 'file')
 
 
 admin.site.register(VideoLoadingProcessing, VideoLoadingAdmin)

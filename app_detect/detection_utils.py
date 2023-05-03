@@ -12,11 +12,11 @@ from ultralytics.yolo.utils.checks import check_requirements
 from ultralytics.yolo.v8.detect import DetectionPredictor
 from collections import defaultdict
 import torch
-
+import redis
 
 class MyDetectionPredictor(DetectionPredictor):
 
-    def __init__(self, *args, barrier=370, **kwargs):
+    def __init__(self, *args, barrier=370, task_id=None, **kwargs):
         super().__init__(*args, **kwargs)
         self.dict_id_result = defaultdict(list)
         # self.dict_violations = defaultdict(list)
@@ -25,6 +25,9 @@ class MyDetectionPredictor(DetectionPredictor):
         self.track_data = None
         self.barrier_y = barrier
         # self.trackers = BOTSORT()
+        self.task_id = task_id
+        print('send task', task_id)
+        self.redis_client = redis.Redis(host='localhost', port=6379, db=0)
 
     @staticmethod
     def cross_box(box1, box2):
@@ -72,6 +75,8 @@ class MyDetectionPredictor(DetectionPredictor):
         if det_track_human:
             self.results[idx].update(boxes=torch.as_tensor(det_track_not_human.boxes))
             string_result = super().write_results(idx, self.results, batch)
+
+
             # log_string += string_result#TODO  надо ли?
 
         im0s = self.batch[2]
@@ -83,7 +88,10 @@ class MyDetectionPredictor(DetectionPredictor):
         tracks = self.trackers[0].update(det_track_human, im0s[0])
         self.track_data = tracks
         if len(tracks) == 0:
-            return super().write_results(idx, results, batch)
+            log_string += super().write_results(idx, results, batch)
+            self.write_redis(log_string)
+            self.write_redis(self.batch[4])
+            return log_string
         # central
         id_array = tracks[:, 4]
         x = ((abs((tracks[:, 1] - tracks[:, 0])) / 2) + tracks[:, 0])
@@ -117,20 +125,28 @@ class MyDetectionPredictor(DetectionPredictor):
 
         self.results[idx].update(boxes=torch.as_tensor(tracks[:, :-1]))
         log_string += super().write_results(idx, self.results, batch)
+        self.write_redis(self.batch[4])
+        # self.redis_client.set(f"log:1:{idx}", log_string)
         return log_string
 
+    def write_redis(self, log_string, parse=True):
+        if parse:
+            log_string = ' '.join(log_string.split()[:-1])
+        self.redis_client.set(f"task_{self.task_id}", log_string)
 
-def init_model(track=True, model="yolov8n.pt"):
+
+
+def init_model(track=True, model="yolov8n.pt", task_id=None):
     my_model = YOLO(model=model)
     if track:
-        my_model.predictor = MyDetectionPredictor()
+        my_model.predictor = MyDetectionPredictor(task_id=task_id)
         my_model.predictor.save_dir = Path(__file__).resolve().parent.parent#TODO
     return my_model
 
 
-def predict_model(source='1(21).mp4', **kwargs):
+def predict_model(source='1(21).mp4', task_id=None, **kwargs):
     event = 'on_predict_start'
-    my_model = init_model()
+    my_model = init_model(task_id=task_id)
     # kwargs = {}
     # conf = 0.1
     # kwargs['conf'] = conf

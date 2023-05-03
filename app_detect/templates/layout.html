@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Каски и жилеты. {% block title %} {% endblock %}</title>
+    <style>
+        nav a {
+            color: #d64161;
+            font-size: 2em;
+            margin-left: 50px;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <a href="/" class="nav-link active" aria-current="page">Главная</a>
+        <!--
+        <a href="/video-loading-processing" class="nav-link" methods="POST">Видео</a>
+        <a href="/test" class="nav-link">Тест</a>-->
+        <a href="/about" class="nav-link">О нас</a>
+        <a href="/api/documentation" class="nav-link">Дока хлеб</a>
+        <a href="/admin" class="nav-link">К админу</a>
+        <!--<a href="/help" class="nav-link">Помощь</a> -->
+    </nav>
+
+    <hr>
+    <div class="content">
+        {% block content %} {% endblock %}
+    </div>
+</body>
+</html>
+

@@ -8,7 +8,8 @@ from celery import Celery
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'YoloApi.settings')
 # django.setup()
 
-app = Celery('app_detect')
+app = Celery('YoloApi')
+# celery -A Yolov8API worker -l info
 # Using a string here means the worker will not have to
 # pickle the object when using Windows.
 app.config_from_object('django.conf:settings', namespace='CELERY')
