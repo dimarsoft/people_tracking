@@ -4,12 +4,12 @@
 # одна ошибка
 
 ocsort:
-  asso_func: iou
-  det_thresh: 0.49428431641933235
-  delta_t: 5
-  inertia: 0.6758806605183052
-  iou_thresh: 0.6247364818234254
-  max_age: 7
-  min_hits: 7
-  use_byte: true
+  asso_func: ct_dist
+  det_thresh: 0.22674377174063307
+  delta_t: 8
+  inertia: 0.44050638675555287
+  iou_thresh: 0.4265195613440462
+  max_age: 10
+  min_hits: 1
+  use_byte: False
 

@@ -64,4 +64,4 @@ def get_classes() -> list[int]:
         Список классов
 
     """
-    return [int(Labels.human), int(Labels.helmet), int(Labels.uniform)]
+    return [int(Labels.human), int(Labels.helmet), int(Labels.uniform), int(Labels.human_bad)]
