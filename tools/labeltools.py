@@ -34,9 +34,9 @@ def is_human_class(label: Union[Labels, int]) -> bool:
 
     """
     if isinstance(label, Labels):
-        return label == Labels.human or label == Labels.human_bad
+        return label == Labels.human or label == Labels.helmet
 
-    return label == int(Labels.human) or label == int(Labels.human_bad)
+    return label == int(Labels.human) or label == int(Labels.helmet)
 
 
 # положение человека относительно турникета
@@ -136,12 +136,12 @@ class DetectedLabel:
     def label_str(self) -> str:
         if self.label is Labels.human:
             return f"human: {self.conf:.2f}"
-        if self.label is Labels.human_bad:
+        if self.label is Labels.helmet:
             return f"human_bad: {self.conf:.2f}"
         if self.label is Labels.uniform:
             return "uniform"
-        if self.label is Labels.helmet:
-            return "helmet"
+        # if self.label is Labels.helmet:
+        #     return "helmet"
         return ""
 
 
