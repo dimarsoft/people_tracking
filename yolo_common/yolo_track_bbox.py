@@ -6,7 +6,7 @@ from ultralytics.yolo.data.augment import LetterBox
 
 from tools.change_bboxes import change_bbox
 from configs import WEIGHTS
-from tools.labeltools import Labels
+from tools.labeltools import Labels, is_human_class
 from tools.save_txt_tools import yolo_load_detections_from_txt
 from tools.track_objects import get_classes
 from trackers.multi_tracker_zoo import create_tracker
@@ -176,7 +176,7 @@ class YoloTrackBbox:
                         predict = self.det_to_tensor(df_by_class, w, h)
 
                         # ббокс если и меняем, то только у человека
-                        if key == int(Labels.human) or key == int(Labels.human_bad):
+                        if is_human_class(key):
                             predict = change_bbox(predict, change_bb, file_id)
                     else:
                         predict = empty_tensor

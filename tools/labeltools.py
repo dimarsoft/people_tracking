@@ -2,7 +2,7 @@ from enum import Enum
 from enum import IntEnum
 
 from pathlib import Path
-from typing import List, Optional
+from typing import List, Optional, Union
 
 import cv2
 from ultralytics.yolo.utils.plotting import Colors
@@ -20,6 +20,23 @@ class Labels(IntEnum):
     uniform: int = 2,
     # Человек нарушитель: без каски или жилета
     human_bad: int = 3
+
+
+def is_human_class(label: Union[Labels, int]) -> bool:
+    """
+    Класс принадлежит человек
+    Parameters
+    ----------
+    label
+
+    Returns
+    -------
+
+    """
+    if isinstance(label, Labels):
+        return label == Labels.human or label == Labels.human_bad
+
+    return label == int(Labels.human) or label == int(Labels.human_bad)
 
 
 # положение человека относительно турникета
@@ -196,7 +213,7 @@ def draw_track_on_frame(frame, draw_rect, frame_w,
     line_width = 2
 
     if draw_rect:
-        if lab.label is Labels.human:
+        if is_human_class(lab.label):
 
             if draw_class or frame_info.track_id < 0:
                 caption = frame_info.get_caption()
@@ -210,7 +227,7 @@ def draw_track_on_frame(frame, draw_rect, frame_w,
 
     # если человек, то рисуем центр масс
 
-    if draw_center and lab.label is Labels.human:
+    if draw_center and is_human_class(lab.label):
         x = int(x + ww / 2)
         y = int(y + hh / 2)
 
@@ -608,8 +625,8 @@ class TrackWorker:
             self.draw_turnic_on_frame(frame, w, h)
         input_video.release()
 
-#        for i in range(frames_in_video):
-#            self.draw_turnic_on_frame(results[i], w, h)
+        #        for i in range(frames_in_video):
+        #            self.draw_turnic_on_frame(results[i], w, h)
 
         for label in self.track_labels:
             draw_track_on_frame(results[int(label.frame)], True, w, h, label, draw_class=draw_class)
