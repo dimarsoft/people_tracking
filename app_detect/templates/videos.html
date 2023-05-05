@@ -32,6 +32,10 @@ table.table td a.view {
 table.table td a.delete {
     color: #E34724;
 }
+table.table td a.disable {
+    color: gray;
+}
+
 table.table td i {
     font-size: 19px;
 }
@@ -45,7 +49,7 @@ table.table td i {
         <table class="table table-scroll table-striped" style="width:100%; border:2;">
             <thead class="thead-dark">
                 <tr>
-                    <th class="col-xs-2">ИД видео</th>
+                    <th class="col-xs-2">ИД</th>
                     <th class="col-xs-2" >email</th>
                     <th class="col-xs-2" >url</th>
                     <th class="col-xs-2" >Действия</th>
@@ -61,6 +65,7 @@ table.table td i {
           .then(response => response.json())
           .then(data => {
             const tableBody = document.getElementById('table-body');
+            console.log(data)
             data.forEach(item => {
               const row = document.createElement('tr');
 
@@ -73,8 +78,6 @@ table.table td i {
               emailCell.textContent = item.email;
               url_detailCell.textContent = item.url_detail;
 
-              //action_Cell.content = '<a class="delete" title="Delete" data-toggle="tooltip"><i class="material-icons">&#xE872;</i></a>';
-
               var view_link = document.createElement("a");
               view_link.classList.add("view");  // Add the "delete" class to the link
               view_link.title = "Открыть";  // Set the title attribute
@@ -86,12 +89,25 @@ table.table td i {
 
               view_link.appendChild(view_icon);
 
-              // По нажатию запрос на просмотр файла
-              view_link.addEventListener("click", function(event) {
-                console.log("View clicked: " + item.id);
-                // Add your desired functionality here
-              });
+              function view_file(event){
+                //console.log("View clicked: " + item.id);
 
+                fetch('get_video_processing_info/'+item.id+'/', {
+                    method: 'GET'
+                })
+                .then(response => response.json())
+                .then(data => {
+                    //result.innerText = JSON.stringify(data);
+                    console.log(JSON.stringify(data));
+                })
+                .catch(error => {
+                    console.error(error)
+                });
+              }
+
+
+              // По нажатию запрос на просмотр файла
+              view_link.addEventListener("click", view_file);
 
               var del_link = document.createElement("a");
               del_link.classList.add("delete");  // Add the "delete" class to the link
@@ -103,15 +119,46 @@ table.table td i {
               del_icon.innerHTML = "&#xE872;";  // Set the icon content
 
               del_link.appendChild(del_icon);
+
+              function delete_video(event){
+                //console.log("Delete clicked: " + item.id);
+
+                fetch('video_processing_delete/'+item.id+'/', {
+                    method: 'DELETE'
+                })
+                .then(response => {
+                    console.log(response);
+                    //response.json()
+                    //console.error(response);
+                })
+                .then(data => {
+                    //result.innerText = JSON.stringify(data);
+                    //console.error(data);
+
+                    idCell.style.textDecoration = "line-through";
+                    emailCell.style.textDecoration = "line-through";
+                    url_detailCell.style.textDecoration = "line-through";
+
+                    del_link.removeEventListener("click", delete_video);
+                    view_link.removeEventListener("click", view_file);
+
+                    del_link.classList.remove("delete");
+                    del_link.classList.add("disable");
+
+                    view_link.classList.remove("view");
+                    view_link.classList.add("disable");
+                })
+                .catch(error => {
+                    console.error(error)
+                    //result.innerText = error;
+                });
+              }
               // По нажатию запрос на удаление
-              del_link.addEventListener("click", function(event) {
-                console.log("Delete clicked: " + item.id);
-                // Add your desired functionality here
-              });
+
+              del_link.addEventListener("click", delete_video);
 
               action_Cell.appendChild(view_link);
               action_Cell.appendChild(del_link);
-
 
               row.appendChild(idCell);
               row.appendChild(emailCell);
