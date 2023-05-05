@@ -8,12 +8,12 @@
             {% csrf_token %}
             <label for="email">Введите ваш email:</label>
             <input type="email" name="email" class="form-control" id="email"
-                   required aria-describedby="emailHelp" placeholder="Введите email">
+                   required="required" aria-describedby="emailHelp" placeholder="Введите email">
             <small id="emailHelp" class="form-text text-muted">Мы никогда не передаем ваш адрес электронной почты третьим лицам.</small>
             <label for="file" class="drop-container">
               <span class="drop-title">Закинуть файл сюда</span>
               или
-              <input type="file" id="file" name="file" accept="video/*" required>
+              <input type="file" id="file" name="file" accept="video/*" required="required">
             </label>
             <button type="button" id="upload-btn" class="btn btn-primary">Загрузить и распознать</button>
         </form>
@@ -22,7 +22,7 @@
             {% csrf_token %}
             <div class="form-group">
                 <label for="rtsp_url">URL RSTP потока</label>
-                <input type="url" name="rtsp_url" id="rtsp_url" class="form-control"
+                <input type="url" name="rtsp_url" id="rtsp_url" required="required" class="form-control"
                        placeholder="Введите адрес URL RSTP потока">
             </div>
 
