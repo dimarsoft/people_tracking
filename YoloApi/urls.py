@@ -23,6 +23,8 @@ from django.conf import settings
 from django.urls import path
 from drf_yasg import openapi
 from drf_yasg.views import get_schema_view
+
+from YoloApi.rtsp import start_rtsp, stop_rtsp
 # from users import
 
 from app_detect import views
@@ -43,9 +45,9 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('', views.index, name='home'),
     path('about', views.about, name='about'),
-    path('accounts/', include('django.contrib.auth.urls')),
-#    path('home/', include('users.urls')),
-    path("signup/", views.SignUp.as_view(), name="signup"),
+    path('videos', views.videos, name='videos'),
+    path('start_rtsp/', start_rtsp, name='start_rtsp'),
+    path('stop_rtsp/', stop_rtsp, name='stop_rtsp'),
 
     path('videos/<str:filename>', views.video_view, name='video_view'),
     path('video-loading-processing/', views.VideoLoadingProcessingCreateView.as_view(),

@@ -15,7 +15,6 @@ import mimetypes
 from rest_framework.response import Response
 
 from main import get_version
-from .forms import FileUploadForm
 from .models import VideoLoadingProcessing
 from rest_framework import generics, status
 from django.urls import reverse_lazy
@@ -41,7 +40,7 @@ from drf_yasg.utils import swagger_auto_schema
 
 
 class VideoLoadingProcessingCreateView(generics.CreateAPIView):
-    queryset = VideoLoadingProcessing.objects.all()
+    # queryset = VideoLoadingProcessing.objects.all()
     serializer_class = VideoLoadingProcessingSerializer
 
     @swagger_auto_schema(request_body=openapi.Schema(
@@ -92,15 +91,7 @@ class VideoProcessingDeleteView(generics.DestroyAPIView):
 
 
 def index(request):
-    if request.method == 'POST':
-        form = FileUploadForm(request.POST, request.FILES)
-        if form.is_valid():
-            form.save()
-            # return redirect('index')
-            return render(request, './index.html', {'form': form})
-    else:
-        form = FileUploadForm()
-    return render(request, './index.html', {'form': form})
+    return render(request, './index.html')
 
 
 def about(request):
@@ -112,6 +103,10 @@ def about(request):
     return render(request, './about.html', context=context)
 
 
+def videos(request):
+    return render(request, "./videos.html")
+
+
 # Создаем здесь представления.
 def home(request):
     return render(request, "users/home.html")
@@ -121,3 +116,5 @@ class SignUp(CreateView):
     form_class = UserCreationForm
     success_url = reverse_lazy("login")
     template_name = "registration/signup.html"
+
+

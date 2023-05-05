@@ -1,18 +1,103 @@
 {% extends 'layout.html' %}
 {% block content %}
-<!--
-    <h1>Видео</h1>
-    <form action="video-loading-processing/" method="post" enctype="multipart/form-data">
-        <input type="email" name="email">
-        <input type="file" name="file">
-      <input type="submit" data-method="post" value="Загрузить и распознать">
-    </form>
--->
-  <h2>Видео на обработку</h2>
-  <form method="post" enctype="multipart/form-data">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit">Загрузить</button>
-  </form>
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">
+<section>
+    <div class="featurebox col-md-12 col-sm-12 col-xs-12">
+        <h1 class="h2">Выбрать файл для обработки</h1>
+        <form method="POST" enctype="multipart/form-data" id="upload-form">
+            {% csrf_token %}
+            <label for="email">Введите ваш email:</label>
+            <input type="email" name="email" class="form-control" id="email"
+                   required aria-describedby="emailHelp" placeholder="Введите email">
+            <small id="emailHelp" class="form-text text-muted">Мы никогда не передаем ваш адрес электронной почты третьим лицам.</small>
+            <label for="file" class="drop-container">
+              <span class="drop-title">Закинуть файл сюда</span>
+              или
+              <input type="file" id="file" name="file" accept="video/*" required>
+            </label>
+            <button type="button" id="upload-btn" class="btn btn-primary">Загрузить и распознать</button>
+        </form>
+	    <p id="result"></p>
+        <form method="POST" enctype="multipart/form-data" id="rtsp-form">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="rtsp_url">URL RSTP потока</label>
+                <input type="url" name="rtsp_url" id="rtsp_url" class="form-control"
+                       placeholder="Введите адрес URL RSTP потока">
+            </div>
+
+            <button id="start_rtsp" class="btn btn-primary">Старт RTSP</button>
+            <button id="stop_rtsp" class="btn btn-primary">Стоп RTSP</button>
+            <br>
+            <label>Ответ:</label>
+            <p id="result_rtsp"></p>
+        </form>
+
+	<script>
+		var form = document.getElementById('upload-form');
+		var result = document.getElementById('result');
+		var btn = document.getElementById('upload-btn');
+
+		btn.addEventListener('click', function() {
+
+
+		    var formData = new FormData(form);
+
+            fetch('video-loading-processing/', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                result.innerText = JSON.stringify(data);
+            })
+            .catch(error => {
+                console.error(error)
+                result.innerText = error;
+            });
+		});
+        const startBtn = document.getElementById('start_rtsp');
+        const stopBtn = document.getElementById('stop_rtsp');
+        const rtsp_result = document.getElementById('result_rtsp');
+
+        var rtsp_form = document.getElementById('rtsp-form');
+        var rtsp_formData = new FormData(rtsp_form);
+
+        startBtn.addEventListener('click', () => {
+
+        fetch('start_rtsp/', {
+            method: 'POST',
+            body: rtsp_formData
+          })
+          .then(response => response.json())
+          .then(data => {
+                rtsp_result.innerText = JSON.stringify(data)
+          })
+         .catch(error => {
+            console.error(error)
+            rtsp_result.innerText = error;
+          });
+        });
+
+        stopBtn.addEventListener('click', () => {
+
+        fetch('stop_rtsp/', {
+            method: 'POST',
+            body: rtsp_formData
+          })
+          .then(response => response.json())
+          .then(data => {
+            // Update the result field with the API response
+            rtsp_result.innerText = JSON.stringify(data)
+          })
+          .catch(error => {
+              console.error(error)
+              rtsp_result.innerText = error;
+          });
+        });
+	</script>
+    </div>
+</section>
+
 
 {% endblock %}

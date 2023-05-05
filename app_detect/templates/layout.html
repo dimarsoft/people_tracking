@@ -1,29 +1,40 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-    <meta charset="UTF-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <link rel="stylesheet" href="static/style.css">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">
     <title>Каски и жилеты. {% block title %} {% endblock %}</title>
-    <style>
-        nav a {
-            color: #d64161;
-            font-size: 2em;
-            margin-left: 50px;
-            text-decoration: none;
-        }
-    </style>
 </head>
 <body>
-    <nav>
-        <a href="/" class="nav-link active" aria-current="page">Главная</a>
-        <!--
-        <a href="/video-loading-processing" class="nav-link" methods="POST">Видео</a>
-        <a href="/test" class="nav-link">Тест</a>-->
-        <a href="/about" class="nav-link">О нас</a>
-        <a href="/api/documentation" class="nav-link">Дока хлеб</a>
-        <a href="/admin" class="nav-link">К админу</a>
-        <!--<a href="/help" class="nav-link">Помощь</a> -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+      <a class="navbar-brand" href="https://neural-university.ru/" target="_blank">УИИ</a>
+      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav">
+          <li class="nav-item active">
+            <a class="nav-link" href="/">Главная <span class="sr-only">(current)</span></a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#">Детекция</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="/videos" >Видео на сервере</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="/api/documentation">APIHelp</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="/admin">Админ</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="/about">О нас</a>
+          </li>
+        </ul>
+      </div>
     </nav>
-
     <hr>
     <div class="content">
         {% block content %} {% endblock %}
