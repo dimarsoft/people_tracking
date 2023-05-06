@@ -1,4 +1,4 @@
-__version__ = 1.1
+__version__ = 1.2
 
 import argparse
 from pathlib import Path
@@ -8,7 +8,7 @@ import torch
 
 from post_processing.group_1_detect import group_1_detect
 from post_processing.vladimir_detect import vladimir_detect
-from utils.torch_utils import date_modified, git_describe
+from utils.torch_utils import date_modified, git_describe, git_branch_name
 from yolo_common.yolo_track_main import get_results_video_yolo
 
 
@@ -24,15 +24,16 @@ def print_version():
     print(f"Humans, helmets and uniforms. {version}")
 
 
-def get_version() -> str:
+def get_version(version=__version__, path=__file__) -> str:
     git_info = git_describe()
+    branch_name = git_branch_name()
 
     if git_info is None:
-        git_info = f"{date_modified()}"
+        git_info = f"{date_modified(path)}"
     else:
-        git_info = f"git: {git_info}, {date_modified()}"
+        git_info = f"git: {branch_name}:{git_info}, {date_modified()}"
 
-    return f'{__version__}, {git_info}, torch {torch.__version__}'
+    return f'{version}, {git_info}, torch {torch.__version__}'
 
 
 def create_empty_dict(video_source) -> dict:

@@ -1,3 +1,6 @@
+# Версия серверного ПО
+__version__ = 1.3
+
 from django.contrib.auth.forms import UserCreationForm
 from django.shortcuts import render, redirect
 import redis
@@ -95,7 +98,7 @@ def index(request):
 
 
 def about(request):
-    soft_version = get_version
+    soft_version = get_version(__version__, __file__)
     context = {
         'soft_version': soft_version
     }

@@ -51,6 +51,19 @@ def date_modified(path=__file__):
     return f'{t.year:04}-{t.month:02}-{t.day:02}'
 
 
+def git_branch_name(path=Path(__file__).parent) -> str:  # path must be a directory
+    """
+    Получить имя текущей ветки
+    :param path: Путь к папке
+    :return: Строка с именем ветки
+    """
+    s = f'git -C {path} branch --show-current'
+    try:
+        return subprocess.check_output(s, shell=True, stderr=subprocess.STDOUT).decode()[:-1]
+    except subprocess.CalledProcessError as e:
+        return ''  # not a git repository
+
+
 def git_describe(path=Path(__file__).parent):  # path must be a directory
     # return human-readable git description, i.e. v5.0-5-g3e25f1e https://git-scm.com/docs/git-describe
     s = f'git -C {path} describe --tags --long --always'
@@ -315,6 +328,7 @@ class BatchNormXd(torch.nn.modules.batchnorm._BatchNorm):
         #  we could return the one that was originally created)
         return
 
+
 def revert_sync_batchnorm(module):
     # this is very similar to the function that it is trying to revert:
     # https://github.com/pytorch/pytorch/blob/c8b3686a3e4ba63dc59e5dcfe5db3430df256833/torch/nn/modules/batchnorm.py#L679
@@ -322,9 +336,9 @@ def revert_sync_batchnorm(module):
     if isinstance(module, torch.nn.modules.batchnorm.SyncBatchNorm):
         new_cls = BatchNormXd
         module_output = BatchNormXd(module.num_features,
-                                               module.eps, module.momentum,
-                                               module.affine,
-                                               module.track_running_stats)
+                                    module.eps, module.momentum,
+                                    module.affine,
+                                    module.track_running_stats)
         if module.affine:
             with torch.no_grad():
                 module_output.weight = module.weight
@@ -342,10 +356,10 @@ def revert_sync_batchnorm(module):
 
 class TracedModel(nn.Module):
 
-    def __init__(self, model=None, device=None, img_size=(640,640)): 
+    def __init__(self, model=None, device=None, img_size=(640, 640)):
         super(TracedModel, self).__init__()
-        
-        print(" Convert model to Traced-model... ") 
+
+        print(" Convert model to Traced-model... ")
         self.stride = model.stride
         self.names = model.names
         self.model = model
@@ -356,17 +370,17 @@ class TracedModel(nn.Module):
 
         self.detect_layer = self.model.model[-1]
         self.model.traced = True
-        
+
         rand_example = torch.rand(1, 3, img_size[0], img_size[1])
-        
+
         traced_script_module = torch.jit.trace(self.model, rand_example, strict=False)
-        #traced_script_module = torch.jit.script(self.model)
+        # traced_script_module = torch.jit.script(self.model)
         traced_script_module.save("traced_model.pt")
         print(" traced_script_module saved! ")
         self.model = traced_script_module
         self.model.to(device)
         self.detect_layer.to(device)
-        print(" model is traced! \n") 
+        print(" model is traced! \n")
 
     def forward(self, x, augment=False, profile=False):
         out = self.model(x)
