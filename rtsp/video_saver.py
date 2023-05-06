@@ -7,128 +7,9 @@ from datetime import datetime
 import cv2
 
 from main import run_group1_detection
+from rtsp.rtsp_stream_queue_to_file import RtspStreamReaderToFile
 from tools.exception_tools import print_exception
-
-
-def create_file_name(tag: str, w: int, h: int, fps: int, file_num: int = 0) -> str:
-    now = datetime.now()
-
-    session_name = f"{now.year:04d}_{now.month:02d}_{now.day:02d}_{now.hour:02d}_{now.minute:02d}_" \
-                   f"{now.second:02d}_{now.microsecond}_{file_num}"
-
-    return f"{tag}_{session_name}_{w}_{h}_fps_{fps}.mp4"
-
-
-class RtspStreamReaderToFile(object):
-    def __init__(self, rtsp_url: str, tag: str, output_folder: Union[str, Path], time_split: int = 5):
-        self.rtsp_url = rtsp_url
-        self.tag = tag
-        self.output_folder = Path(output_folder)
-        self.time_split = time_split
-        self._queue = Queue()
-        self._stream_reader = Thread(target=self._stream_reader_proc)
-        self._file_writer = Thread(target=self._file_writer_proc)
-
-        self._started = False
-        self._stop = False
-
-    def start(self):
-        if self._started:
-            return
-        self._stop = False
-        self._stream_reader.start()
-
-        _started = True
-
-    def stop(self):
-
-        if not self._started:
-            return
-
-        self._stop = True
-
-        self._stream_reader.join()
-        self._file_writer.join()
-
-    def _stream_reader_proc(self):
-
-        print(f"connect to {self.rtsp_url}")
-
-        input_video = cv2.VideoCapture(self.rtsp_url)
-
-        self.fps = int(input_video.get(cv2.CAP_PROP_FPS))
-        # ширина
-        self.w = int(input_video.get(cv2.CAP_PROP_FRAME_WIDTH))
-        # высота
-        self.h = int(input_video.get(cv2.CAP_PROP_FRAME_HEIGHT))
-
-        print(f"connected to {self.rtsp_url} : fps = {self.fps}, w = {self.w}, h ={self.h}")
-
-        self._file_writer.start()
-
-        while not self._stop:
-            try:
-                ret, frame = input_video.read()
-            except Exception as ex:
-                print_exception(ex, "read frame")
-                continue
-
-            if ret:
-                self._queue.put(frame)
-
-        input_video.release()
-
-        print(f"disconnected from {self.rtsp_url}")
-
-    def _file_writer_proc(self):
-
-        session_name = create_file_name(self.tag, self.w, self.h, self.fps)
-
-        output_video_path = self.output_folder / session_name
-
-        output_video = cv2.VideoWriter(
-            str(output_video_path), cv2.VideoWriter_fourcc(*'mp4v'),
-            self.fps, (self.w, self.h))
-
-        frames = 0
-
-        files = 0
-
-        if self.time_split > 0:
-            frames_per_file = self.fps * self.time_split * 60  # 5мин
-        else:
-            frames_per_file = -1
-
-        while not self._stop:
-            frame = self._queue.get()
-
-            if frame is not None:
-                if self.time_split > 0 and frames > frames_per_file:
-                    output_video.release()
-                    files += 1
-
-                    # th = run_det(str(output_video_path))
-
-                    # threads.append(th)
-
-                    session_name = create_file_name(self.tag, self.w, self.h, self.fps, files)
-
-                    output_video_path = self.output_folder / session_name
-
-                    output_video = cv2.VideoWriter(
-                        str(output_video_path), cv2.VideoWriter_fourcc(*'mp4v'),
-                        self.fps, (self.w, self.h))
-
-                    frames = 0
-
-                frames += 1
-
-                if frames % (self.fps * 10) == 0:
-                    print(f"file = {files}: frames = {frames}")
-
-                output_video.write(frame)
-
-        output_video.release()
+from tools.path_tools import create_file_name
 
 
 def run_det(source: str) -> Thread:
@@ -161,13 +42,8 @@ def rtsp_capture_to_file_2(rtsp_url: str, tag: str, output_folder: Union[str, Pa
     -------
 
     """
-    input_video = None
-
-    threads: list[Thread] = []
 
     try:
-
-        print(f"connect to {rtsp_url}")
 
         reader = RtspStreamReaderToFile(rtsp_url=rtsp_url, tag=tag, output_folder=output_folder)
 
