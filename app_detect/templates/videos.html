@@ -72,10 +72,12 @@ table.table td i {
               view_link.classList.add("view");  // Add the "delete" class to the link
               view_link.title = "Открыть";  // Set the title attribute
               view_link.dataset.toggle = "tooltip";  // Set the data-toggle attribute
+              view_link.href = "video_info/" + item.id;
 
               var view_icon = document.createElement("i");
               view_icon.classList.add("material-icons");
               view_icon.innerHTML = "&#xe89e;";  // Set the icon content
+
 
               view_link.appendChild(view_icon);
 
@@ -94,10 +96,8 @@ table.table td i {
                     console.error(error)
                 });
               }
-
-
               // По нажатию запрос на просмотр файла
-              view_link.addEventListener("click", view_file);
+              //view_link.addEventListener("click", view_file);
 
               var del_link = document.createElement("a");
               del_link.classList.add("delete");  // Add the "delete" class to the link
@@ -131,6 +131,8 @@ table.table td i {
 
                     del_link.removeEventListener("click", delete_video);
                     view_link.removeEventListener("click", view_file);
+                    //view_link.removeEventListener("click", view_file);
+                    view_link.removeAttribute('href');
 
                     del_link.classList.remove("delete");
                     del_link.classList.add("disable");

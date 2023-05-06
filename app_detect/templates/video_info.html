@@ -1,7 +1,5 @@
 {% extends 'layout.html' %}
 {% block content %}
-<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">
-<link rel="stylesheet" href="style.css">
 
 <section>
   <div class="featurebox col-md-12 col-sm-12 col-xs-12">
@@ -12,26 +10,30 @@
       <div class="input-group-prepend">
         <span class="input-group-text">Файл</span>
       </div>
-      <input type="text" class="form-control" placeholder={{ results.file }} aria-label="Filename" readonly>
+      <input type="text" class="form-control" placeholder="{{ results.file }}" aria-label="Filename" readonly>
+      <!--
       <div>
         <span class="input-group-text">Номер файла</span>
       </div>
       <input type="text" class="form-control" placeholder="FileNumber" aria-label="Filenumber" readonly>
+      -->
     </div>
     <div class="input-group mb-3">
       <div class="col-3">
-        <span class="input-group-text" id="basic-addon1">Количество входящих</span>
+        <span class="input-group-text" >Количество входящих</span>
       </div>
       <div class="col-3">
-        <input type="text" class="form-control" placeholder={{ results.counter_in }} aria-label="Количество входящих" aria-describedby="peoplein" readonly>
+        <input type="text" class="form-control" placeholder= "{{ results.counter_in }}"
+               aria-label="Количество входящих" aria-describedby="peoplein" readonly>
       </div>
     </div>
     <div class="input-group mb-3">
       <div class="col-3">
-        <span class="input-group-text" id="basic-addon1">Количество выходящих</span>
+        <span class="input-group-text" >Количество выходящих</span>
       </div>
       <div class="col-3">
-        <input type="text" class="form-control" placeholder={{ results.counter_out }} aria-label="Количество выходящих" aria-describedby="peopleout" readonly>
+        <input type="text" class="form-control" placeholder= "{{ results.counter_out }}"
+               aria-label="Количество выходящих" aria-describedby="peopleout" readonly>
       </div>
     </div>
     <br><br>
@@ -39,13 +41,15 @@
       <div class="col-3">
         <span class="input-group-text" id="basic-addon1">Нарушения</span>
       </div>
+      <!--
       <div class="col-3">
-        <input type="text" class="form-control" placeholder={{ results }} aria-label={{ results }} aria-describedby="breaches" readonly>
-      </div>
+        <input type="text" class="form-control" placeholder={{ results }} aria-label={{ results }}
+               aria-describedby="breaches" readonly>
+      </div>-->
     </div>
 
     <table class="table table-striped">
-      <thead>
+      <thead class="thead-dark">
         <tr>
           <th scope="col">№</th>
           <th scope="col">Начальный кадр</th>
@@ -64,8 +68,8 @@
         {% endfor %}
       </tbody>
     </table>
-{% endblock %}
-<br/><br/>
+
+    <br/><br/>
     <select id="timeSelect">
       <option
          value="0">В начало файла
@@ -79,7 +83,7 @@
     </select>
     <br/>
     <video controls id="myVideo">
-      <source src="{{ url_for('static', filename=video_path) }}" type="video/mp4">
+      <source  src="" type="video/mp4">
     </video>
     <script>
         var video = document.getElementById("myVideo");
@@ -89,9 +93,10 @@
               video.currentTime = startTime;
             });
     </script>
-
   </div>
 </section>
+
+{% endblock %}
 
 
 

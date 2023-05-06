@@ -17,6 +17,7 @@ from YoloApi.settings import BASE_DIR
 import mimetypes
 from rest_framework.response import Response
 
+from configs import ROOT
 from main import get_version
 from .models import VideoLoadingProcessing
 from rest_framework import generics, status
@@ -33,7 +34,7 @@ def video_view(request, filename):
         return HttpResponse(status=404)
     r = requests.get('http:///home/vladimir/PycharmProjects/Yolov8API/YoloApi/11_b4foC9D.mp4', stream=True)
     response = StreamingHttpResponse(streaming_content=r)
-    response['Content-Disposition'] = f'attachement; filename="{filename}"'
+    response['Content-Disposition'] = f'attachment; filename="{filename}"'
     return response
 
 
@@ -106,8 +107,25 @@ def about(request):
     return render(request, './about.html', context=context)
 
 
-def video_info(request):
-    return render(request, './video_info.html')
+def video_info(request, video_pk: str = None):
+    # Для тестирования html
+    devs = [{
+        "start_frame": 100,
+        "start_time": 18,
+        "end_frame": 200,
+        "status_id": "Без каски"
+    }]
+
+    context = {
+        'results': {
+            'file': video_pk,
+            'file_path': "",
+            'counter_in': 3,
+            'counter_out': 0,
+            'deviations': devs
+        }
+    }
+    return render(request, './video_info.html', context=context)
 
 
 def videos(request):

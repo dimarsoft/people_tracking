@@ -1,8 +1,9 @@
 <!DOCTYPE html>
+{% load static %}
 <html lang="ru">
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    <link rel="stylesheet" href="static/style.css">
+    <link rel="stylesheet" type="text/css" href="{% static 'style.css' %}">
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">
     <title>Каски и жилеты. {% block title %} {% endblock %}</title>
 </head>
