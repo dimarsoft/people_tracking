@@ -45,6 +45,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('', views.index, name='home'),
     path('about', views.about, name='about'),
+    path('video_info', views.video_info, name='video_info'),
     path('videos', views.videos, name='videos'),
     path('start_rtsp/', start_rtsp, name='start_rtsp'),
     path('stop_rtsp/', stop_rtsp, name='stop_rtsp'),

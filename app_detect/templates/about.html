@@ -1,14 +1,25 @@
 {% extends 'layout.html' %}
 {% block content %}
 
-<p align="center">
-    <b>Стажировка.</b>
-</p>
-<p align="center">
-    Подсчет входящий/выходящих людей через турникет проходной.
-</p>
-<p align="center">
-    Распознавание нарушений: отсутствие каски и жилета.
-</p>
-<p align="center"><b>Версия ПО:</b> {{ soft_version }}</p>
+<section>
+  <div class="featurebox col-md-12 col-sm-12 col-xs-12">
+    <div>
+      <h2 class="h4">Стажировка.</h2>
+    </div>
+    <br>
+    <div>
+        Подсчет входящий/выходящих людей через турникет проходной.
+    </div>
+    <br>
+    <div>
+        Распознавание нарушений: отсутствие каски и/или жилета.
+    </div>
+    <br>
+    <div>
+        <b>Версия ПО:</b> {{ soft_version }}
+    </div>
+
+  </div>
+</section>
+
 {% endblock %}

@@ -103,6 +103,10 @@ def about(request):
     return render(request, './about.html', context=context)
 
 
+def video_info(request):
+    return render(request, './video_info.html')
+
+
 def videos(request):
     return render(request, "./videos.html")
 
@@ -116,5 +120,3 @@ class SignUp(CreateView):
     form_class = UserCreationForm
     success_url = reverse_lazy("login")
     template_name = "registration/signup.html"
-
-
