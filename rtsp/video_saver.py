@@ -1,33 +1,13 @@
 import argparse
 import time
-from threading import Thread
+
 from pathlib import Path
-from queue import Queue
 from typing import Union
-from datetime import datetime
 import cv2
 
-from main import run_group1_detection
 from rtsp.rtsp_stream_queue_to_file import RtspStreamReaderToFile, init_cv, print_timed
 from tools.exception_tools import print_exception
 from tools.path_tools import create_file_name
-
-
-def run_det(source: str) -> Thread:
-    thread = Thread(target=run_detect(source))
-    thread.daemon = True
-    thread.start()
-
-    return thread
-
-
-def run_detect(source: str):
-    print(f"start process {source}")
-    res = 0  # run_group1_detection(source)
-
-    print(f"end process {source}")
-
-    print(res)
 
 
 def rtsp_capture_to_file_2(rtsp_url: str, tag: str, output_folder: Union[str, Path]) -> None:
@@ -45,29 +25,22 @@ def rtsp_capture_to_file_2(rtsp_url: str, tag: str, output_folder: Union[str, Pa
     """
 
     try:
-
+        # инициализация CV и логирования
         init_cv()
 
         reader = RtspStreamReaderToFile(rtsp_url=rtsp_url, tag=tag, output_folder=output_folder)
 
-        print_timed(f"{__name__}, reader start")
+        print_timed(f"{__file__}, reader start")
         reader.start()
 
-        while True:
+        print_timed(f"{__file__}, start sleep")
 
-            print_timed(f"{__file__}, start sleep")
+        time.sleep(60)
 
-            time.sleep(60)
-
-            print_timed(f"{__file__}, stop sleep")
-
-            break
-            ## reader.stop()
-
-            # if cv2.waitKey(1) == ord("q"):
-            #    break
+        print_timed(f"{__file__}, stop sleep")
 
         print_timed(f"{__file__}, reader stop")
+
         reader.stop()
 
     except Exception as ex:
@@ -88,8 +61,6 @@ def rtsp_capture_to_file(rtsp_url: str, tag: str, output_folder: Union[str, Path
 
     """
     input_video = None
-
-    threads: list[Thread] = []
 
     try:
 
@@ -132,10 +103,6 @@ def rtsp_capture_to_file(rtsp_url: str, tag: str, output_folder: Union[str, Path
                     output_video.release()
                     files += 1
 
-                    # th = run_det(str(output_video_path))
-
-                    # threads.append(th)
-
                     session_name = create_file_name(tag, w, h, fps, files)
 
                     output_video_path = output_folder / session_name
@@ -168,9 +135,6 @@ def rtsp_capture_to_file(rtsp_url: str, tag: str, output_folder: Union[str, Path
 
     if input_video is not None:
         input_video.release()
-
-    for x in threads:
-        x.join()
 
 
 # запуск из командной строки: python video_server.py  --output_folder "."
