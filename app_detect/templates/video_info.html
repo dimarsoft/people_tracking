@@ -6,11 +6,15 @@
     <div>
       <h2 class="h4">Результаты обработки видео</h2>
     </div>
+    <br/><br/>
     <div class="input-group mb-3">
-      <div class="input-group-prepend">
-        <span class="input-group-text">Файл</span>
+      <div  class="col-3">
+        <span >Файл</span>
       </div>
-      <input type="text" class="form-control" placeholder="{{ results.file }}" aria-label="Filename" readonly>
+
+      <div  class="col-9">
+        <input type="text" class="form-control" placeholder="{{ results.file }}" aria-label="Filename" readonly>
+      </div>
       <!--
       <div>
         <span class="input-group-text">Номер файла</span>
@@ -20,27 +24,28 @@
     </div>
     <div class="input-group mb-3">
       <div class="col-3">
-        <span class="input-group-text" >Количество входящих</span>
+        <span>Количество входящих</span>
       </div>
-      <div class="col-3">
+      <div class="col-2">
         <input type="text" class="form-control" placeholder= "{{ results.counter_in }}"
                aria-label="Количество входящих" aria-describedby="peoplein" readonly>
       </div>
     </div>
     <div class="input-group mb-3">
       <div class="col-3">
-        <span class="input-group-text" >Количество выходящих</span>
+        <span>Количество выходящих</span>
       </div>
-      <div class="col-3">
+      <div class="col-2">
         <input type="text" class="form-control" placeholder= "{{ results.counter_out }}"
                aria-label="Количество выходящих" aria-describedby="peopleout" readonly>
       </div>
     </div>
     <br><br>
+
+    <div>
+      <h2 class="h4">Нарушения</h2>
+    </div>
     <div class="input-group mb-3">
-      <div class="col-3">
-        <span class="input-group-text" id="basic-addon1">Нарушения</span>
-      </div>
       <!--
       <div class="col-3">
         <input type="text" class="form-control" placeholder={{ results }} aria-label={{ results }}
