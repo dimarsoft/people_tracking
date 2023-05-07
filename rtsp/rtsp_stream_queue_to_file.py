@@ -1,11 +1,14 @@
+import logging
+import os
+import sys
+import traceback
 from pathlib import Path
 from queue import Queue
 from threading import Thread
-from typing import Union
+from typing import Union, Optional
 import time
 import cv2
 
-from tools.exception_tools import print_exception
 from tools.path_tools import create_file_name, get_log_time_str
 
 
@@ -17,8 +20,35 @@ def elapsed_sec(t: time):
     return (time_synch() - t) * 100
 
 
-def print_timed(message: str):
-    print(f"{get_log_time_str()} : {message}")
+def print_timed(message: str, is_error: bool = False):
+    message = f"{get_log_time_str()} : {message}"
+    print(message)
+
+    if is_error:
+        logging.error(message)
+    else:
+        logging.info(message)
+
+
+def print_exception_time(e: Exception, caption: str):
+    print_timed(f"Exception {e} in {caption}!!!", is_error=True)
+    exc_type, exc_value, exc_traceback = sys.exc_info()
+    lines = traceback.format_exception(exc_type, exc_value, exc_traceback)
+    for line in lines:
+        print(line)
+
+
+def set_logging(rank=-1, filename: str = "rtsp.log"):
+    logging.basicConfig(
+        filename=filename,
+        format="[%(levelname)s][%(thread)d] %(message)s",
+        level=logging.INFO if rank in [-1, 0] else logging.WARN)
+
+
+def init_cv():
+    set_logging()
+    th = min(os.cpu_count(), 8)
+    cv2.setNumThreads(th)
 
 
 class RtspStreamReaderToFile(object):
@@ -36,8 +66,8 @@ class RtspStreamReaderToFile(object):
         self.time_split = time_split
         self.frames_per_file = -1
         self._queue = Queue()
-        self._stream_reader = Thread(target=self._stream_reader_proc)
-        self._file_writer = Thread(target=self._file_writer_proc)
+        self._stream_reader: Optional[Thread] = None  # Создается и запускается в Start
+        self._file_writer: Optional[Thread] = None  # Останавливается в Stop
 
         self._started = False
         self._stop = False
@@ -58,10 +88,16 @@ class RtspStreamReaderToFile(object):
             return
         self._stop = False
         self._video_info_valid = False
+
+        self._stream_reader = Thread(target=self._stream_reader_proc)
+        self._file_writer = Thread(target=self._file_writer_proc)
+
         self._stream_reader.start()
         self._start_writer()
 
         _started = True
+
+        print_timed(f"threads started, {self.rtsp_url}")
 
     def stop(self):
         if not self._started:
@@ -72,6 +108,8 @@ class RtspStreamReaderToFile(object):
 
         self._stream_reader.join()
         self._stop_writer()
+
+        print_timed(f"threads stopped, {self.rtsp_url}")
 
     def _init_info(self, video_stream: cv2.VideoCapture):
         self._fps = int(video_stream.get(cv2.CAP_PROP_FPS))
@@ -88,13 +126,15 @@ class RtspStreamReaderToFile(object):
         self._video_info_valid = True
 
         print_timed(f"{self.rtsp_url} : fps = {self._fps}, w = {self._width}, "
-                    f"h ={self._height}, frames_per_file = {self.frames_per_file}")
+                    f"h = {self._height}, frames_per_file = {self.frames_per_file}")
 
     def _stream_reader_proc(self):
 
         print_timed(f"start _stream_reader_proc {self.rtsp_url}")
 
         is_connected = False
+
+        input_video = None
 
         while not self._stop:
             if not is_connected:
@@ -112,12 +152,13 @@ class RtspStreamReaderToFile(object):
                 is_connected = input_video.isOpened()
                 if not is_connected:
                     print_timed(f"disconnected from {self.rtsp_url}")
+                    input_video.release()
                     continue
 
             try:
                 ret, frame = input_video.read()
             except Exception as ex:
-                print_exception(ex, "read frame")
+                print_exception_time(ex, "read frame")
                 continue
 
             if ret:
@@ -161,6 +202,8 @@ class RtspStreamReaderToFile(object):
 
         output_video_path = self.output_folder / session_name
 
+        print_timed(f"start new file: {output_video_path}, {self.rtsp_url} ")
+
         self.output_video = cv2.VideoWriter(
             str(output_video_path), cv2.VideoWriter_fourcc(*'mp4v'),
             self._fps, (self._width, self._height))
@@ -169,7 +212,6 @@ class RtspStreamReaderToFile(object):
 
     def _file_writer_proc(self):
         frames = 0
-        files = 0
 
         last_frame_time = None
 
@@ -204,7 +246,7 @@ class RtspStreamReaderToFile(object):
                 frames += 1
 
                 if frames % (self._fps * 10) == 0:
-                    print_timed(f"file = {files}: frames = {frames}")
+                    print_timed(f"file = {self.files}: frames = {frames}")
 
                 output_video.write(frame)
 

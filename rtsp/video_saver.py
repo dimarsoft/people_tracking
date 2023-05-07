@@ -1,4 +1,5 @@
 import argparse
+import time
 from threading import Thread
 from pathlib import Path
 from queue import Queue
@@ -7,7 +8,7 @@ from datetime import datetime
 import cv2
 
 from main import run_group1_detection
-from rtsp.rtsp_stream_queue_to_file import RtspStreamReaderToFile
+from rtsp.rtsp_stream_queue_to_file import RtspStreamReaderToFile, init_cv, print_timed
 from tools.exception_tools import print_exception
 from tools.path_tools import create_file_name
 
@@ -45,14 +46,28 @@ def rtsp_capture_to_file_2(rtsp_url: str, tag: str, output_folder: Union[str, Pa
 
     try:
 
+        init_cv()
+
         reader = RtspStreamReaderToFile(rtsp_url=rtsp_url, tag=tag, output_folder=output_folder)
 
+        print_timed(f"{__name__}, reader start")
         reader.start()
 
         while True:
-            if cv2.waitKey(1) == ord("q"):
-                break
 
+            print_timed(f"{__name__}, start sleep")
+
+            time.sleep(1000)
+
+            print_timed(f"{__name__}, stop sleep")
+
+            break
+            ## reader.stop()
+
+            # if cv2.waitKey(1) == ord("q"):
+            #    break
+
+        print_timed(f"{__name__}, reader stop")
         reader.stop()
 
     except Exception as ex:
