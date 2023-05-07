@@ -45,8 +45,8 @@ def set_logging(rank=-1, filename: str = "rtsp.log"):
         level=logging.INFO if rank in [-1, 0] else logging.WARN)
 
 
-def init_cv():
-    set_logging()
+def init_cv(filename: str = "rtsp.log"):
+    set_logging(filename=filename)
     th = min(os.cpu_count(), 8)
     cv2.setNumThreads(th)
 
@@ -95,13 +95,16 @@ class RtspStreamReaderToFile(object):
         self._stream_reader.start()
         self._start_writer()
 
-        _started = True
+        self._started = True
 
         print_timed(f"threads started, {self.rtsp_url}")
 
     def stop(self):
         if not self._started:
+            print_timed(f"threads not started, {self.rtsp_url}", is_error=True)
             return
+
+        print_timed(f"threads stopping, {self.rtsp_url}")
 
         self._stop = True
         _started = False
@@ -170,21 +173,23 @@ class RtspStreamReaderToFile(object):
 
     def _start_writer(self):
         if self._startedWriter:
+            print_timed(f"writer already started, {self.rtsp_url}", is_error=True)
             return
 
-        _startedWriter = True
+        self._startedWriter = True
         self._file_writer.start()
         print_timed(f"_start_writer = {self.rtsp_url}")
 
     def _stop_writer(self):
         if not self._startedWriter:
+            print_timed(f"writer not started, {self.rtsp_url}", is_error=True)
             return
 
         self._stopWriter = True
         self._file_writer.join()
         self._startedWriter = False
 
-        print_timed(f"_stop_writer{self.rtsp_url}")
+        print_timed(f"_stop_writer: {self.rtsp_url}")
 
     def _close_write_video(self):
         if self.output_video is not None:
