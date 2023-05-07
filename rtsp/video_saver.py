@@ -55,11 +55,11 @@ def rtsp_capture_to_file_2(rtsp_url: str, tag: str, output_folder: Union[str, Pa
 
         while True:
 
-            print_timed(f"{__name__}, start sleep")
+            print_timed(f"{__file__}, start sleep")
 
-            time.sleep(1000)
+            time.sleep(60)
 
-            print_timed(f"{__name__}, stop sleep")
+            print_timed(f"{__file__}, stop sleep")
 
             break
             ## reader.stop()
@@ -67,7 +67,7 @@ def rtsp_capture_to_file_2(rtsp_url: str, tag: str, output_folder: Union[str, Pa
             # if cv2.waitKey(1) == ord("q"):
             #    break
 
-        print_timed(f"{__name__}, reader stop")
+        print_timed(f"{__file__}, reader stop")
         reader.stop()
 
     except Exception as ex:
