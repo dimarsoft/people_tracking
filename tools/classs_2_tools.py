@@ -4,7 +4,6 @@ from pathlib import Path
 
 
 def delete_and_change(src_labels, out_folder) -> None:
-
     src_labels = Path(src_labels)
     out_folder = Path(out_folder)
 
@@ -97,6 +96,7 @@ def change_labels():
 
     delete_and_change(source_folder, out_folder)
 
+
 def split_labels():
     train_batches = 8
     val_batches = 2
@@ -126,5 +126,5 @@ def split_labels():
 
 
 if __name__ == '__main__':
-    # split_labels()
-    change_labels()
+    split_labels()
+    # change_labels()

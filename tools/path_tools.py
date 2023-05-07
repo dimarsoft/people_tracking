@@ -41,3 +41,18 @@ def create_session_folder(yolo_version, output_folder, task: str) -> str:
         print(f"Directory '{session_folder}' can not be created. {error}")
 
     return str(session_folder)
+
+
+def get_log_time_str() -> str:
+    now = datetime.now()
+    return f"{now.day:02d}-{now.month:02d}-{now.year:04d} {now.hour:02d}:{now.minute:02d}:" \
+           f"{now.second:02d}"
+
+
+def create_file_name(tag: str, w: int, h: int, fps: int, file_num: int = 0, ext: str = "mp4") -> str:
+    now = datetime.now()
+
+    session_name = f"{now.year:04d}_{now.month:02d}_{now.day:02d}_{now.hour:02d}_{now.minute:02d}_" \
+                   f"{now.second:02d}_{now.microsecond}_{file_num}"
+
+    return f"{tag}_{session_name}_{w}_{h}_fps_{fps}.{ext}"
