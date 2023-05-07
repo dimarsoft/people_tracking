@@ -58,7 +58,7 @@ class RtspStreamReaderToFile(object):
         :param rtsp_url: Строка подключения к rtsp.
         :param tag: Наименование камеры.
         :param output_folder: Папка, в которую пишем.
-        :param time_split: Деление файлов по протяженности, сек. Если -1 не делим.
+        :param time_split: Деление файлов по протяженности, минуты. Если -1 не делим.
         """
         self.rtsp_url = rtsp_url
         self.tag = tag
