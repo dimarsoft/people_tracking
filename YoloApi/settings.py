@@ -129,6 +129,7 @@ STATIC_ROOT = BASE_DIR / "staticfiles"
 
 # Actual directory user files go to
 MEDIA_ROOT = os.path.join(BASE_DIR, 'mediafiles')
+VIDEO_ROOT = os.path.join(MEDIA_ROOT, 'videos')
 
 # URL used to access the media
 MEDIA_URL = '/media/'
