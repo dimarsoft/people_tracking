@@ -2,6 +2,7 @@ import logging
 import os
 import sys
 import traceback
+from datetime import datetime
 from pathlib import Path
 from queue import Queue
 from threading import Thread
@@ -9,7 +10,20 @@ from typing import Union, Optional
 import time
 import cv2
 
-from tools.path_tools import create_file_name, get_log_time_str
+
+def get_log_time_str() -> str:
+    now = datetime.now()
+    return f"{now.day:02d}-{now.month:02d}-{now.year:04d} {now.hour:02d}:{now.minute:02d}:" \
+           f"{now.second:02d}"
+
+
+def create_file_name(tag: str, w: int, h: int, fps: int, file_num: int = 0, ext: str = "mp4") -> str:
+    now = datetime.now()
+
+    session_name = f"{now.year:04d}_{now.month:02d}_{now.day:02d}_{now.hour:02d}_{now.minute:02d}_" \
+                   f"{now.second:02d}_{now.microsecond}_{file_num}"
+
+    return f"{tag}_{session_name}_{w}_{h}_fps_{fps}.{ext}"
 
 
 def time_synch():
@@ -46,6 +60,11 @@ def set_logging(rank=-1, filename: str = "rtsp.log"):
 
 
 def init_cv(filename: str = "rtsp.log"):
+    """
+    Настройка логирования и CV
+    :param filename: Путь к файлу лога
+    :return:
+    """
     set_logging(filename=filename)
     th = min(os.cpu_count(), 8)
     cv2.setNumThreads(th)
