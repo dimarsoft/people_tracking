@@ -39,6 +39,10 @@ class SaveResults(SaveResultsBase):
                 int(video_info.height * 352 / 640)
             ]
         ]
+
+        if start_id is None or end_id is None:
+            return
+
         dt_start = datetime.fromtimestamp(start_id)
         dt_end = datetime.fromtimestamp(end_id)
 
@@ -73,7 +77,7 @@ def rtsp_capture_to_detect(rtsp_url: str, tag: str, output_folder: Union[str, Pa
 
         print_timed(f"{__file__}, start sleep")
 
-        time.sleep(6000)
+        time.sleep(30)
 
         print_timed(f"{__file__}, stop sleep")
 
@@ -86,7 +90,7 @@ def rtsp_capture_to_detect(rtsp_url: str, tag: str, output_folder: Union[str, Pa
 
 
 if __name__ == '__main__':
-    rtsp_url_m = "C:\\AI\\2023\\corridors\\dataset-v1.1\\test\\8.mp4"
+    rtsp_url_m = "C:\\AI\\2023\\corridors\\dataset-v1.1\\test\\20.mp4"
     # rtsp_url = "rtsp://stream:ShAn675sb5@31.173.67.209:13554"
 
     rtsp_capture_to_detect(rtsp_url_m,
