@@ -38,7 +38,7 @@ def get_post_process_results(test_func, track, num, w, h, fps, bound_line, sourc
                     humans_result = group_1_count_humans(tracks_new, num, w, h, bound_line, log=log)
                     pass
                 if test_func == "timur":
-                    humans_result = timur_count_humans(tracks_new, source, bound_line, log=log)
+                    humans_result = timur_count_humans(tracks_new, w, h, bound_line, log=log)
                     pass
                 if test_func == "dimar":
                     humans_result = dimar_count_humans(tracks_new, source, bound_line, log=log)

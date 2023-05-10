@@ -109,13 +109,13 @@ def convert_and_save(folder_path):
     save_bound_line(file_to_save, bl)
 
 
-def timur_count_humans(tracks, source, bound_line, log: bool = True) -> Result:
+def timur_count_humans(tracks: list, w: int, h: int, bound_line: list,  log: bool = True) -> Result:
     print(f"Timur postprocessing v1.8_01.05.2023")
 
-    camera_num, w, h, fps = get_camera(source)
+    # camera_num, w, h, fps = get_camera(source)
 
     if log:
-        print(f"camera_num =  {camera_num}, ({w} {h})")
+        print(f"camera_num =  ({w} {h})")
 
     people_tracks, helmet_tracks, vest_tracks = tracks_to_dic(tracks, w, h)
 
@@ -175,6 +175,6 @@ def timur_count_humans(tracks, source, bound_line, log: bool = True) -> Result:
             deviations.append(Deviation(start_frame, end_frame, status))
 
     if log:
-        print(f"{camera_num}: count_in = {count_in}, count_out = {count_out}, deviations = {len(deviations)}")
+        print(f"count_in = {count_in}, count_out = {count_out}, deviations = {len(deviations)}")
 
     return Result(count_in + count_out, count_in, count_out, deviations)

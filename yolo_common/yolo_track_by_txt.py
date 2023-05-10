@@ -80,7 +80,18 @@ def run_single_video_yolo(txt_source_folder, source, tracker_type: str, tracker_
         print(f"Processed '{source}' to {output_folder}: ({(1E3 * (t2 - t1)):.1f} ms)")
 
     num, w, h, fps = get_camera(source)
-    bound_line = get_bound_line(cameras_info, num)
+    bound_line1 = get_bound_line(cameras_info, num)
+
+    bound_line = [
+        [
+            int(w * 294 / 640),
+            int(h * 384 / 640)
+        ],
+        [
+            int(w * 416 / 640),
+            int(h * 352 / 640)
+        ]
+    ]
 
     print(f"num = {num}, w = {w}, h = {h}, bound_line = {bound_line}")
 
@@ -308,7 +319,7 @@ def run_example():
     test_func = "popov_alex"
     # test_func = "group_3"
     test_func = "timur"
-    test_func = "dimar"
+    # test_func = "dimar"
     # test_func = "stanislav"
     # test_func = "group_1"
 
@@ -347,7 +358,7 @@ def run_cli(opt_info):
 
 
 if __name__ == '__main__':
-    # run_example()
+    run_example()
 
     parser = argparse.ArgumentParser()
     parser.add_argument('--txt_source_folder', type=str, help='txt_source_folder')
@@ -366,4 +377,4 @@ if __name__ == '__main__':
     opt = parser.parse_args()
     # print(opt)
 
-    run_cli(opt)
+    # run_cli(opt)

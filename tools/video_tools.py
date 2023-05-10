@@ -9,6 +9,13 @@ from tools.path_tools import get_video_files
 from post_processing.timur import get_camera
 
 
+class VideoInfo(object):
+    def __init__(self, w, h, fps):
+        self.width = w
+        self.height = h
+        self.fps = fps
+
+
 def save_frames(path_to_video: Union[str, Path], output_folder: Union[str, Path], max_frames: int = -1):
     input_video = cv2.VideoCapture(str(path_to_video))
 

@@ -5,9 +5,14 @@ from pathlib import Path
 from typing import Union
 import cv2
 
-from rtsp.rtsp_stream_queue_to_file import RtspStreamReaderToFile, init_cv, print_timed
+
+from rtsp.rtsp_stream_queue_to_file import RtspStreamReaderToFile
+from rtsp.rtsp_tools import init_cv, print_timed
 from tools.exception_tools import print_exception
 from tools.path_tools import create_file_name
+
+
+
 
 
 def rtsp_capture_to_file_2(rtsp_url: str, tag: str, output_folder: Union[str, Path]) -> None:
@@ -153,8 +158,8 @@ if __name__ == '__main__':
     parser.add_argument('--output_folder', type=str, help='output_folder')  # output folder
 
     rtsp_capture_to_file_2("rtsp://stream:ShAn675sb5@31.173.67.209:13554",
-                           tag="31_173_67_209_13554",
-                           output_folder="c:\\AI\\rtsp\\", )
+                          tag="31_173_67_209_13554",
+                          output_folder="c:\\AI\\rtsp\\", )
     opt = parser.parse_args()
     # print(opt)
 

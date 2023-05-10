@@ -5,11 +5,14 @@ from typing import Union, Optional
 
 import cv2
 
-from rtsp.rtsp_tools import print_timed, print_exception_time, create_file_name, elapsed_sec, time_synch
+from configs import YoloVersion, get_all_optune_trackers, ROOT
+from rtsp.rtsp_tools import print_timed, time_synch, print_exception_time, create_file_name, elapsed_sec
+from yolo_common.yolo8_online import YOLO8ULOnline
+from yolo_common.yolo_track_main import get_model_file
 
 
-class RtspStreamReaderToFile(object):
-    def __init__(self, rtsp_url: str, tag: str, output_folder: Union[str, Path], time_split: int = 5):
+class RtspStreamReaderToDetect(object):
+    def __init__(self, rtsp_url: str, tag: str, output_folder: Union[str, Path], saver, time_split: int = 5):
         """
         Класс для чтения из потока Rtsp и запись в папку.
         :param rtsp_url: Строка подключения к rtsp.
@@ -39,6 +42,9 @@ class RtspStreamReaderToFile(object):
 
         self.output_video = None
         self.files = 0
+
+        self.yolo: Optional[YOLO8ULOnline] = None
+        self.saver = saver
 
     def start(self):
         if self._started:
@@ -172,6 +178,24 @@ class RtspStreamReaderToFile(object):
 
         return self.output_video
 
+    def _init_yolo(self):
+
+        if self.yolo is not None:
+            return
+
+        model = get_model_file(YoloVersion.yolo_v8ul)
+
+        tracker_type = "bytetrack"
+        all_trackers = get_all_optune_trackers()
+        tracker_config = ROOT / all_trackers.get(tracker_type)
+
+        self.yolo = YOLO8ULOnline(weights_path=model,
+                                  tracker_type=tracker_type,
+                                  tracker_config=tracker_config,
+                                  fps=self._fps,
+                                  saver=self.saver,
+                                  imgsz=(self._width, self._height))
+
     def _file_writer_proc(self):
         frames = 0
 
@@ -182,13 +206,15 @@ class RtspStreamReaderToFile(object):
             if not self._video_info_valid:
                 continue
 
+            self._init_yolo()
+
             if self._queue.empty():
                 # делаем проверку, что долго не было фреймов и закрываем файл
                 if last_frame_time is not None:
                     secs = int(elapsed_sec(last_frame_time))
 
                     if secs > 100:
-                        self._close_write_video()
+                        self.yolo.finish_results()
                         last_frame_time = None
                         print_timed(f"no frames {secs} s")
                 continue
@@ -196,20 +222,13 @@ class RtspStreamReaderToFile(object):
             frame = self._queue.get()
 
             if frame is not None:
-                last_frame_time = time_synch()
-                if self.time_split > 0 and frames > self.frames_per_file:
-                    self.files += 1
-                    output_video = self._get_write_video(force_create=True)
 
-                    frames = 0
-                else:
-                    output_video = self._get_write_video(force_create=False)
+                last_frame_time = time_synch()
+                self.yolo.track_frame(frame, last_frame_time)
 
                 frames += 1
 
                 if frames % (self._fps * 10) == 0:
                     print_timed(f"file = {self.files}: frames = {frames}")
 
-                output_video.write(frame)
-
-        self._close_write_video()
+        self.yolo.finish_results()

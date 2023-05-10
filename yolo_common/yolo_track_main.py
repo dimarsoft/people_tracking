@@ -10,6 +10,7 @@ import gdown
 from configs import load_default_bound_line, WEIGHTS, YoloVersion, parse_yolo_version, ROOT, \
     get_all_optune_trackers, TEST_TRACKS_PATH, get_bound_line, get_detections_path
 from tools.count_results import Result
+#from tools.count_results import Result
 from tools.exception_tools import print_exception
 from post_processing.alex import alex_count_humans
 from post_processing.timur import get_camera, timur_count_humans
