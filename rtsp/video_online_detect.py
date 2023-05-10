@@ -6,6 +6,7 @@ from typing import Union
 from rtsp import print_timed, RtspStreamReaderToDetect
 from rtsp.rtsp_tools import init_cv
 from tools.exception_tools import print_exception
+from tools.save_txt_tools import yolo7_save_tracks_to_txt
 from tools.video_tools import VideoInfo
 from yolo_common.run_post_process import get_post_process_results
 from yolo_common.yolo8_online import SaveResultsBase
@@ -20,7 +21,7 @@ class SaveResults(SaveResultsBase):
             pass
 
     def update(self, results, start_id, end_id, video_info: VideoInfo):
-        message = f"start_id = {start_id}, end_id = {end_id}, results = {len(results)}"
+        message = f"start_id = {start_id}, end_id = {end_id}, results = {len(results)}'\n'"
 
         with open(self.output_file, "a") as write_file:
             write_file.write(message)
@@ -35,6 +36,8 @@ class SaveResults(SaveResultsBase):
                 int(video_info.height * 352 / 640)
             ]
         ]
+        result_tracks_file = self.output_folder / f"{start_id}_track_results.json"
+        yolo7_save_tracks_to_txt(results=results, txt_path=result_tracks_file)
 
         humans_result = get_post_process_results("timur", results,
                                                  1,
