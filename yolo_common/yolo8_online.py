@@ -63,8 +63,8 @@ class YOLO8ULOnline:
         self.iou = 0.4
         self.results = []
         self.log = True
-        self.w = self.imgsz[1]
-        self.h = self.imgsz[0]
+        self.w = self.imgsz[0]
+        self.h = self.imgsz[1]
 
         self.has_track_lat_time = None
         self.start_frame_id = None

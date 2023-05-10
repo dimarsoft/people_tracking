@@ -115,7 +115,7 @@ def timur_count_humans(tracks: list, w: int, h: int, bound_line: list,  log: boo
     # camera_num, w, h, fps = get_camera(source)
 
     if log:
-        print(f"camera_num =  ({w} {h})")
+        print(f"w ={w}, h = {h}")
 
     people_tracks, helmet_tracks, vest_tracks = tracks_to_dic(tracks, w, h)
 

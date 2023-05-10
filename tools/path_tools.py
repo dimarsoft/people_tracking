@@ -49,6 +49,19 @@ def get_log_time_str() -> str:
            f"{now.second:02d}"
 
 
+def get_tag_time_str() -> str:
+    now = datetime.now()
+    return f"{now.day:02d}_{now.month:02d}_{now.year:04d}_{now.hour:02d}_{now.minute:02d}_" \
+           f"{now.second:02d}"
+
+
+def get_time_str(dt_start: datetime, dt_end: datetime) -> str:
+    return f"{dt_start.day:02d}_{dt_start.month:02d}_{dt_start.year:04d}_{dt_start.hour:02d}_{dt_start.minute:02d}_" \
+           f"{dt_start.second:02d}_"\
+           f"{dt_end.hour:02d}_{dt_end.minute:02d}_" \
+           f"{dt_end.second:02d}"
+
+
 def create_file_name(tag: str, w: int, h: int, fps: int, file_num: int = 0, ext: str = "mp4") -> str:
     now = datetime.now()
 
