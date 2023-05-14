@@ -11,11 +11,11 @@ def draw_on_frame(frame,
                   frame_info: DetectedTrackLabel):
     lab = frame_info
 
-    hh = int(lab.height * 1)
-    ww = int(lab.width * 1)
+    hh = int(lab.height * frame_w)
+    ww = int(lab.width * frame_h)
 
-    x = int(lab.x * 1 - ww / 2)
-    y = int(lab.y * 1 - hh / 2)
+    x = int(lab.x * frame_w - ww / 2)
+    y = int(lab.y * frame_h - hh / 2)
 
     # рамка объекта
 
@@ -26,7 +26,7 @@ def draw_on_frame(frame,
 
     caption = f"{lab.conf:.2f}"
 
-    draw_label_text(frame, (x, y), caption, line_width, color=(0,0,0))
+    draw_label_text(frame, (x, y), caption, line_width, color=(0, 0, 0))
 
 
 def create_turniket_video(track_labels: list, source_video, output_folder, max_frames: int = -1):

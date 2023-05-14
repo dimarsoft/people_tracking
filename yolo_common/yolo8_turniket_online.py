@@ -92,7 +92,7 @@ class YOLO8ULTurniketOnline:
             caption = f"{label.conf:.2f}"
             image_path = self.save_images_folder / f"{int(frame_id)}_{caption}.jpg"
 
-            draw_on_frame(frame, self.w, self.h, label)
+            draw_on_frame(frame, 1, 1, label)
 
             cv2.imwrite(str(image_path), frame)
 
