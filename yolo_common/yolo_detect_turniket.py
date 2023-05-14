@@ -29,7 +29,8 @@ def detect_single_video_yolo(yolo_version, model, source, output_folder, classes
         source=source,
         conf_threshold=conf,
         iou=iou,
-        classes=classes
+        classes=classes,
+        max_det=1
     )
 
     if save_txt:
@@ -118,13 +119,23 @@ def run_detect_yolo(yolo_info, model: str, source: str, output_folder,
 
 
 def run_example():
-
     video_source = "d:\\AI\\2023\\dataset-v1.1\\test\\"
     output_folder = "d:\\AI\\2023\\corridors\\dataset-v1.1\\"
 
-    files = ['1']
+    files = ["81", '1', '29', "20", '32']
+    # files = ['29']
 
-    model = "D:\\AI\\2023\\models\\Yolo8s_batch32_epoch100.pt"
+    model = "C:\\AI\\турникет\\TrainedModels\\" \
+            "Yolo8n_turniket_batch64_epoch57_single_class_false_best.pt"
+
+    model = "C:\\AI\\турникет\\TrainedModels\\" \
+            "2023_05_13_Yolo8n_turniket_batch64_epoch57_single_class_true_best.pt"
+
+    model = "C:\\AI\\турникет\\TrainedModels\\" \
+            "2023_05_12_17_52_39_yolo8_train_yolov8n.pt_epochs_30_batch_8_single_cls_best.pt"
+
+    model = "C:\\AI\\турникет\\TrainedModels\\" \
+            "2023_05_14_13_43_05_yolo8_train_yolov8x.pt_epochs_100_batch_16_single_cls_True_best.pt"
 
     run_detect_yolo("8ul", model, video_source, output_folder, files=files, conf=0.25, save_txt=True, save_vid=True)
 
@@ -135,7 +146,7 @@ def run_example():
 def run_cli(opt_info):
     yolo, source, weights, output_folder, files, save_txt, save_vid, conf, classes = \
         opt_info.yolo, opt_info.source, opt_info.weights, opt_info.output_folder, \
-        opt_info.files, opt_info.save_txt, opt_info.save_vid, opt_info.conf, opt_info.classes
+            opt_info.files, opt_info.save_txt, opt_info.save_vid, opt_info.conf, opt_info.classes
 
     run_detect_yolo(yolo, weights, source, output_folder,
                     files=files, conf=conf, iou=opt_info.iou,

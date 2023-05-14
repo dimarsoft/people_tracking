@@ -10,7 +10,7 @@ import gdown
 from configs import load_default_bound_line, WEIGHTS, YoloVersion, parse_yolo_version, ROOT, \
     get_all_optune_trackers, TEST_TRACKS_PATH, get_bound_line, get_detections_path
 from tools.count_results import Result
-#from tools.count_results import Result
+# from tools.count_results import Result
 from tools.exception_tools import print_exception
 from post_processing.alex import alex_count_humans
 from post_processing.timur import get_camera, timur_count_humans
@@ -28,12 +28,23 @@ test_video_share_folder_link = "https://drive.google.com/drive/folders/1YK0a3peu
 
 test_video_share_folder_link_1_85 = "https://drive.google.com/drive/folders/1o8xlmtVJkmvH7nDfFOQoBCoyRnhy9aVQ"
 
+# для турникета
+yolo8_turniket_model_gdrive_file = "2023_05_12_17_52_39_yolo8_train_yolov8n.pt_epochs_30_batch_8_single_cls_best.pt"
+yolo8_turniket_model_gdrive_link = "https://drive.google.com/uc?id=1-dbgib8A6Tg4KLPbE2uZx7VdmAEUE7a0"
+
 
 def get_local_path(yolo_version: YoloVersion) -> Path:
     if yolo_version == YoloVersion.yolo_v7:
         return Path(WEIGHTS) / yolo7_model_gdrive_file
 
     return Path(WEIGHTS) / yolo8_model_gdrive_file
+
+
+def get_turniket_local_path(yolo_version: YoloVersion) -> Path:
+    if yolo_version == YoloVersion.yolo_v7:
+        raise Exception(f"{YoloVersion.yolo_v7} is not supported")
+
+    return Path(WEIGHTS) / yolo8_turniket_model_gdrive_file
 
 
 def get_link(yolo_version: YoloVersion) -> str:
@@ -58,6 +69,29 @@ def get_model_file(yolo_version: YoloVersion) -> str:
         return output
 
     url = get_link(yolo_version)
+
+    print(f"download {output} from {url}")
+
+    gdown.download(url, output, quiet=False)
+
+    return output
+
+
+def get_turniket_model_file(yolo_version: YoloVersion) -> str:
+    """
+    Скачать и получить путь к модели Yolo (для турникета)
+    :param yolo_version: Версия Yolo, 7,8
+    :return: Путь к файлу модели
+    """
+    output_path = get_turniket_local_path(yolo_version)
+
+    output = str(output_path)
+
+    if output_path.exists():
+        print(f"{output} local exist")
+        return output
+
+    url = yolo8_turniket_model_gdrive_link
 
     print(f"download {output} from {url}")
 
@@ -106,7 +140,7 @@ def post_process(test_func, track, num, w, h, bound_line, source) -> Result:
                     humans_result = alex_count_humans(tracks_new, num, w, h, bound_line)
                     pass
                 if test_func == "timur":
-                    humans_result = timur_count_humans(tracks_new, source, bound_line)
+                    humans_result = timur_count_humans(tracks_new, w, h, bound_line)
                     pass
 
             else:

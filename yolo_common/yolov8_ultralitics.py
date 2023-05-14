@@ -29,10 +29,10 @@ class YOLO8UL:
 
         self.reid_weights = Path(WEIGHTS) / 'osnet_x0_25_msmt17.pt'  # model.pt path,
 
-    def detect(self, source, conf_threshold=0.3, iou=0.4, classes=None):
+    def detect(self, source, conf_threshold=0.3, iou=0.4, classes=None, max_det=300):
         detections = self.model.predict(source, conf=conf_threshold, iou=iou,
                                         classes=classes, imgsz=self.imgsz,
-                                        stream=True)
+                                        stream=True, max_det=max_det)
 
         detections = convert_toy7(detections, save_none_id=True)
 

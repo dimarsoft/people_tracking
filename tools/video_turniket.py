@@ -2,20 +2,20 @@ from pathlib import Path
 
 import cv2
 
-from tools.labeltools import DetectedTrackLabel
+from tools.labeltools import DetectedTrackLabel, draw_label_text
 
 
 def draw_on_frame(frame,
-                        frame_w,
-                        frame_h,
-                        frame_info: DetectedTrackLabel):
+                  frame_w: int,
+                  frame_h: int,
+                  frame_info: DetectedTrackLabel):
     lab = frame_info
 
-    hh = int(lab.height * frame_h)
-    ww = int(lab.width * frame_w)
+    hh = int(lab.height * 1)
+    ww = int(lab.width * 1)
 
-    x = int(lab.x * frame_w - ww / 2)
-    y = int(lab.y * frame_h - hh / 2)
+    x = int(lab.x * 1 - ww / 2)
+    y = int(lab.y * 1 - hh / 2)
 
     # рамка объекта
 
@@ -23,6 +23,10 @@ def draw_on_frame(frame,
     line_width = 2
 
     cv2.rectangle(frame, (x, y), (x + ww, y + hh), label_color, line_width)
+
+    caption = f"{lab.conf:.2f}"
+
+    draw_label_text(frame, (x, y), caption, line_width, color=(0,0,0))
 
 
 def create_turniket_video(track_labels: list, source_video, output_folder, max_frames: int = -1):
