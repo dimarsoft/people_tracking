@@ -181,7 +181,7 @@ def yolo7_save_tracks_to_json(results, json_file, conf=0.0):
         results_json.append(track)
 
     with open(json_file, "w") as write_file:
-        write_file.write(json.dumps(results_json, indent=4, sort_keys=True, default=lambda o: o.__dict__))
+        write_file.write(json.dumps(results_json, indent=4, default=lambda o: o.__dict__))
 
 
 def yolo_load_detections_from_txt(txt_path):
