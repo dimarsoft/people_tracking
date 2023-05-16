@@ -11,8 +11,8 @@ def draw_on_frame(frame,
                   frame_info: DetectedTrackLabel):
     lab = frame_info
 
-    hh = int(lab.height * frame_w)
-    ww = int(lab.width * frame_h)
+    ww = int(lab.width * frame_w)
+    hh = int(lab.height * frame_h)
 
     x = int(lab.x * frame_w - ww / 2)
     y = int(lab.y * frame_h - hh / 2)
@@ -42,6 +42,9 @@ def create_turniket_video(track_labels: list, source_video, output_folder, max_f
     frames_in_video = int(input_video.get(cv2.CAP_PROP_FRAME_COUNT))
 
     results = []
+
+    if max_frames > 0:
+        frames_in_video = min(frames_in_video, max_frames)
 
     for frame_id in range(frames_in_video):
         ret, frame = input_video.read()
