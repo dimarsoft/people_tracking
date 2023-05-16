@@ -7,6 +7,9 @@ bbox - в относительный величинах
 """
 import json
 from pathlib import Path
+from typing import List
+
+from ultralytics.yolo.engine.results import Results
 
 from tools.exception_tools import print_exception
 from tools.track_objects import Track
@@ -32,13 +35,30 @@ def convert_txt_toy7(results, save_none_id=False):
     return results_y7
 
 
-def convert_toy7(results, save_none_id=False):
+def convert_toy7(results: List[Results], save_none_id: bool = False, max_frames: int = -1) -> list:
+    """
+    Конвертация списка детекций в формате ultralytics в общий формат
+    Parameters
+    ----------
+    results: Список результатов
+    save_none_id: Сохранять результат, когда нет ИД трека
+    max_frames: Максимальное кол-во детекций для сохранения. Если -1 все, т.е. нет ограничений
+
+    Returns
+    -------
+    Возвращает список в общем формате
+
+    """
     results_y7 = []
 
     for frame_index, track in enumerate(results):
+        if 0 < max_frames <= frame_index:
+            break
         track = track.cpu()
+
         if track.boxes is not None:
-            for box in track.boxes:
+            boxes = track.boxes
+            for box in boxes:
                 if save_none_id:
                     track_id = -1 if box.id is None else int(box.id)
 
@@ -71,13 +91,13 @@ def convert_toy7(results, save_none_id=False):
 """
 
 
-def yolo8_save_tracks_to_txt(results, txt_path, conf=0.0, save_id=False):
+def yolo8_save_tracks_to_txt(results: List[Results], txt_path: str, conf: float = 0.0, save_id: bool = False):
     """
 
     Args:
         save_id:
         conf: элементы с conf менее указанной не сохраняются
-        txt_path: текcтовый файл для сохранения
+        txt_path: Текстовый файл для сохранения
         results: результат работы модели
     """
     with open(txt_path, 'a') as text_file:
@@ -107,7 +127,7 @@ def yolo8_save_detection_to_txt(results, txt_path, conf=0.0, save_id=False):
     Args:
         save_id:
         conf: элементы с conf менее указанной не сохраняются
-        txt_path: текcтовый файл для сохранения
+        txt_path: Текстовый файл для сохранения
         results: результат работы модели
     """
     with open(txt_path, 'a') as text_file:
