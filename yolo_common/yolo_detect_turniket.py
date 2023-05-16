@@ -4,6 +4,7 @@ import json
 from pathlib import Path
 
 from configs import parse_yolo_version, YoloVersion
+from post_processing.timur import get_camera
 from tools.labeltools import TrackWorker
 from tools.path_tools import get_video_files, create_session_folder
 from tools.save_txt_tools import yolo7_save_tracks_to_txt, yolo7_save_tracks_to_json
@@ -17,20 +18,23 @@ from yolo_common.yolov8_ultralitics import YOLO8UL
 
 
 def detect_single_video_yolo(yolo_version, model, source, output_folder, classes=None,
-                             conf=0.1, iou=0.45, save_txt=True,
-                             save_vid=False):
+                             conf=0.3, iou=0.45, save_txt=True,
+                             save_vid=False, max_frames=-1):
     print(f"start detect_single_video_yolo: {yolo_version}, source = {source}")
 
     source_path = Path(source)
 
-    model = create_yolo_model(yolo_version, model)
+    camera_num, w, h, fps = get_camera(source)
+
+    model = create_yolo_model(yolo_version, model, w=w, h=h)
 
     detections = model.detect(
         source=source,
         conf_threshold=conf,
         iou=iou,
         classes=classes,
-        max_det=1
+        max_det=300,
+        max_frames=max_frames
     )
 
     if save_txt:
@@ -49,7 +53,7 @@ def detect_single_video_yolo(yolo_version, model, source, output_folder, classes
     if save_vid:
         labels = TrackWorker.convert_tracks_to_list(detections)
         t1 = time_synchronized()
-        create_turniket_video(labels, source, output_folder)
+        create_turniket_video(labels, source, output_folder, max_frames=max_frames)
         t2 = time_synchronized()
 
         print(f"Processed '{source}' to {output_folder}: ({(1E3 * (t2 - t1)):.1f} ms)")
@@ -115,7 +119,7 @@ def run_detect_yolo(yolo_info, model: str, source: str, output_folder,
 
         detect_single_video_yolo(yolo_version, model, str(item), session_folder,
                                  classes=classes, conf=conf, iou=iou,
-                                 save_txt=save_txt, save_vid=save_vid)
+                                 save_txt=save_txt, save_vid=save_vid, max_frames=10)
 
 
 def run_example():
@@ -123,7 +127,8 @@ def run_example():
     output_folder = "d:\\AI\\2023\\corridors\\dataset-v1.1\\"
 
     files = ["81", '1', '29', "20", '32']
-    # files = ['29']
+    # files = ['20', "79", "81"]
+    files = None
 
     model = "C:\\AI\\турникет\\TrainedModels\\" \
             "Yolo8n_turniket_batch64_epoch57_single_class_false_best.pt"
@@ -132,10 +137,18 @@ def run_example():
             "2023_05_13_Yolo8n_turniket_batch64_epoch57_single_class_true_best.pt"
 
     model = "C:\\AI\\турникет\\TrainedModels\\" \
-            "2023_05_12_17_52_39_yolo8_train_yolov8n.pt_epochs_30_batch_8_single_cls_best.pt"
+            "2023_05_14_13_43_05_yolo8_train_yolov8x.pt_epochs_100_batch_16_single_cls_True_best.pt"
+
+
+
 
     model = "C:\\AI\\турникет\\TrainedModels\\" \
-            "2023_05_14_13_43_05_yolo8_train_yolov8x.pt_epochs_100_batch_16_single_cls_True_best.pt"
+            "2023_05_15_Yolo8n_turniket_batch64_epoch201_single_class_true_best.pt"
+    model = "C:\\AI\\турникет\\TrainedModels\\" \
+            "2023_05_14_Yolo8s_turniket_batch32_epoch241_single_class_true_best.pt"
+
+    model = "C:\\AI\\турникет\\TrainedModels\\" \
+            "2023_05_12_17_52_39_yolo8_train_yolov8n.pt_epochs_30_batch_8_single_cls_best.pt"
 
     run_detect_yolo("8ul", model, video_source, output_folder, files=files, conf=0.25, save_txt=True, save_vid=True)
 
@@ -146,7 +159,7 @@ def run_example():
 def run_cli(opt_info):
     yolo, source, weights, output_folder, files, save_txt, save_vid, conf, classes = \
         opt_info.yolo, opt_info.source, opt_info.weights, opt_info.output_folder, \
-            opt_info.files, opt_info.save_txt, opt_info.save_vid, opt_info.conf, opt_info.classes
+        opt_info.files, opt_info.save_txt, opt_info.save_vid, opt_info.conf, opt_info.classes
 
     run_detect_yolo(yolo, weights, source, output_folder,
                     files=files, conf=conf, iou=opt_info.iou,
