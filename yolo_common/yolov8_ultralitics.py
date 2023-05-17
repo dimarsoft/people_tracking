@@ -7,9 +7,12 @@ from tools.change_bboxes import change_bbox
 from configs import WEIGHTS
 from tools.save_txt_tools import convert_toy7
 from trackers.multi_tracker_zoo import create_tracker
+from utils.datasets import LoadImages
 from utils.general import check_img_size
 from utils.torch_utils import select_device, time_synchronized
 
+
+# from PIL import Image
 
 class YOLO8UL:
     def __init__(self, weights_path, half=False, device='', imgsz=(640, 640)):
@@ -23,7 +26,9 @@ class YOLO8UL:
 
         self.model = YOLO(weights_path)
 
-        self.imgsz = (check_img_size(imgsz[0]), check_img_size(imgsz[1]))
+        self.stride = 32
+
+        self.imgsz = (check_img_size(imgsz[0], self.stride), check_img_size(imgsz[1], self.stride))
 
         self.names = self.model.names
 
@@ -33,6 +38,36 @@ class YOLO8UL:
         detections = self.model.predict(source, conf=conf_threshold, iou=iou,
                                         classes=classes, imgsz=self.imgsz,
                                         stream=True, max_det=max_det)
+
+        detections = convert_toy7(detections, save_none_id=True, max_frames=max_frames)
+
+        return detections
+
+    def detect_bw(self, source, conf_threshold=0.3, iou=0.4, classes=None, max_det=300, max_frames=-1):
+
+        dataset = LoadImages(source, img_size=self.imgsz, stride=self.stride)
+
+        detections = []
+
+        index = 0
+
+        for path, img, im0s, vid_cap in dataset:
+
+            if 0 < max_frames < index:
+                break
+            index += 1
+
+            # пока костыль, но нужно переделать
+            img0_gray = cv2.cvtColor(im0s, cv2.COLOR_BGR2GRAY)
+
+            image_path = f"{index}.jpg"
+            cv2.imwrite(str(image_path), img0_gray)
+            img0 = cv2.imread(image_path)
+
+            detection = self.model.predict(img0, conf=conf_threshold, iou=iou,
+                                           classes=classes, imgsz=self.imgsz,
+                                           stream=False, max_det=max_det)
+            detections.extend(detection)
 
         detections = convert_toy7(detections, save_none_id=True, max_frames=max_frames)
 
