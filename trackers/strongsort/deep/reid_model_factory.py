@@ -109,7 +109,7 @@ def get_model_url(model):
     if model.name in __trained_urls:
         return __trained_urls[model.name]
     else:
-        None
+        return None
 
 
 def is_model_in_model_types(model):
