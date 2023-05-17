@@ -34,9 +34,9 @@ def is_human_class(label: Union[Labels, int]) -> bool:
 
     """
     if isinstance(label, Labels):
-        return label == Labels.human or label == Labels.helmet
+        return label == Labels.human   # or label == Labels.helmet
 
-    return label == int(Labels.human) or label == int(Labels.helmet)
+    return label == int(Labels.human)  # or label == int(Labels.helmet)
 
 
 # положение человека относительно турникета
@@ -136,12 +136,12 @@ class DetectedLabel:
     def label_str(self) -> str:
         if self.label is Labels.human:
             return f"human: {self.conf:.2f}"
-        if self.label is Labels.helmet:
-            return f"human_bad: {self.conf:.2f}"
+        # if self.label is Labels.helmet:
+        #    return f"human_bad: {self.conf:.2f}"
         if self.label is Labels.uniform:
             return "uniform"
-        # if self.label is Labels.helmet:
-        #     return "helmet"
+        if self.label is Labels.helmet:
+            return "helmet"
         return ""
 
 
@@ -605,7 +605,7 @@ class TrackWorker:
         y2 = int(self.get_y(1) * frame_h)
         cv2.line(frame, (0, y1), (frame_w, y2), (0, 0, 255), 1)
 
-    def create_video(self, source_video, output_folder, draw_class=False):
+    def create_video(self, source_video, output_folder, draw_class=False, max_frames: int = -1):
         input_video = cv2.VideoCapture(str(source_video))
 
         fps = int(input_video.get(cv2.CAP_PROP_FPS))
@@ -616,6 +616,9 @@ class TrackWorker:
 
         # количество кадров в видео
         frames_in_video = int(input_video.get(cv2.CAP_PROP_FRAME_COUNT))
+
+        if max_frames > 0:
+            frames_in_video = min(frames_in_video, max_frames)
 
         results = []
 
