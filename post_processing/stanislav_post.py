@@ -5,7 +5,7 @@ from tools.count_results import Result
 from tools.exception_tools import print_exception
 
 
-def convert_track_to_df(tracks: list, w, h) -> DataFrame:
+def convert_track_to_df(tracks: list, w: int, h: int) -> DataFrame:
     """
     Конвертация в DataFrame нужный постобработке
     Args:

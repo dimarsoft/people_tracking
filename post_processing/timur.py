@@ -1,6 +1,7 @@
 import json
 import os
 from pathlib import Path
+from typing import Tuple
 
 import cv2
 
@@ -39,7 +40,7 @@ def update_dict(dict_tracks, track_id, x1, y1, x2, y2, itt):
         }})
 
 
-def tracks_to_dic(tracks, w, h):
+def tracks_to_dic(tracks: list, w: int, h: int) -> Tuple[dict, dict, dict]:
     people_tracks = {}
     helmet_tracks = {}
     vest_tracks = {}
