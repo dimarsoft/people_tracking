@@ -34,7 +34,14 @@ class YOLO8UL:
 
         self.reid_weights = Path(WEIGHTS) / 'osnet_x0_25_msmt17.pt'  # model.pt path,
 
-    def detect(self, source, conf_threshold=0.3, iou=0.4, classes=None, max_det=300, max_frames=-1):
+    def detect(self, source, conf_threshold=0.3, iou=0.4, classes=None,
+               max_det: int = 300,
+               max_frames: int = -1,
+               bw_image: bool = False):
+
+        if bw_image:
+            return self.detect_bw(source, conf_threshold, iou, classes, max_det, max_frames)
+
         detections = self.model.predict(source, conf=conf_threshold, iou=iou,
                                         classes=classes, imgsz=self.imgsz,
                                         stream=True, max_det=max_det)
@@ -43,7 +50,9 @@ class YOLO8UL:
 
         return detections
 
-    def detect_bw(self, source, conf_threshold=0.3, iou=0.4, classes=None, max_det=300, max_frames=-1):
+    def detect_bw(self, source, conf_threshold=0.3, iou=0.4, classes=None,
+                  max_det: int = 300,
+                  max_frames: int = -1):
 
         dataset = LoadImages(source, img_size=self.imgsz, stride=self.stride)
 

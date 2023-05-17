@@ -7,11 +7,14 @@ from configs import parse_yolo_version, YoloVersion
 from tools.labeltools import TrackWorker
 from tools.path_tools import get_video_files, create_session_folder
 from tools.save_txt_tools import yolo7_save_tracks_to_txt, yolo7_save_tracks_to_json
+from tools.version_tool import get_version
 from utils.general import set_logging
 from utils.torch_utils import time_synchronized
 from yolo_common.yolov7 import YOLO7
 from yolo_common.yolov8 import YOLO8
 from yolo_common.yolov8_ultralitics import YOLO8UL
+
+__version__ = 1.1
 
 
 def create_yolo_model(yolo_version, model, w=640, h=640):
@@ -22,13 +25,15 @@ def create_yolo_model(yolo_version, model, w=640, h=640):
         return YOLO8(model)
 
     if yolo_version == YoloVersion.yolo_v8ul:
-        return YOLO8UL(model) # , imgsz=(w, h)
+        return YOLO8UL(model)  # , imgsz=(w, h)
 
 
 def detect_single_video_yolo(yolo_version, model, source, output_folder, classes=None,
                              conf=0.1, iou=0.45, save_txt=True,
-                             save_vid=False):
-    print(f"start detect_single_video_yolo: {yolo_version}, source = {source}")
+                             save_vid=False, max_frames: int = -1,
+                             bw_image: bool = False):
+
+    print(f"start detect_single_video_yolo: {yolo_version}, source = {source}, bw_image = {bw_image}")
 
     source_path = Path(source)
 
@@ -38,7 +43,9 @@ def detect_single_video_yolo(yolo_version, model, source, output_folder, classes
         source=source,
         conf_threshold=conf,
         iou=iou,
-        classes=classes
+        classes=classes,
+        max_frames=max_frames,
+        bw_image=bw_image
     )
 
     if save_txt:
@@ -57,7 +64,7 @@ def detect_single_video_yolo(yolo_version, model, source, output_folder, classes
     if save_vid:
         track_worker = TrackWorker(detections)
         t1 = time_synchronized()
-        track_worker.create_video(source, output_folder, draw_class=True)
+        track_worker.create_video(source, output_folder, draw_class=True, max_frames=max_frames)
         t2 = time_synchronized()
 
         print(f"Processed '{source}' to {output_folder}: ({(1E3 * (t2 - t1)):.1f} ms)")
@@ -68,10 +75,11 @@ def detect_single_video_yolo(yolo_version, model, source, output_folder, classes
 
 
 def run_detect_yolo(yolo_info, model: str, source: str, output_folder,
-                    files=None, classes=None, conf=0.3, iou=0.45, save_txt=True, save_vid=False):
+                    files=None, classes=None, conf=0.3, iou=0.45, save_txt=True,
+                    save_vid=False, max_frames: int = -1, bw_image: bool = False):
     """
 
-    Args:
+    Parameters
         iou:
         yolo_info: версия Yolo: 7 ил 8
         save_txt: сохранять бб в файл
@@ -83,6 +91,9 @@ def run_detect_yolo(yolo_info, model: str, source: str, output_folder,
         output_folder: путь к папке для результатов работы, txt
         source: путь к видео, если папка, то для каждого видео файла запустит
         model (str): модель для YOLO8
+        bw_image (bool): Ч/б модель
+        max_frames (int): Ограничение по ко-ву фреймов из видео файла, -1 нет ограничений
+
     """
 
     set_logging()
@@ -95,7 +106,10 @@ def run_detect_yolo(yolo_info, model: str, source: str, output_folder,
 
     # в выходной папке создаем папку с сессией: дата_трекер туда уже сохраняем все файлы
 
-    session_folder = create_session_folder(yolo_version, output_folder, "detect")
+    if bw_image:
+        session_folder = create_session_folder(yolo_version, output_folder, f"detect_bw")
+    else:
+        session_folder = create_session_folder(yolo_version, output_folder, f"detect_color")
 
     session_info = dict()
 
@@ -107,6 +121,13 @@ def run_detect_yolo(yolo_info, model: str, source: str, output_folder,
     session_info['classes'] = classes
     session_info['save_txt'] = save_txt
     session_info['yolo_version'] = str(yolo_version)
+    session_info['bw_image'] = bw_image
+
+    soft_version = get_version(__version__, __file__)
+
+    print(f"soft_version = {soft_version}")
+
+    session_info['soft_version'] = str(soft_version)
 
     session_info_path = str(Path(session_folder) / 'session_info.json')
 
@@ -122,22 +143,35 @@ def run_detect_yolo(yolo_info, model: str, source: str, output_folder,
 
         detect_single_video_yolo(yolo_version, model, str(item), session_folder,
                                  classes=classes, conf=conf, iou=iou,
-                                 save_txt=save_txt, save_vid=save_vid)
+                                 save_txt=save_txt, save_vid=save_vid,
+                                 max_frames=max_frames,
+                                 bw_image=bw_image)
 
 
 def run_example():
-    video_source = "d:\\AI\\2023\\corridors\\dataset-v1.1\\test\\"
+    video_source = "d:\\AI\\2023\\dataset-v1.1\\test\\"
     output_folder = "d:\\AI\\2023\\corridors\\dataset-v1.1\\"
 
-    files = ['1']
+    # files = ['28', "38"]
+    files = ["6", "17", "18", "26", "36"]
 
-    model = "D:\\AI\\2023\\models\\Yolov7\\25.02.2023_dataset_1.1_yolov7_best.pt"
+    bw_image = True
 
-    run_detect_yolo(7, model, video_source, output_folder, files=files, conf=0.25, save_txt=True, save_vid=True)
+    # model = "D:\\AI\\2023\\models\\Yolov7\\25.02.2023_dataset_1.1_yolov7_best.pt"
 
-    model = "D:\\AI\\2023\\models\\Yolo8s_batch32_epoch100.pt"
+    # run_detect_yolo(7, model, video_source, output_folder, files=files, conf=0.25, save_txt=True, save_vid=True)
 
-    # run_detect_yolo("8ul", model, video_source, output_folder, files=files, conf=0.25, save_txt=True, save_vid=True)
+    if bw_image:
+        model = "C:\\AI\\bw\\2023_05_16_05_59_26_yolo8_train_bw_3_channel_yolov8n.pt_epochs_50_batch_8_best.pt"
+    else:
+        model = "D:\\AI\\2023\\models\\Yolo8s_batch32_epoch100.pt"
+
+    # model = "C:\\AI\\bw\\2023_05_16_05_59_26_yolo8_train_bw_3_channel_yolov8n.pt_epochs_50_batch_8_best.pt"
+    # model = "C:\\AI\\bw\\15.05.2023_yolov8n_echocs_8_batch_30_best_1_channel.pt"
+
+    run_detect_yolo("8ul", model, video_source, output_folder,
+                    files=files, conf=0.25, save_txt=True, save_vid=True,
+                    max_frames=150, bw_image=bw_image)
 
 
 # запуск из командной строки: python yolo_detect.py  --yolo 7 --weights "" source ""
@@ -156,7 +190,7 @@ if __name__ == '__main__':
     # lst = [f"{x}" for x in lst]
     # print(lst)
 
-    # run_example()
+    run_example()
 
     parser = argparse.ArgumentParser()
     parser.add_argument('--yolo', type=int, help='7, 8, 8ul')
@@ -175,6 +209,6 @@ if __name__ == '__main__':
     parser.add_argument('--agnostic-nms', action='store_true', help='class-agnostic NMS')
     parser.add_argument('--augment', action='store_true', help='augmented inference')
     opt = parser.parse_args()
-    print(opt)
+    # print(opt)
 
-    run_cli(opt)
+    # run_cli(opt)
