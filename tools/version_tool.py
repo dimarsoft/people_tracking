@@ -1,6 +1,7 @@
 __version__ = 0.1
 
 import torch
+import ultralytics
 
 from utils.torch_utils import git_describe, git_branch_name, date_modified
 
@@ -14,4 +15,4 @@ def get_version(version=__version__, path=__file__) -> str:
     else:
         git_info = f"git: {branch_name}:{git_info}, {date_modified()}"
 
-    return f'{version}, {git_info}, torch {torch.__version__}'
+    return f'{version}, {git_info}, torch = {torch.__version__}, ultralytics = {ultralytics.__version__}'
