@@ -1,9 +1,10 @@
 import os
 import shutil
 from pathlib import Path
+from typing import Union
 
 
-def delete_and_change(src_labels, out_folder) -> None:
+def delete_and_change(src_labels: Union[str, Path], out_folder: Union[str, Path]) -> None:
     src_labels = Path(src_labels)
     out_folder = Path(out_folder)
 
@@ -42,20 +43,25 @@ def delete_and_change(src_labels, out_folder) -> None:
     print(f"count_0 = {count_0}, count_1 = {count_1}, total_count = {total_count}")
 
 
-def copy_labels_image(src_labels, src_images, out_folder, lb_info_file) -> None:
+def copy_labels_image(src_labels: Union[str, Path], src_images: Union[str, Path],
+                      out_folder: Union[str, Path], lb_info_file: Union[str, Path]) -> None:
     """
     Туулза для датасета с двумя классами.
     Labels разделили по 500 файлов, теперь нужно и картинки также разбить.
     И добавить labels.txt
     Parameters
     ----------
-    src_labels Папка где находится пачка с txt
-    src_images Картинки
-    out_folder Папка, в которую запишется результат:
-    В ней будет:
-        папка labels c не пустыми файлами txt + labels.txt
-        папка images c картинками
-    lb_info_file labels.txt
+    src_labels
+        Папка где находится пачка с txt.
+    src_images
+        Картинки.
+    out_folder
+        Папка, в которую запишется результат.
+        В ней будет:
+            папка labels c не пустыми файлами txt + labels.txt
+            папка images c картинками.
+    lb_info_file
+        labels.txt.
 
     Returns
     -------

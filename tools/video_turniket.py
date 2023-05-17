@@ -9,6 +9,23 @@ def draw_on_frame(frame,
                   frame_w: int,
                   frame_h: int,
                   frame_info: DetectedTrackLabel):
+    """
+    Рисование на фрейме детекции
+    Parameters
+    ----------
+    frame:
+        Фрейм.
+    frame_w:
+        Ширина ббокса.
+    frame_h:
+        Высота ббокса.
+    frame_info
+        Результат дедекции
+
+    Returns
+    -------
+
+    """
     lab = frame_info
 
     ww = int(lab.width * frame_w)

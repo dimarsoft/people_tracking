@@ -17,6 +17,22 @@ class VideoInfo(object):
 
 
 def save_frames(path_to_video: Union[str, Path], output_folder: Union[str, Path], max_frames: int = -1):
+    """
+    Сохранить кадры изм видео файла
+    Parameters
+    ----------
+    path_to_video
+        Путь к видео файлу
+    output_folder
+        Папка для сохранения файлов с кадрами
+    max_frames
+        Максимальное кол-во кадров.
+        -1 = все кадры
+
+    Returns
+    -------
+
+    """
     input_video = cv2.VideoCapture(str(path_to_video))
 
     fps = int(input_video.get(cv2.CAP_PROP_FPS))

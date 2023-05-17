@@ -76,8 +76,6 @@ object_colors = Colors()
 
 def get_color(item_id: int):
     return object_colors(item_id, True)
-    # item_id = item_id % len(human_colors)
-    # return human_colors[item_id]
 
 
 class Bbox:
@@ -269,9 +267,10 @@ def get_status(has_helmet: bool, has_uniform: bool) -> int:
     Получить код нарушения
     Args:
         has_helmet: Есть каска?
-        has_uniform: Есть жилет
+        has_uniform: Есть жилет?
 
     Returns:
+        Код нарушения (1, 2, 3)
 
     """
     status = 0

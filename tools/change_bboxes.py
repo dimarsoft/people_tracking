@@ -1,12 +1,16 @@
+from typing import Optional, Union
+
 from tools.exception_tools import print_exception
 
 
 def scale_bbox(bbox, scale: float):
     """
-
+    Масштабирование bbox
     Args:
         bbox: bbox на замену
-        scale (float):
+        scale (float): Масштаб
+    Returns:
+        bbox
     """
     x1_center = (bbox[:, [0]] + bbox[:, [2]]) / 2
     y1_center = (bbox[:, [1]] + bbox[:, [3]]) / 2
@@ -25,7 +29,28 @@ def scale_bbox(bbox, scale: float):
     return bbox
 
 
-def change_bbox(bbox, change_bb, file_id=None, clone=False):
+def change_bbox(bbox, change_bb: Union[True, callable], file_id: Optional[str] = None, clone: bool = False):
+    """
+    Изменение bbox
+    Parameters
+    ----------
+
+    bbox:
+        bbox, который нужно изменить.
+
+    change_bb:
+        Менять/не менять bbox или  функция, меняющая bbox.
+
+    file_id:
+        номер файла.
+    clone:
+        флаг, указывающий на тоЮ что нужно ли делать копию bbox перед изменением.
+
+    Returns
+    -------
+        Измененный bbox
+
+    """
     if change_bb is None:
         return bbox
 
@@ -69,6 +94,7 @@ def change_bbox(bbox, change_bb, file_id=None, clone=False):
 
 def no_change_bbox(bbox, file_id: str):
     """
+    Bbox возвращается без изменений
 
     Args:
         file_id(str): имя файла
@@ -82,7 +108,7 @@ def no_change_bbox(bbox, file_id: str):
 
 
 # пример реализации бокса по центру 20/20
-def change_bbox_to_center(bbox, file_id):
+def change_bbox_to_center(bbox, file_id: str):
     x1 = (bbox[:, [0]] + bbox[:, [2]]) / 2
     y1 = (bbox[:, [1]] + bbox[:, [3]]) / 2
 
@@ -99,7 +125,7 @@ def change_bbox_to_center(bbox, file_id):
 
 
 # пример реализации от Павла (группа №1)
-def pavel_change_bbox(bbox, file_id):
+def pavel_change_bbox(bbox, file_id: str):
     y2 = bbox[:, [1]] + 150
 
     bbox[:, [3]] = y2

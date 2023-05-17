@@ -18,6 +18,9 @@
 
 
 class Deviation(object):
+    """
+    Класс нарушение.
+    """
     def __init__(self, start, end, status):
         self.start_frame = int(start)
         self.end_frame = int(end)
@@ -28,6 +31,9 @@ class Deviation(object):
 
 
 class Result:
+    """
+    Класс результат обработки видео
+    """
     def __init__(self, humans, c_in, c_out, deviations: list[Deviation]):
         self.file = ""
         self.humans = int(humans)

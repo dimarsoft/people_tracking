@@ -4,7 +4,7 @@ from pathlib import Path
 from typing import Optional
 
 
-def get_video_files(source, files: Optional[list[str]]) -> list:
+def get_video_files(source, files: Optional[list[str]]) -> list[str]:
     # список файлов с видео для обработки
     list_of_videos = []
 
