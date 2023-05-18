@@ -1,3 +1,6 @@
+"""
+Модуль для изменения bbox
+"""
 from typing import Optional, Union
 
 from tools.exception_tools import print_exception
@@ -17,19 +20,20 @@ def scale_bbox(bbox, scale: float):
 
     scale /= 2
 
-    w = abs(bbox[:, [0]] - bbox[:, [2]]) * scale
-    h = abs(bbox[:, [1]] - bbox[:, [3]]) * scale
+    width = abs(bbox[:, [0]] - bbox[:, [2]]) * scale
+    height = abs(bbox[:, [1]] - bbox[:, [3]]) * scale
 
-    bbox[:, [0]] = x1_center - w
-    bbox[:, [2]] = x1_center + w
+    bbox[:, [0]] = x1_center - width
+    bbox[:, [2]] = x1_center + width
 
-    bbox[:, [1]] = y1_center - h
-    bbox[:, [3]] = y1_center + h
+    bbox[:, [1]] = y1_center - height
+    bbox[:, [3]] = y1_center + height
 
     return bbox
 
 
-def change_bbox(bbox, change_bb: Union[True, callable], file_id: Optional[str] = None, clone: bool = False):
+def change_bbox(bbox, change_bb: Union[bool, callable], file_id: Optional[str] = None,
+                clone: bool = False):
     """
     Изменение bbox
     Parameters
@@ -77,17 +81,17 @@ def change_bbox(bbox, change_bb: Union[True, callable], file_id: Optional[str] =
     if clone:
         bbox = bbox.clone()
 
-    x1 = (bbox[:, [0]] + bbox[:, [2]]) / 2
-    y1 = (bbox[:, [1]] + bbox[:, [3]]) / 2
+    x_c = (bbox[:, [0]] + bbox[:, [2]]) / 2
+    y_c = (bbox[:, [1]] + bbox[:, [3]]) / 2
 
-    w = 10  # abs(bbox[:, [0]] - bbox[:, [2]]) / 4
-    h = 10  # abs(bbox[:, [1]] - bbox[:, [3]]) / 4
+    width = 10  # abs(bbox[:, [0]] - bbox[:, [2]]) / 4
+    height = 10  # abs(bbox[:, [1]] - bbox[:, [3]]) / 4
 
-    bbox[:, [0]] = x1 - w
-    bbox[:, [2]] = x1 + w
+    bbox[:, [0]] = x_c - width
+    bbox[:, [2]] = x_c + width
 
-    bbox[:, [1]] = y1 - h
-    bbox[:, [3]] = y1 + h
+    bbox[:, [1]] = y_c - height
+    bbox[:, [3]] = y_c + height
 
     return bbox
 
@@ -107,27 +111,59 @@ def no_change_bbox(bbox, file_id: str):
     return bbox
 
 
-# пример реализации бокса по центру 20/20
 def change_bbox_to_center(bbox, file_id: str):
-    x1 = (bbox[:, [0]] + bbox[:, [2]]) / 2
-    y1 = (bbox[:, [1]] + bbox[:, [3]]) / 2
+    """
+    Пример реализации бокса по центру 20/20
 
-    w = 10
-    h = 10
+    Parameters
+    ----------
+    bbox
+        bbox на входе
+    file_id
+        номер видео
 
-    bbox[:, [0]] = x1 - w
-    bbox[:, [2]] = x1 + w
+    Returns
+    -------
+    измененный bbox
 
-    bbox[:, [1]] = y1 - h
-    bbox[:, [3]] = y1 + h
+    """
+    x_c = (bbox[:, [0]] + bbox[:, [2]]) / 2
+    y_c = (bbox[:, [1]] + bbox[:, [3]]) / 2
+
+    width = 10
+    height = 10
+
+    bbox[:, [0]] = x_c - width
+    bbox[:, [2]] = x_c + width
+
+    bbox[:, [1]] = y_c - height
+    bbox[:, [3]] = y_c + height
+
+    _ = file_id
 
     return bbox
 
 
-# пример реализации от Павла (группа №1)
 def pavel_change_bbox(bbox, file_id: str):
-    y2 = bbox[:, [1]] + 150
+    """
+    Пример реализации от Павла (группа №1)
 
-    bbox[:, [3]] = y2
+    Parameters
+    ----------
+    bbox
+        bbox на входе
+    file_id
+        номер видео
+
+    Returns
+    -------
+    измененный bbox
+
+    """
+    y_2 = bbox[:, [1]] + 150
+
+    bbox[:, [3]] = y_2
+
+    _ = file_id
 
     return bbox
