@@ -1,3 +1,7 @@
+"""
+Модуль для чтения rtsp потока и детекции
+"""
+
 from pathlib import Path
 from queue import Queue
 from threading import Thread
@@ -6,13 +10,19 @@ from typing import Union, Optional
 import cv2
 
 from configs import YoloVersion, get_all_optune_trackers, ROOT
-from rtsp.rtsp_tools import print_timed, time_synch, print_exception_time, create_file_name, elapsed_sec
+from rtsp.rtsp_tools import print_timed, time_synch, print_exception_time, \
+    create_file_name, elapsed_sec
 from yolo_common.yolo8_online import YOLO8ULOnline
 from yolo_common.yolo_track_main import get_model_file
 
 
-class RtspStreamReaderToDetect(object):
-    def __init__(self, rtsp_url: str, tag: str, output_folder: Union[str, Path], saver, time_split: int = 5):
+class RtspStreamReaderToDetect:
+    """
+    Чтение rtsp потока и детекция
+    """
+
+    def __init__(self, rtsp_url: str, tag: str, output_folder: Union[str, Path],
+                 saver, time_split: int = 5):
         """
         Класс для чтения из потока Rtsp и запись в папку.
         :param rtsp_url: Строка подключения к rtsp.
@@ -31,8 +41,8 @@ class RtspStreamReaderToDetect(object):
 
         self._started = False
         self._stop = False
-        self._stopWriter = False
-        self._startedWriter = False
+        self._stop_writer = False
+        self._started_writer = False
 
         # информация о параметрах видео потока, будет получена в первом подключении
         self._video_info_valid = False
@@ -47,6 +57,12 @@ class RtspStreamReaderToDetect(object):
         self.saver = saver
 
     def start(self):
+        """
+        Запуск работы
+        Returns
+        -------
+
+        """
         if self._started:
             return
         self._stop = False
@@ -63,6 +79,12 @@ class RtspStreamReaderToDetect(object):
         print_timed(f"threads started, {self.rtsp_url}")
 
     def stop(self):
+        """
+        Остановка работы
+        Returns
+        -------
+
+        """
         if not self._started:
             print_timed(f"threads not started, {self.rtsp_url}", is_error=True)
             return
@@ -73,7 +95,7 @@ class RtspStreamReaderToDetect(object):
         _started = False
 
         self._stream_reader.join()
-        self._stop_writer()
+        self._do_stop_writer()
 
         print_timed(f"threads stopped, {self.rtsp_url}")
 
@@ -135,22 +157,22 @@ class RtspStreamReaderToDetect(object):
         print_timed(f"reader finished from {self.rtsp_url}")
 
     def _start_writer(self):
-        if self._startedWriter:
+        if self._started_writer:
             print_timed(f"writer already started, {self.rtsp_url}", is_error=True)
             return
 
-        self._startedWriter = True
+        self._started_writer = True
         self._file_writer.start()
         print_timed(f"_start_writer = {self.rtsp_url}")
 
-    def _stop_writer(self):
-        if not self._startedWriter:
+    def _do_stop_writer(self):
+        if not self._started_writer:
             print_timed(f"writer not started, {self.rtsp_url}", is_error=True)
             return
 
-        self._stopWriter = True
+        self._stop_writer = True
         self._file_writer.join()
-        self._startedWriter = False
+        self._started_writer = False
 
         print_timed(f"_stop_writer: {self.rtsp_url}")
 
@@ -201,7 +223,7 @@ class RtspStreamReaderToDetect(object):
 
         last_frame_time = None
 
-        while not self._stopWriter:
+        while not self._stop_writer:
 
             if not self._video_info_valid:
                 continue
