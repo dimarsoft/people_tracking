@@ -83,7 +83,7 @@ def run_detection(version: Union[str, int],
                   source: Union[str, Path],
                   model: Union[str, Path, None] = None,
                   tracker_name: Optional[str] = None,
-                  tracker_config: Union[str, dict, Path, None] = None) -> dict:
+                  tracker_config: Union[str, dict, Path, None] = None) -> Optional[dict]:
     if version == '1' or version == 1:
         return run_group1_detection(source, model=model)
 
@@ -93,6 +93,8 @@ def run_detection(version: Union[str, int],
 
     if version == '3' or version == 3:
         return run_vladimir_detection(source, model=model)
+
+    return None
 
 
 def run_cli(opt_info) -> dict:
