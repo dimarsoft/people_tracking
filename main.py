@@ -84,20 +84,31 @@ def run_detection(version: Union[str, int],
                   model: Union[str, Path, None] = None,
                   tracker_name: Optional[str] = None,
                   tracker_config: Union[str, dict, Path, None] = None) -> Optional[dict]:
-    if version == '1' or version == 1:
+    if version in (1, "1"):
         return run_group1_detection(source, model=model)
 
-    if version == '2' or version == 2:
+    if version in (2, "2"):
         return run_group2_detection(source, model=model,
                                     tracker_name=tracker_name, tracker_config=tracker_config)
 
-    if version == '3' or version == 3:
+    if version in (3, "3"):
         return run_vladimir_detection(source, model=model)
 
     return None
 
 
 def run_cli(opt_info) -> dict:
+    """
+    Запуск через командную строку
+    Parameters
+    ----------
+    opt_info
+        Параметры командной строки
+
+    Returns
+    -------
+    Словарь с результатом
+    """
     version, source, tracker_name, tracker_config, model = \
         opt_info.version, opt_info.source, opt_info.tracker_name, opt_info.tracker_config, opt_info.model
 
