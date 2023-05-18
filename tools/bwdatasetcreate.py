@@ -36,14 +36,9 @@ def convert_colored_to_bw(path_in: str, path_out: str, col_channels: int = 1):
         os.mkdir(path_out + val + lbl)
 
     # Функция преобразования картинок
-    def transformer(folder: str, path_in_local: str = path_in, path_out_local: str = path_out,
-                    col_channels_local: int = col_channels):
+    def transformer(folder: str):
         """
         :param folder: Can take values 'train' or 'val'
-        :param path_in_local: the path to main folder with dataset
-                              ('train' and 'val' do not specify)
-        :param path_out_local: the path to a new dataset with black and white images
-        :param col_channels_local: colChannels: number of black and white image channels 1 or 3
         :return:
 
         The function goes through the folder with pictures, converts each into a black and white
@@ -52,38 +47,35 @@ def convert_colored_to_bw(path_in: str, path_out: str, col_channels: int = 1):
         """
 
         # Проходим по всем файлам в каталоге по указанному пути
-        for filename in sorted(os.listdir(path_in_local + folder + img)):
+        for filename in sorted(os.listdir(path_in + folder + img)):
 
-            old_img = Image.open(os.path.join(path_in_local + folder + img,
+            old_img = Image.open(os.path.join(path_in + folder + img,
                                               filename))
             # old_img = tf.keras.utils.load_img(os.path.join(path_in_local + folder + img,
             #                                              filename))
 
-            if col_channels_local == 1:
+            if col_channels == 1:
                 image_file = old_img.convert('1')  # convert image to monochrome - this works
-            elif col_channels_local == 3:
+            elif col_channels == 3:
                 image_file = old_img.convert('L')  # convert image to black and white
             else:
                 print('Количество каналов м.б. или 1 или 3. Укажите параметр корректно')
                 return
 
-            image_file.save(path_out_local + folder + img + filename)
+            image_file.save(path_out + folder + img + filename)
 
-    def copy_labels(folder: str, path_in_local: str = path_in, path_out_local: str = path_out):
+    def copy_labels(folder: str):
         """
         :param folder: Can take values 'train' or 'val'
-        :param path_in_local: the path to main folder with dataset
-                              ('train' and 'val' do not specify)
-        :param path_out_local: the path to a new dataset with black and white images
         :return:
 
         The function of copying markup. Passes through the folder with labels
         and copies them to the corresponding folders of the new dataset (path_out)
         """
-        for file_name in os.listdir(path_in_local + folder + lbl):
+        for file_name in os.listdir(path_in + folder + lbl):
             # construct full file path
-            source = path_in_local + folder + lbl + file_name
-            destination = path_out_local + folder + lbl + file_name
+            source = path_in + folder + lbl + file_name
+            destination = path_out + folder + lbl + file_name
 
             if os.path.isfile(source):
                 shutil.copy(source, destination)
