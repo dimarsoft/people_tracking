@@ -57,3 +57,13 @@ optuna
 
 # web app
 Flask
+
+# test app: написание тестов
+# https://pypi.org/project/pytest/
+# https://docs.pytest.org/en/latest/
+pytest
+# https://pypi.org/project/pylint/
+# https://en.wikipedia.org/wiki/Static_program_analysis (есть на русском языке)
+# https://kirankoduru.github.io/python/pylint-with-pycharm.html
+# https://stackoverflow.com/questions/38134086/how-to-run-pylint-with-pycharm/46409649#46409649
+pylint
