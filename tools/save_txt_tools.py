@@ -8,6 +8,9 @@ bbox - в относительный величинах
 import json
 from pathlib import Path
 from typing import List
+import pandas as pd
+import numpy as np
+from pandas import DataFrame
 
 from ultralytics.yolo.engine.results import Results
 
@@ -15,7 +18,17 @@ from tools.exception_tools import print_exception
 from tools.track_objects import Track
 
 
-def convert_txt_toy7(results, save_none_id=False):
+def convert_txt_toy7(results: list) -> list:
+    """
+    Конвертор списка детекции
+    Parameters
+    ----------
+    results
+
+    Returns
+    -------
+
+    """
     results_y7 = []
 
     for track in results:
@@ -79,23 +92,16 @@ def convert_toy7(results: List[Results], save_none_id: bool = False, max_frames:
                 bbox_h = xywhn[3]
                 bbox_left = xywhn[0] - bbox_w / 2
                 bbox_top = xywhn[1] - bbox_h / 2
-                bbox_r = xywhn[0] + bbox_w / 2
-                bbox_b = xywhn[1] + bbox_h / 2
-                # track_id = int(box.id)
+
                 cls = int(box.cls)
-                results_y7.append([frame_index, bbox_left, bbox_top, bbox_w, bbox_h, track_id, cls, box.conf])
+
+                results_y7.append([frame_index, bbox_left, bbox_top,
+                                   bbox_w, bbox_h, track_id, cls, box.conf])
     return results_y7
 
 
-"""
- info = [frame_id,
-                                float(detection[0]) / w, float(detection[1]) / h,
-                                float(detection[2]) / w, float(detection[3]) / h,
-                                int(detection[4]), int(detection[5]), float(detection[6])]
-"""
-
-
-def yolo8_save_tracks_to_txt(results: List[Results], txt_path: str, conf: float = 0.0, save_id: bool = False):
+def yolo8_save_tracks_to_txt(results: List[Results], txt_path: str,
+                             conf: float = 0.0, save_id: bool = False):
     """
 
     Args:
@@ -208,47 +214,67 @@ def yolo7_save_tracks_to_json(results, json_file, conf=0.0):
         write_file.write(json.dumps(results_json, indent=4, default=lambda o: o.__dict__))
 
 
-def yolo_load_detections_from_txt(txt_path):
-    import pandas as pd
+def yolo_load_detections_from_txt(txt_path) -> DataFrame:
+    """
+    Получить дата фрейм из файла
+    Parameters
+    ----------
+    txt_path
+        Путь к файлу
 
+    Returns
+    -------
+        Дата фрейм
+
+    """
     if Path(txt_path).suffix == ".npy":
         return yolo_load_detections_from_npy(txt_path)
 
     try:
         if Path(txt_path).stat().st_size > 0:
-            df = pd.read_csv(txt_path, delimiter=" ", dtype=float, header=None)
+            data_frame = pd.read_csv(txt_path, delimiter=" ", dtype=float, header=None)
         else:
             # если файл пустой, создаем пустой df, f nj pd.read_csv exception выдает
-            df = pd.DataFrame(dtype=float, columns=[0, 1, 2, 3, 4, 5, 6, 7])
-        # df = pd.DataFrame(df, columns=['frame', 'id', 'class', 'bb_left', 'bb_top', 'bb_width', 'bb_height', 'conf'])
+            data_frame = pd.DataFrame(dtype=float, columns=[0, 1, 2, 3, 4, 5, 6, 7])
+        # data_frame = pd.DataFrame(df, columns=['frame', 'id', 'class',
+        # 'bb_left', 'bb_top', 'bb_width', 'bb_height', 'conf'])
     except Exception as ex:
         print_exception(ex, f"yolo_load_detections_from_txt: '{str(txt_path)}'")
-        df = pd.DataFrame(dtype=float, columns=[0, 1, 2, 3, 4, 5, 6, 7])
+        data_frame = pd.DataFrame(dtype=float, columns=[0, 1, 2, 3, 4, 5, 6, 7])
 
-    return df
+    return data_frame
 
 
-def yolo_load_detections_from_npy(txt_path):
-    import pandas as pd
-    import numpy as np
+def yolo_load_detections_from_npy(txt_path) -> DataFrame:
+    """
+    Получить дата фрейм из файла в формате numpy
+    Parameters
+    ----------
+    txt_path
+        Путь к файлу
 
+    Returns
+    -------
+        Дата фрейм
+
+    """
     try:
         if Path(txt_path).stat().st_size > 0:
             # df = pd.read_csv(txt_path, delimiter=" ", dtype=float, header=None)
 
             all_boxes_and_shp = np.load(txt_path, allow_pickle=True)
             orig_shp = all_boxes_and_shp[0]  # Здесь формат
-            w, h = orig_shp[1], orig_shp[0]
+            width, height = orig_shp[1], orig_shp[0]
             all_boxes = all_boxes_and_shp[1]  # Здесь боксы
 
             tracks = []
 
             for item in all_boxes:
-                left = item[0] / w
-                top = item[1] / h
+                left = item[0] / width
+                top = item[1] / height
 
-                width = (item[2] - item[0]) / w
-                height = (item[3] - item[1]) / h
+                width = (item[2] - item[0]) / width
+                height = (item[3] - item[1]) / height
 
                 frame_index, track_id, cls, conf = item[6], -1, item[5], item[4]
 
@@ -257,21 +283,22 @@ def yolo_load_detections_from_npy(txt_path):
 
                 tracks.append([frame_index, track_id, cls, left, top, width, height, conf])
 
-            df = pd.DataFrame(data=tracks, dtype=float, columns=[0, 1, 2, 3, 4, 5, 6, 7])
+            data_frame = pd.DataFrame(data=tracks, dtype=float, columns=[0, 1, 2, 3, 4, 5, 6, 7])
 
         else:
             # если файл пустой, создаем пустой df, f nj pd.read_csv exception выдает
-            df = pd.DataFrame(dtype=float, columns=[0, 1, 2, 3, 4, 5, 6, 7])
-        # df = pd.DataFrame(df, columns=['frame', 'id', 'class', 'bb_left', 'bb_top', 'bb_width', 'bb_height', 'conf'])
+            data_frame = pd.DataFrame(dtype=float, columns=[0, 1, 2, 3, 4, 5, 6, 7])
+        # data_frame = pd.DataFrame(df, columns=['frame', 'id', 'class',
+        # 'bb_left', 'bb_top', 'bb_width', 'bb_height', 'conf'])
     except Exception as ex:
         print_exception(ex, f"yolo_load_detections_from_npy: '{str(txt_path)}'")
-        df = pd.DataFrame(dtype=float, columns=[0, 1, 2, 3, 4, 5, 6, 7])
+        data_frame = pd.DataFrame(dtype=float, columns=[0, 1, 2, 3, 4, 5, 6, 7])
 
-    return df
+    return data_frame
 
 
 if __name__ == '__main__':
-    npy_path = "D:\\AI\\2023\\Goup1\\78.npy"
+    file_path = "D:\\AI\\2023\\Goup1\\78.npy"
 
-    dff = yolo_load_detections_from_txt(npy_path)
+    dff = yolo_load_detections_from_txt(file_path)
     print(dff)
