@@ -99,12 +99,14 @@ class YOLO8UL:
         # количество кадров в видео
         frames_in_video = int(input_video.get(cv2.CAP_PROP_FRAME_COUNT))
 
-        tracker = create_tracker(tracker_type, tracker_config, self.reid_weights, self.device, self.half, fps=fps)
+        tracker = create_tracker(tracker_type, tracker_config, self.reid_weights,
+                                 self.device, self.half, fps=fps)
 
         update_camera = hasattr(tracker, 'camera_update')
 
         if log:
-            print(f"input = {source}, w = {w}, h = {h}, fps = {fps}, frames_in_video = {frames_in_video}")
+            print(f"input = {source}, w = {w}, h = {h}, fps = {fps}, "
+                  f"frames_in_video = {frames_in_video}")
 
         curr_frame, prev_frame = None, None
 
@@ -133,7 +135,8 @@ class YOLO8UL:
                 curr_frame = frame
 
                 if update_camera:
-                    if prev_frame is not None and curr_frame is not None:  # camera motion compensation
+                    # camera motion compensation
+                    if prev_frame is not None and curr_frame is not None:
                         tracker.camera_update(prev_frame, curr_frame)
 
                 dets = 0
@@ -154,8 +157,6 @@ class YOLO8UL:
                     tracker_outputs = tracker.update(predict_track.cpu(), frame)
 
                     # Process detections [f, x1, y1, x2, y2, track_id, class_id, conf]
-
-                    # empty_conf_count += (tracker_outputs[:, 6] is None).sum()  # detections per class
 
                     for det_id, detection in enumerate(tracker_outputs):  # detections per image
 
@@ -195,11 +196,13 @@ class YOLO8UL:
 
                 if log:
                     detections_info = f"{s}{'' if dets > 0 else ', (no detections)'}"
-                    empty_conf_count_str = f"{'' if empty_conf_count == 0 else f', empty_confs = {empty_conf_count}'}"
+                    empty_conf_count_str = \
+                        f"{'' if empty_conf_count == 0 else f', empty_confs = {empty_conf_count}'}"
                     # Print total time (preprocessing + inference + NMS + tracking)
 
                     # Print time (inference + NMS)
-                    print(f'frame ({frame_id + 1}/{frames_in_video}) Done. ({(1E3 * (t2 - t1)):.1f}ms) Inference, '
+                    print(f'frame ({frame_id + 1}/{frames_in_video}) Done. '
+                          f'({(1E3 * (t2 - t1)):.1f}ms) Inference, '
                           f'({(1E3 * (t3 - t2)):.1f}ms) track, '
                           f'{detections_info} {empty_conf_count_str}')
 
