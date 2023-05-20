@@ -57,7 +57,7 @@ optuna
 
 # web app
 Flask
-
+flake8
 # test app: написание тестов
 # https://pypi.org/project/pytest/
 # https://docs.pytest.org/en/latest/
