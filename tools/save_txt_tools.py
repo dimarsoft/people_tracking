@@ -131,11 +131,11 @@ def yolo8_save_tracks_to_txt(results: List[Results], txt_path: str,
                                                           bbox_top, bbox_w, bbox_h, box.conf))
 
 
-def yolo8_save_detection_to_txt(results, txt_path, conf=0.0, save_id=False):
+def yolo8_save_detection_to_txt(results: List[Results], txt_path, conf=0.0, save_id=False):
     """
 
     Args:
-        save_id:
+        save_id: Сохранять трек ИД?
         conf: элементы с conf менее указанной не сохраняются
         txt_path: Текстовый файл для сохранения
         results: результат работы модели
@@ -161,7 +161,7 @@ def yolo8_save_detection_to_txt(results, txt_path, conf=0.0, save_id=False):
                                                           bbox_top, bbox_w, bbox_h, box.conf))
 
 
-def yolo7_save_tracks_to_txt(results, txt_path, conf=0.0):
+def yolo7_save_tracks_to_txt(results: list, txt_path, conf=0.0):
     """
 
     Args:
@@ -186,7 +186,7 @@ def yolo7_save_tracks_to_txt(results, txt_path, conf=0.0):
                                                   bbox_top, bbox_w, bbox_h, track[7]))
 
 
-def yolo7_save_tracks_to_json(results, json_file, conf=0.0):
+def yolo7_save_tracks_to_json(results: list, json_file, conf=0.0):
     """
 
     Args:
