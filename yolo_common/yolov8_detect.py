@@ -5,24 +5,26 @@ from pathlib import Path
 
 from ultralytics import YOLO
 
+from yolov8 import YOLO8
 from tools.labeltools import TrackWorker
 from tools.save_txt_tools import yolo7_save_tracks_to_txt, yolo8_save_tracks_to_txt, convert_toy7
 from utils.torch_utils import time_synchronized
-from yolov8 import YOLO8
 
 
-def detect_single_video_yolo8(model, source,  output_folder, conf=0.3, save_vid=False, save_vid2=False):
+def detect_single_video_yolo8(model, source, output_folder, conf=0.3,
+                              save_vid=False, save_vid2=False):
     print(f"start detect_single_video_yolo8: {source}")
     model = YOLO(model)
 
-    results = model.predict(source, stream=False, save=save_vid, conf=conf, save_txt=True, save_conf=True)
+    results = model.predict(source, stream=False, save=save_vid, conf=conf,
+                            save_txt=True, save_conf=True)
 
     source_path = Path(source)
     text_path = Path(output_folder) / f"{source_path.stem}.txt"
 
     print(f"save to: {text_path}")
 
-    yolo8_save_tracks_to_txt(results=results, txt_path=text_path, conf=conf, save_id=True)
+    yolo8_save_tracks_to_txt(results=results, txt_path=str(text_path), conf=conf, save_id=True)
 
     tracks_y7 = convert_toy7(results)
     track_worker = TrackWorker(tracks_y7)
@@ -35,7 +37,8 @@ def detect_single_video_yolo8(model, source,  output_folder, conf=0.3, save_vid=
         print(f"Processed '{source}' to {output_folder}: ({(1E3 * (t2 - t1)):.1f} ms)")
 
 
-def detect_single_video_yolo8v2(model, source, output_folder, classes=None, conf=0.3, save_txt=True, save_vid=False):
+def detect_single_video_yolo8v2(model, source, output_folder, classes=None, conf=0.3, save_txt=True,
+                                save_vid=False):
     print(f"start detection {source}")
 
     source_path = Path(source)
@@ -85,7 +88,8 @@ def run_detect_yolo8v2(model: str, source: str, output_folder,
 
     now = datetime.now()
 
-    session_folder_name = f"{now.year:04d}_{now.month:02d}_{now.day:02d}_{now.hour:02d}_{now.minute:02d}_" \
+    session_folder_name = f"{now.year:04d}_{now.month:02d}_{now.day:02d}_{now.hour:02d}_" \
+                          f"{now.minute:02d}_" \
                           f"{now.second:02d}_y8v2_detect"
 
     session_folder = str(Path(output_folder) / session_folder_name)
@@ -96,14 +100,12 @@ def run_detect_yolo8v2(model: str, source: str, output_folder,
     except OSError as error:
         print(f"Directory '{session_folder}' can not be created. {error}")
 
-    session_info = dict()
-
-    session_info['model'] = str(Path(model).name)
-    session_info['conf'] = conf
-    session_info['save_vid'] = save_vid
-    session_info['files'] = files
-    session_info['classes'] = classes
-    session_info['save_txt'] = save_txt
+    session_info = {'model': str(Path(model).name),
+                    'conf': conf,
+                    'save_vid': save_vid,
+                    'files': files,
+                    'classes': classes,
+                    'save_txt': save_txt}
 
     session_info_path = str(Path(session_folder) / 'session_info.json')
 
@@ -138,10 +140,12 @@ def run_example():
 
     files = ['1']
 
-    run_detect_yolo8v2(model, video_source, output_folder, files=files, conf=0.1, save_txt=True, save_vid=True)
+    run_detect_yolo8v2(model, video_source, output_folder, files=files, conf=0.1, save_txt=True,
+                       save_vid=True)
 
-    video_source = "d:\\AI\\2023\\corridors\\dataset-v1.1\\test\\1.mp4"
-    #detect_single_video_yolo8(model, video_source,  output_folder, conf=0.1, save_vid=False, save_vid2=False)
+    # video_source = "d:\\AI\\2023\\corridors\\dataset-v1.1\\test\\1.mp4"
+    # detect_single_video_yolo8(model, video_source,  output_folder, conf=0.1,
+    # save_vid=False, save_vid2=False)
 
 
 if __name__ == '__main__':
