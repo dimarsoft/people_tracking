@@ -1,24 +1,33 @@
+"""
+Марандич Дмитрий, постобработка
+"""
 from post_processing.functions import crossing_bound, get_deviations, process_filt
 from post_processing.timur import tracks_to_dic, get_camera
 from tools.count_results import Result, Deviation
 from tools.labeltools import get_status
 
 
-def dimar_count_humans(tracks, source, bound_line, log: bool = True) -> Result:
+def dimar_count_humans(tracks: list, source: str, bound_line, log: bool = True) -> Result:
     """
     Постобработка на основе кода Тимура, но с некоторыми изменениями.
     Parameters
     ----------
     tracks
+        Список детекций с треком
     source
+        Путь к источнику видео
     bound_line
+        Данные о турникете
     log
+        Вкл/выкл логирования работы
 
     Returns
     -------
 
+    Возвращает результат
+
     """
-    print(f"Dmitrii postprocessing v1.2_01.05.2023")
+    print("Dmitrii postprocessing v1.2_01.05.2023")
 
     camera_num, w, h, fps = get_camera(source)
 
@@ -82,6 +91,7 @@ def dimar_count_humans(tracks, source, bound_line, log: bool = True) -> Result:
             deviations.append(Deviation(start_frame, end_frame, status))
 
     if log:
-        print(f"{camera_num}: count_in = {count_in}, count_out = {count_out}, deviations = {len(deviations)}")
+        print(f"{camera_num}: count_in = {count_in}, count_out = {count_out}, "
+              f"deviations = {len(deviations)}")
 
     return Result(count_in + count_out, count_in, count_out, deviations)
