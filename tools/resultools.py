@@ -147,9 +147,9 @@ class TestResults:
         """
 
         if (dev_1.end_frame < dev_2.start_frame) or (dev_2.end_frame < dev_1.start_frame):
-            return False
+            return True
 
-        return True
+        return False
 
     @staticmethod
     def compare_deviations(actual_deviations: list, expected_deviations: list) -> (int, list):
