@@ -1,19 +1,13 @@
-import base64
 import os
 from pathlib import Path
 
-from flask import Flask, render_template, g, url_for, request, redirect
+from flask import Flask, render_template, url_for, request, redirect
 
-from configs import get_detections_path
-from yolo_common.yolo_track_main import get_results_video_yolo, get_results_video_yolo_txt, download_test_video_1_85
+from yolo_common.yolo_track_main import get_results_video_yolo_txt, download_test_video_1_85
 
 app = Flask(__name__, template_folder='web/templates')
 
 app.config['UPLOAD_FOLDER'] = './static/uploads'  # folder for uploaded files
-
-
-# FILE = Path(__file__).resolve()
-# ROOT = FILE.parents[0]
 
 
 @app.route('/upload', methods=['POST'])
@@ -36,7 +30,6 @@ def download_videos():
     download_test_video_1_85(output)
 
     return render_template("index.html")
-# return redirect(url_for('test_video_run', filename=filename))
 
 
 @app.route('/upload_gdrive', methods=['POST'])
@@ -84,9 +77,7 @@ def test():
 
 @app.route('/test_video_run/<filename>')
 def test_video_run(filename):
-    # test_video = request.form.get("test_video")
     ff = str(Path(app.config['UPLOAD_FOLDER']) / filename)
-    # ff = url_for('static', filename='uploads/' + filename)
     print(f"test video : {filename}")
 
     results = get_results_video_yolo_txt(ff, tracker_type="ocsort")
