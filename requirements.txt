@@ -62,6 +62,7 @@ Flask
 # https://pypi.org/project/pytest/
 # https://docs.pytest.org/en/latest/
 pytest
+# http://docs.python.org/library/unittest.html
 # https://pypi.org/project/pylint/
 # https://en.wikipedia.org/wiki/Static_program_analysis (есть на русском языке)
 # https://kirankoduru.github.io/python/pylint-with-pycharm.html
