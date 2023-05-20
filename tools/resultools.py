@@ -101,7 +101,8 @@ class TestResults:
                 f"file = {item.file}, in = {item.counter_in}, out = {item.counter_out}, "
                 f"deviations = {len(item.deviations)} ")
             for i, div in enumerate(item.deviations):
-                print(f"\t{i + 1}, status = {div.status_id}, frame: [{div.start_frame} - {div.end_frame}]")
+                print(f"\t{i + 1}, status = {div.status_id}, "
+                      f"frame: [{div.start_frame} - {div.end_frame}]")
 
     def add_test(self, test_info: Result):
         """
@@ -130,18 +131,28 @@ class TestResults:
 
     @staticmethod
     def intersect_deviation(dev_1: Deviation, dev_2: Deviation) -> bool:
-        # if (dev_1.start_frame >= dev_2.start_frame) and (dev_1.start_frame <= dev_2.end_frame):
-        #    return True
+        """
+        Сравнение на совпадение двух нарушений
+        Parameters
+        ----------
+        dev_1
+            Нарушение 1
+        dev_2
+            Нарушение 2.
 
-        # if (dev_1.end_frame >= dev_2.start_frame) and (dev_1.end_frame <= dev_2.end_frame):
-        #    return True
+        Returns
+        -------
+            Совпало. Да/нет?
+
+        """
 
         if (dev_1.end_frame < dev_2.start_frame) or (dev_2.end_frame < dev_1.start_frame):
             return False
 
         return True
 
-    def compare_deviations(self, actual_deviations: list, expected_deviations: list) -> (int, list):
+    @staticmethod
+    def compare_deviations(actual_deviations: list, expected_deviations: list) -> (int, list):
         """
 
         Args:
@@ -165,7 +176,7 @@ class TestResults:
             is_true_positive = False
 
             for e_div in expected_deviations:
-                if self.intersect_deviation(a_div, e_div):
+                if TestResults.intersect_deviation(a_div, e_div):
                     count_equal += 1
                     expected_deviations.remove(e_div)
                     is_true_positive = True
@@ -254,7 +265,8 @@ class TestResults:
 
                 by_item_info.append(item_info)
 
-            count_correct, false_positive = self.compare_deviations(actual_deviations, expected_deviations)
+            count_correct, false_positive \
+                = TestResults.compare_deviations(actual_deviations, expected_deviations)
 
             actual_devs = len(actual_deviations)
             expected_devs = len(expected_deviations)
@@ -353,7 +365,8 @@ class TestResults:
 
         if total_expected_devs > 0:
             results_info['total_dev_recall'] = (100.0 * total_count_correct) / total_expected_devs
-            results_info['total_dev_actual_percent'] = (100.0 * total_actual_devs) / total_expected_devs
+            results_info['total_dev_actual_percent'] = \
+                (100.0 * total_actual_devs) / total_expected_devs
         else:
             results_info['total_dev_recall'] = 0
             results_info['total_dev_actual_percent'] = 0
@@ -543,7 +556,8 @@ def results_to_table():
 
         table.append([key, total_equal_percent, total_equal, total_records])
 
-    df = DataFrame(table, columns=["tracker_name", "total_equal_percent", "total_equal", "total_records"])
+    df = DataFrame(table, columns=["tracker_name", "total_equal_percent",
+                                   "total_equal", "total_records"])
     df.sort_values(by=['total_equal_percent'], inplace=True, ascending=False)
     print(df)
 
@@ -666,7 +680,8 @@ def test_results_to_table(results: list, csv_file_path, excel_file_path, sep: st
         deviations_count = len(deviations)
 
         if deviations_count > 0:
-            table.append([file_id, file_name, counter_in, counter_out, deviations_count, "", "", "", ""])
+            table.append([file_id, file_name, counter_in, counter_out,
+                          deviations_count, "", "", "", ""])
             for i, dev in enumerate(deviations):
                 start_frame = dev["start_frame"]
                 end_frame = dev["end_frame"]
@@ -725,7 +740,8 @@ def convert_test_json_to_df_group_1():
             helmet, uniform = from_status(status_id)
 
             table.append(
-                [file_id, helmet, uniform, start_frame, end_frame, status_id, get_status(status_id)])
+                [file_id, helmet, uniform, start_frame, end_frame,
+                 status_id, get_status(status_id)])
 
     # создаем датафрейм
 
