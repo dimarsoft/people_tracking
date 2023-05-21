@@ -56,6 +56,7 @@ openpyxl
 optuna
 
 # web app
+drf-yasg
 Flask
 flake8
 # test app: написание тестов

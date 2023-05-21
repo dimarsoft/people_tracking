@@ -80,7 +80,7 @@ def detect(save_img=False):
             old_img_h = img.shape[2]
             old_img_w = img.shape[3]
             for i in range(3):
-                model(img, augment=opt.augment)[0]
+                _ = model(img, augment=opt.augment)[0]
 
         # Inference
         t1 = time_synchronized()

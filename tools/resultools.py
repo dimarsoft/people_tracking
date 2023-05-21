@@ -84,16 +84,17 @@ class TestResults:
             return json.loads(read_file.read(), object_hook=lambda d: SimpleNamespace(**d))
 
     @staticmethod
-    def get_for(x, file):
-        for item in x:
+    def get_for(items: list, file):
+        for item in items:
             # Сравниваем по имени, без расширения
             if Path(item.file).stem == Path(file).stem:
                 return item
         return None
 
     @staticmethod
-    def compare_item_count(test, my):
-        return (test.counter_in == my.counter_in) and (test.counter_out == my.counter_out)
+    def compare_item_count(test_1: Result, test_2: Result):
+        return (test_1.counter_in == test_2.counter_in) and \
+            (test_1.counter_out == test_2.counter_out)
 
     def print_info(self):
         for item in self.test_items:
@@ -248,20 +249,16 @@ class TestResults:
                 out_equals += 1
 
             if delta_in != 0:
-                item_info = dict()
-
-                item_info["file"] = result_item.file
-                item_info["expected_in"] = expected_counter_in
-                item_info["actual_in"] = actual_counter_in
+                item_info = {"file": result_item.file,
+                             "expected_in": expected_counter_in,
+                             "actual_in": actual_counter_in}
 
                 by_item_info.append(item_info)
 
             if delta_out != 0:
-                item_info = dict()
-
-                item_info["file"] = result_item.file
-                item_info["expected_out"] = expected_counter_out
-                item_info["actual_out"] = actual_counter_out
+                item_info = {"file": result_item.file,
+                             "expected_out": expected_counter_out,
+                             "actual_out": actual_counter_out}
 
                 by_item_info.append(item_info)
 
@@ -272,22 +269,17 @@ class TestResults:
             expected_devs = len(expected_deviations)
 
             # if count_correct != expected_devs or actual_devs != expected_devs:
-            dev_info = dict()
-            dev_info["file"] = result_item.file
-            dev_info["count_correct"] = count_correct
-            dev_info["actual_devs"] = actual_devs
-            dev_info["expected_devs"] = expected_devs
-
-            dev_info["expected_in"] = expected_counter_in
-            dev_info["expected_out"] = expected_counter_out
-
-            dev_info["actual_in"] = actual_counter_in
-            dev_info["actual_out"] = actual_counter_out
-
-            dev_info["delta_in"] = delta_in
-            dev_info["delta_out"] = delta_out
-
-            dev_info["false_positive"] = false_positive
+            dev_info = {"file": result_item.file,
+                        "count_correct": count_correct,
+                        "actual_devs": actual_devs,
+                        "expected_devs": expected_devs,
+                        "expected_in": expected_counter_in,
+                        "expected_out": expected_counter_out,
+                        "actual_in": actual_counter_in,
+                        "actual_out": actual_counter_out,
+                        "delta_in": delta_in,
+                        "delta_out": delta_out,
+                        "false_positive": false_positive}
 
             if actual_devs > 0:
                 dev_info["dev_precision"] = (100.0 * count_correct) / actual_devs
@@ -321,29 +313,21 @@ class TestResults:
             dev_info['accuracy_in'] = accuracy_in * 100.0
             dev_info['accuracy_out'] = accuracy_out * 100.0
 
-        results_info = dict()
-
-        results_info['total_count_correct'] = total_count_correct
-        results_info['total_actual_devs'] = total_actual_devs
-        results_info['total_expected_devs'] = total_expected_devs
-
-        results_info['equals_in'] = in_equals
-        results_info['equals_out'] = out_equals
-
-        results_info['delta_in_sum'] = sum_delta_in
-        results_info['delta_out_sum'] = sum_delta_out
-
-        results_info['not_equal_items'] = by_item_info
-        results_info['dev_items'] = by_item_dev_info
-
-        results_info['total_records'] = total_records
-        results_info['total_equal'] = total_equal
-
-        results_info['total_predicted_in'] = total_predicted_in
-        results_info['total_predicted_out'] = total_predicted_out
-
-        results_info['total_true_in'] = total_true_in
-        results_info['total_true_out'] = total_true_out
+        results_info = {'total_count_correct': total_count_correct,
+                        'total_actual_devs': total_actual_devs,
+                        'total_expected_devs': total_expected_devs,
+                        'equals_in': in_equals,
+                        'equals_out': out_equals,
+                        'delta_in_sum': sum_delta_in,
+                        'delta_out_sum': sum_delta_out,
+                        'not_equal_items': by_item_info,
+                        'dev_items': by_item_dev_info,
+                        'total_records': total_records,
+                        'total_equal': total_equal,
+                        'total_predicted_in': total_predicted_in,
+                        'total_predicted_out': total_predicted_out,
+                        'total_true_in': total_true_in,
+                        'total_true_out': total_true_out}
 
         if total_true_in > 0:
             accuracy_in = 1.0 - (sum_delta_in / total_true_in)
@@ -521,7 +505,8 @@ def save_results_to_csv(results: dict, csv_file_path, excel_file_path, sep=";") 
                                    "total_equal_percent",
                                    "total_equal", "total_records", "not_equal_items",
                                    "total_devs_precision", "total_devs_recall",
-                                   "total_true_positive_devs", "total_positive_devs", "total_true_devs",
+                                   "total_true_positive_devs", "total_positive_devs",
+                                   "total_true_devs",
                                    "total_dev_actual_percent",
                                    "no_correct_dev"])
     df.sort_values(by=['total_devs_precision'], inplace=True, ascending=False)
@@ -536,9 +521,10 @@ def results_to_table():
     file_path = "D:\\AI\\2023\\corridors\\dataset-v1.1\\2023_04_02_07_43_54_yolo_tracks_by_txt" \
                 "\\all_compare_track_results.json"
 
-    file_path_tbl = "D:\\AI\\2023\\corridors\\dataset-v1.1\\2023_04_02_07_43_54_yolo_tracks_by_txt" \
+    file_path_tbl = "D:\\AI\\2023\\corridors\\dataset-v1.1\\2023_04_02_07_43_54_yolo_tracks_by_txt"\
                     "\\all_compare_track_results.csv"
-    file_path_tbl_excel = "D:\\AI\\2023\\corridors\\dataset-v1.1\\2023_04_02_07_43_54_yolo_tracks_by_txt" \
+    file_path_tbl_excel = "D:\\AI\\2023\\corridors\\dataset-v1.1\\"\
+                          "2023_04_02_07_43_54_yolo_tracks_by_txt" \
                           "\\all_compare_track_results.xlsx"
 
     with open(file_path, "r") as read_file:
@@ -727,8 +713,8 @@ def convert_test_json_to_df_group_1():
         file_name = results_info["file"]
         file_id = int(Path(file_name).stem)
 
-        counter_in = results_info["counter_in"]
-        counter_out = results_info["counter_out"]
+        # counter_in = results_info["counter_in"]
+        # counter_out = results_info["counter_out"]
 
         deviations = results_info['deviations']
 
@@ -771,24 +757,18 @@ def convert_test_json_to_csv():
 
 
 def gr1():
-    # Истинные значения вошедших и вышедших на видео
-    dict_in_true = {'1': 3, '2': 3, '3': 3, '4': 4, '5': 0, '6': 1, '7': 0, '8': 0, '9': 1, '10': 0, '11': 0, '12': 0,
-                    '13': 2, '14': 0, '15': 2, '16': 0, '17': 0, '18': 4, '19': 1, '20': 0, '21': 1, '22': 0, '23': 0,
-                    '24': 1, '25': 2, '26': 0, '27': 1, '28': 1, '29': 1, '30': 1, '31': 0, '32': 0, '33': 0, '34': 0,
-                    '35': 0, '36': 0, '37': 0, '38': 8, '39': 0, '40': 0, '41': 0, '42': 2,
-                    '43': 0}  # 20 видео битое с невошедшим призраком (человек раздвоился)
 
-    dict_out_true = {'1': 0, '2': 0, '3': 0, '4': 0, '5': 0, '6': 4, '7': 4, '8': 5, '9': 1, '10': 2, '11': 3, '12': 4,
-                     '13': 4, '14': 3, '15': 0, '16': 4, '17': 5, '18': 0, '19': 0, '20': 0, '21': 1, '22': 3, '23': 1,
-                     '24': 0, '25': 0, '26': 1, '27': 1, '28': 1, '29': 1, '30': 3, '31': 2, '32': 0, '33': 0, '34': 0,
-                     '35': 0, '36': 0, '37': 0, '38': 7, '39': 1, '40': 1, '41': 0, '42': 0, '43': 0}
-
-    dict_in_true = {'44': 6, '45': 1, '46': 2, '47': 3, '48': 0, '49': 1, '50': 0, '51': 1, '52': 6, '53': 2,
-                    '54': 2, '55': 2, '56': 2, '57': 0, '58': 2, '59': 1, '60': 0, '61': 0, '62': 1, '63': 0,
+    dict_in_true = {'44': 6, '45': 1, '46': 2, '47': 3, '48': 0, '49': 1, '50': 0, '51': 1, '52': 6,
+                    '53': 2,
+                    '54': 2, '55': 2, '56': 2, '57': 0, '58': 2, '59': 1, '60': 0, '61': 0, '62': 1,
+                    '63': 0,
                     '64': 4, '65': 0, '66': 0, '67': 4, '68': 3, '69': 4, '70': 3, '71': 3, '72': 2}
-    dict_out_true = {'44': 1, '45': 5, '46': 1, '47': 4, '48': 26, '49': 3, '50': 15, '51': 6, '52': 5, '53': 22,
-                     '54': 8, '55': 6, '56': 4, '57': 3, '58': 2, '59': 3, '60': 3, '61': 9, '62': 8, '63': 7,
-                     '64': 5, '65': 6, '66': 4, '67': 5, '68': 2, '69': 4, '70': 1, '71': 3, '72': 0}
+    dict_out_true = {'44': 1, '45': 5, '46': 1, '47': 4, '48': 26, '49': 3, '50': 15, '51': 6,
+                     '52': 5, '53': 22,
+                     '54': 8, '55': 6, '56': 4, '57': 3, '58': 2, '59': 3, '60': 3, '61': 9,
+                     '62': 8, '63': 7,
+                     '64': 5, '65': 6, '66': 4, '67': 5, '68': 2, '69': 4, '70': 1, '71': 3,
+                     '72': 0}
     # print(dict_in_true)
 
     json_file_path = TEST_ROOT / 'all_track_results.json'
