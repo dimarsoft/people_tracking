@@ -26,7 +26,8 @@ class YOLO7:
 
         self.stride = int(self.model.stride.max())  # model stride
 
-        self.imgsz = (check_img_size(imgsz[0], s=self.stride), check_img_size(imgsz[1], s=self.stride))
+        self.imgsz = (check_img_size(imgsz[0], s=self.stride),
+                      check_img_size(imgsz[1], s=self.stride))
 
         self.model = TracedModel(self.model, self.device, img_size=self.imgsz)
 
@@ -92,7 +93,8 @@ class YOLO7:
 
             # Warmup
             if self.device.type != 'cpu' and (
-                    old_img_b != img.shape[0] or old_img_h != img.shape[2] or old_img_w != img.shape[3]):
+                    old_img_b != img.shape[0] or old_img_h != img.shape[2]
+                    or old_img_w != img.shape[3]):
                 old_img_b = img.shape[0]
                 old_img_h = img.shape[2]
                 old_img_w = img.shape[3]
@@ -106,7 +108,8 @@ class YOLO7:
             t2 = time_synchronized()
 
             # Apply NMS
-            pred = non_max_suppression(pred, conf_threshold, iou, classes=classes, agnostic=self.agnostic_nms)
+            pred = non_max_suppression(pred, conf_threshold, iou,
+                                       classes=classes, agnostic=self.agnostic_nms)
 
             t3 = time_synchronized()
 
@@ -128,12 +131,14 @@ class YOLO7:
                     for *xyxy, conf, cls in det:
                         total_detections += 1
 
-                        xywh = (xyxy2xywh(torch.tensor(xyxy).view(1, 4)) / gn).view(-1).tolist()  # normalized xywh
+                        # normalized xywh
+                        xywh = (xyxy2xywh(torch.tensor(xyxy).view(1, 4)) / gn).view(-1).tolist()
                         results.append([frame, -1, cls, xywh[0], xywh[1], xywh[2], xywh[3], conf])
 
                 # Print time (inference + NMS)
                 print(
-                    f'{s}Done. ({(1E3 * (t2 - t1)):.1f}ms) Inference, ({(1E3 * (t3 - t2)):.1f}ms) NMS, detections = {total_detections}')
+                    f'{s}Done. ({(1E3 * (t2 - t1)):.1f}ms) Inference, '
+                    f'({(1E3 * (t3 - t2)):.1f}ms) NMS, detections = {total_detections}')
 
                 # Save results (image with detections)
 
@@ -157,7 +162,8 @@ class YOLO7:
         # количество кадров в видео
         frames_in_video = int(input_video.get(cv2.CAP_PROP_FRAME_COUNT))
 
-        print(f"input = {source}, w = {w}, h = {h}, fps = {fps}, frames_in_video = {frames_in_video}")
+        print(f"input = {source}, w = {w}, h = {h}, fps = {fps}, "
+              f"frames_in_video = {frames_in_video}")
         results = []
 
         for frame_id in range(frames_in_video):
@@ -178,7 +184,8 @@ class YOLO7:
             t2 = time_synchronized()
 
             # Apply NMS
-            predict = non_max_suppression(predict, conf_threshold, iou, classes=classes, agnostic=self.agnostic_nms)
+            predict = non_max_suppression(predict, conf_threshold, iou, classes=classes,
+                                          agnostic=self.agnostic_nms)
             t3 = time_synchronized()
 
             dets = 0
@@ -224,11 +231,13 @@ class YOLO7:
 
             detections_info = f"{s}{'' if dets > 0 else ', (no detections)'}"
 
-            empty_conf_count_str = f"{'' if empty_conf_count == 0 else f', empty_confs = {empty_conf_count}'}"
+            empty_conf_count_str = \
+                f"{'' if empty_conf_count == 0 else f', empty_confs = {empty_conf_count}'}"
 
             # Print time (inference + NMS)
 
-            print(f'{file_id}: ({frame_id + 1}/{frames_in_video}) Done. ({(1E3 * (t2 - t1)):.1f}ms) Inference, '
+            print(f'{file_id}: ({frame_id + 1}/{frames_in_video}) Done. '
+                  f'({(1E3 * (t2 - t1)):.1f}ms) Inference, '
                   f'({(1E3 * (t3 - t2)):.1f}ms) NMS, {(1E3 * (t4 - t3)):.1f}ms) '
                   f'{detections_info} {empty_conf_count_str}, {len(results)}')
 
@@ -256,10 +265,12 @@ class YOLO7:
         # количество кадров в видео
         frames_in_video = int(input_video.get(cv2.CAP_PROP_FRAME_COUNT))
 
-        tracker = create_tracker(tracker_type, tracker_config, self.reid_weights, self.device, self.half, fps=fps)
+        tracker = create_tracker(tracker_type, tracker_config, self.reid_weights,
+                                 self.device, self.half, fps=fps)
 
         if log:
-            print(f"input = {source}, w = {w}, h = {h}, fps = {fps}, frames_in_video = {frames_in_video}")
+            print(f"input = {source}, w = {w}, h = {h}, fps = {fps}, "
+                  f"frames_in_video = {frames_in_video}")
 
         curr_frame, prev_frame = None, None
 
@@ -287,7 +298,8 @@ class YOLO7:
                 curr_frame = frame
 
                 if hasattr(tracker, 'camera_update'):
-                    if prev_frame is not None and curr_frame is not None:  # camera motion compensation
+                    if prev_frame is not None and curr_frame is not None:
+                        # camera motion compensation
                         tracker.camera_update(prev_frame, curr_frame)
 
                 dets = 0
@@ -299,7 +311,8 @@ class YOLO7:
                         predict_track = change_bbox(predict_track, change_bb, file_id)
 
                         # Rescale boxes from img_size to im0 size
-                        conv_pred = scale_coords(new_frame.shape[2:], predict_track, frame.shape).round()
+                        conv_pred = scale_coords(new_frame.shape[2:],
+                                                 predict_track, frame.shape).round()
 
                         # Print results
                         if log:
@@ -309,7 +322,8 @@ class YOLO7:
 
                         for det_id, detection in enumerate(predict_track):  # detections per image
                             # print(f"{det_id}: detection = {detection}")
-                            # print(f"{det_id}: bb = {detection[:4]}, id = {detection[4]}, cls = {detection[5]}, "
+                            # print(f"{det_id}: bb = {detection[:4]},
+                            # id = {detection[4]}, cls = {detection[5]}, "
                             #      f"conf = {detection[6]}")
 
                             x1 = float(detection[0]) / w
@@ -351,7 +365,8 @@ class YOLO7:
                         # Process detections [f, x1, y1, x2, y2, track_id, class_id, conf]
                         for det_id, detection in enumerate(tracker_outputs):  # detections per image
                             # print(f"{det_id}: detection = {detection}")
-                            # print(f"{det_id}: bb = {detection[:4]}, id = {detection[4]}, cls = {detection[5]}, "
+                            # print(f"{det_id}: bb = {detection[:4]},
+                            # id = {detection[4]}, cls = {detection[5]}, "
                             #      f"conf = {detection[6]}")
 
                             x1 = float(detection[0]) / w
@@ -388,11 +403,13 @@ class YOLO7:
 
             if log:
                 detections_info = f"{s}{'' if dets > 0 else ', (no detections)'}"
-                empty_conf_count_str = f"{'' if empty_conf_count == 0 else f', empty_confs = {empty_conf_count}'}"
+                empty_conf_count_str = \
+                    f"{'' if empty_conf_count == 0 else f', empty_confs = {empty_conf_count}'}"
 
                 # Print time (inference + NMS)
 
-                print(f'{file_id}: ({frame_id + 1}/{frames_in_video}) Done. ({(1E3 * (t2 - t1)):.1f}ms) Inference, '
+                print(f'{file_id}: ({frame_id + 1}/{frames_in_video}) Done. '
+                      f'({(1E3 * (t2 - t1)):.1f}ms) Inference, '
                       f'({(1E3 * (t3 - t2)):.1f}ms) NMS, {(1E3 * (t4 - t3)):.1f}ms) '
                       f'{detections_info} {empty_conf_count_str}')
 

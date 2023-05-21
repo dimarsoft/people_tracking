@@ -6,7 +6,7 @@ from ultralytics.yolo.data.augment import LetterBox
 
 from tools.change_bboxes import change_bbox
 from configs import WEIGHTS
-from tools.labeltools import Labels, is_human_class
+from tools.labeltools import is_human_class
 from tools.save_txt_tools import yolo_load_detections_from_txt
 from tools.track_objects import get_classes
 from trackers.multi_tracker_zoo import create_tracker
@@ -42,7 +42,8 @@ class YoloTrackBbox:
 
         return torch.tensor(res, device=self.device)
 
-    def track(self, source, txt_source, tracker_type, tracker_config, reid_weights="osnet_x0_25_msmt17.pt",
+    def track(self, source, txt_source, tracker_type, tracker_config,
+              reid_weights="osnet_x0_25_msmt17.pt",
               conf_threshold=0.3,
               iou=0.4,
               classes=None, change_bb=False, log: bool = True):
@@ -75,7 +76,8 @@ class YoloTrackBbox:
 
         for class_id in classes:
             tracker_dict[class_id] = create_tracker(tracker_type, tracker_config,
-                                                    self.reid_weights, self.device, self.half, fps=fps)
+                                                    self.reid_weights,
+                                                    self.device, self.half, fps=fps)
             need_camera_update = hasattr(tracker_dict[class_id], 'camera_update')
             need_image = hasattr(tracker_dict[class_id], 'need_image')
 
@@ -88,10 +90,6 @@ class YoloTrackBbox:
 
         if log:
             print(f"read frame from video = {need_camera_update}")
-
-        # tracker = create_tracker(tracker_type, tracker_config, self.reid_weights, self.device, self.half)
-
-        # need_camera_update = hasattr(tracker, 'camera_update')
 
         file_t1 = time_synchronized()
 
@@ -115,7 +113,8 @@ class YoloTrackBbox:
 
         if log:
             print(f"file '{txt_source}' read in ({(1E3 * (file_t2 - file_t1)):.1f}ms)")
-            print(f"input = {source}, w = {w}, h = {h}, fps = {fps}, frames_in_video = {frames_in_video}")
+            print(f"input = {source}, w = {w}, h = {h}, fps = {fps}, "
+                  f"frames_in_video = {frames_in_video}")
 
         file_name = Path(source).name
 
@@ -240,9 +239,11 @@ class YoloTrackBbox:
 
             if log:
                 detections_info = f"({dets} tracks)"
-                empty_conf_count_str = f"{'' if empty_conf_count == 0 else f', empty_confs = {empty_conf_count}'}"
+                empty_conf_count_str = \
+                    f"{'' if empty_conf_count == 0 else f', empty_confs = {empty_conf_count}'}"
 
-                print(f'{file_name} ({frame_id + 1}/{frames_in_video}) Done. track = ({(1E3 * d_track):.1f}ms), '
+                print(f'{file_name} ({frame_id + 1}/{frames_in_video}) Done.'
+                      f' Track = ({(1E3 * d_track):.1f}ms), '
                       f' df = ({(1E3 * d_df):.1f}ms), ({(1E3 * (t2 - t1)):.1f}ms) tracking, '
                       f' d_group = ({(1E3 * d_group):.1f}ms), '
                       f' d_video = ({(1E3 * d_video):.1f}ms), '
@@ -278,7 +279,7 @@ class YoloTrackBbox:
 def test():
     txt_source_folder = "D:\\AI\\2023\\Detect\\2023_03_29_10_35_01_YoloVersion.yolo_v7_detect"
 
-    txt_source = Path(txt_source_folder) / f"17.txt"
+    txt_source = Path(txt_source_folder) / "17.txt"
 
     df_bbox = yolo_load_detections_from_txt(txt_source)
 

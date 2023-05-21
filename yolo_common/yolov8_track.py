@@ -63,7 +63,8 @@ def run_single_video_yolo8v2(model, source, tracker_type: str, tracker_config, o
         try:
             tracks_new = []
             for item in track:
-                tracks_new.append([item[0], item[5], item[6], item[1], item[2], item[3], item[4], item[7]])
+                tracks_new.append([item[0], item[5], item[6], item[1], item[2], item[3], item[4],
+                                   item[7]])
 
             if isinstance(test_func, str):
 
@@ -103,8 +104,10 @@ def run_single_video_yolo8v2(model, source, tracker_type: str, tracker_config, o
             save_exception(e, text_ex_path, "post processing")
 
 
-def run_yolo8v2(model: str, source: str, tracker_type: str, tracker_config, output_folder, reid_weights,
-                test_result_file, test_func=None, files=None, classes=None, change_bb=False, conf=0.3, save_vid=False):
+def run_yolo8v2(model: str, source: str, tracker_type: str, tracker_config, output_folder,
+                reid_weights,
+                test_result_file, test_func=None, files=None, classes=None, change_bb=False,
+                conf=0.3, save_vid=False):
     """
 
     Args:
@@ -135,7 +138,8 @@ def run_yolo8v2(model: str, source: str, tracker_type: str, tracker_config, outp
 
     now = datetime.now()
 
-    session_folder_name = f"{now.year:04d}_{now.month:02d}_{now.day:02d}_{now.hour:02d}_{now.minute:02d}_" \
+    session_folder_name = f"{now.year:04d}_{now.month:02d}_{now.day:02d}_{now.hour:02d}_" \
+                          f"{now.minute:02d}_" \
                           f"{now.second:02d}_y8v2_{tracker_type}"
 
     session_folder = str(Path(output_folder) / session_folder_name)
@@ -191,12 +195,14 @@ def run_yolo8v2(model: str, source: str, tracker_type: str, tracker_config, outp
             # check if it is a file
             if entry.is_file() and entry.suffix == ".mp4":
                 if files is None:
-                    run_single_video_yolo8v2(model, str(entry), tracker_type, tracker_config, session_folder,
+                    run_single_video_yolo8v2(model, str(entry), tracker_type, tracker_config,
+                                             session_folder,
                                              reid_weights, test_results, test_func,
                                              classes, change_bb, conf, save_vid)
                 else:
                     if entry.stem in files:
-                        run_single_video_yolo8v2(model, str(entry), tracker_type, tracker_config, session_folder,
+                        run_single_video_yolo8v2(model, str(entry), tracker_type, tracker_config,
+                                                 session_folder,
                                                  reid_weights, test_results, test_func,
                                                  classes, change_bb, conf, save_vid)
 
@@ -233,36 +239,38 @@ def run_yolo8v2(model: str, source: str, tracker_type: str, tracker_config, outp
 
 
 def run_example():
-    model = "D:\\AI\\2023\\models\\Yolo8s_batch32_epoch100.pt"
-    video_source = "d:\\AI\\2023\\corridors\\dataset-v1.1\\test\\"
-    test_file = "D:\\AI\\2023\\TestInfo\\all_track_results.json"
+    # model = "D:\\AI\\2023\\models\\Yolo8s_batch32_epoch100.pt"
+    # video_source = "d:\\AI\\2023\\corridors\\dataset-v1.1\\test\\"
+    # test_file = "D:\\AI\\2023\\TestInfo\\all_track_results.json"
 
-    tracker_config = "./trackers/strongsort/configs/strongsort.yaml"
-    output_folder = "d:\\AI\\2023\\corridors\\dataset-v1.1\\"
-    reid_weights = "osnet_x0_25_msmt17.pt"
-    # run_yolo7(model, video_source, "strongsort", tracker_config, output_folder, reid_weights, test_file)
+    # tracker_config = "./trackers/strongsort/configs/strongsort.yaml"
+    # output_folder = "d:\\AI\\2023\\corridors\\dataset-v1.1\\"
+    # reid_weights = "osnet_x0_25_msmt17.pt"
+    # run_yolo7(model, video_source, "strongsort", tracker_config,
+    # output_folder, reid_weights, test_file)
 
-    tracker_config = "trackers/deep_sort/configs/deepsort.yaml"
-    reid_weights = "mars-small128.pb"
+    # tracker_config = "trackers/deep_sort/configs/deepsort.yaml"
+    # reid_weights = "mars-small128.pb"
     # run_yolo7(model, video_source, "deepsort", tracker_config, output_folder, reid_weights)
 
-    tracker_config = "trackers/botsort/configs/botsort.yaml"
-    reid_weights = "osnet_x0_25_msmt17.pt"
+    # tracker_config = "trackers/botsort/configs/botsort.yaml"
+    # reid_weights = "osnet_x0_25_msmt17.pt"
     # run_yolo7(model, video_source, "botsort", tracker_config, output_folder, reid_weights)
 
-    tracker_config = "trackers/ocsort/configs/ocsort.yaml"
-    reid_weights = "osnet_x0_25_msmt17.pt"
+    # tracker_config = "trackers/ocsort/configs/ocsort.yaml"
+    # reid_weights = "osnet_x0_25_msmt17.pt"
     # run_yolo7(model, video_source, "ocsort", tracker_config, output_folder, reid_weights)
 
-    tracker_config = "trackers/bytetrack/configs/bytetrack.yaml"
-    reid_weights = "osnet_x0_25_msmt17.pt"
+    # tracker_config = "trackers/bytetrack/configs/bytetrack.yaml"
+    # reid_weights = "osnet_x0_25_msmt17.pt"
     # run_yolo7(model, video_source, "bytetrack", tracker_config, output_folder, reid_weights)
 
-    tracker_config = "trackers/fast_deep_sort/configs/fastdeepsort.yaml"
-    reid_weights = "mars-small128.pb"
+    # tracker_config = "trackers/fast_deep_sort/configs/fastdeepsort.yaml"
+    # reid_weights = "mars-small128.pb"
     reid_weights = "osnet_x0_25_msmt17.pt"
 
-    # run_yolo8v2(model, video_source, "fastdeepsort", tracker_config,                 output_folder, reid_weights, test_file, files=['1'], save_vid=True)
+    # run_yolo8v2(model, video_source, "fastdeepsort", tracker_config,
+    # output_folder, reid_weights, test_file, files=['1'], save_vid=True)
 
     # run_yolo7(model, video_source, "fastdeepsort", tracker_config,
     #          output_folder, reid_weights, test_file, save_vid=True)

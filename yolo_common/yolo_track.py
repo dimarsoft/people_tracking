@@ -282,7 +282,7 @@ def run_example():
 
     change_bb = pavel_change_bbox  # change_bbox
 
-    yolo7_w = "D:\\AI\\2023\\models\\Yolov7\\25.02.2023_dataset_1.1_yolov7_best.pt"
+    # yolo7_w = "D:\\AI\\2023\\models\\Yolov7\\25.02.2023_dataset_1.1_yolov7_best.pt"
     yolo8_w = "D:\\AI\\2023\\models\\Yolo8s_batch32_epoch100.pt"
 
     test_func = None

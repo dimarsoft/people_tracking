@@ -4,8 +4,8 @@ import os
 from datetime import datetime
 from pathlib import Path
 
-from configs import load_default_bound_line, CAMERAS_PATH, get_all_trackers_full_path, get_select_trackers, \
-    TEST_TRACKS_PATH, ROOT, get_bound_line
+from configs import load_default_bound_line, CAMERAS_PATH, get_all_trackers_full_path, \
+    get_select_trackers, TEST_TRACKS_PATH, ROOT, get_bound_line
 from post_processing.group_1_detect import group_1_detect_npy
 from post_processing.timur import get_camera
 from tools.labeltools import TrackWorker
@@ -22,8 +22,8 @@ from yolo_common.yolov7_track import save_exception
 cameras_info = {}
 
 
-def run_single_video_yolo(txt_source_folder, source, tracker_type: str, tracker_config, output_folder,
-                          test_file, test_func,
+def run_single_video_yolo(txt_source_folder, source, tracker_type: str, tracker_config,
+                          output_folder, test_file, test_func,
                           reid_weights="osnet_x0_25_msmt17.pt",
                           classes=None, change_bb=False, conf=0.3, save_vid=False,
                           log: bool = True, ext: str = "txt"):
@@ -104,8 +104,8 @@ def run_single_video_yolo(txt_source_folder, source, tracker_type: str, tracker_
 
 
 def run_track_yolo(txt_source_folder: str, source: str, tracker_type, tracker_config, output_folder,
-                   test_result_file, test_func=None, reid_weights="osnet_x0_25_msmt17.pt", files=None,
-                   classes=None, change_bb=None, conf=0.3, save_vid=False,
+                   test_result_file, test_func=None, reid_weights="osnet_x0_25_msmt17.pt",
+                   files=None, classes=None, change_bb=None, conf=0.3, save_vid=False,
                    log: bool = True, ext: str = "txt"):
     """
 
@@ -144,10 +144,12 @@ def run_track_yolo(txt_source_folder: str, source: str, tracker_type, tracker_co
     now = datetime.now()
 
     if isinstance(tracker_type, dict):
-        session_folder_name = f"{now.year:04d}_{now.month:02d}_{now.day:02d}_{now.hour:02d}_{now.minute:02d}_" \
+        session_folder_name = f"{now.year:04d}_{now.month:02d}_{now.day:02d}_" \
+                              f"{now.hour:02d}_{now.minute:02d}_" \
                               f"{now.second:02d}_yolo_tracks_by_txt"
     else:
-        session_folder_name = f"{now.year:04d}_{now.month:02d}_{now.day:02d}_{now.hour:02d}_{now.minute:02d}_" \
+        session_folder_name = f"{now.year:04d}_{now.month:02d}_{now.day:02d}_" \
+                              f"{now.hour:02d}_{now.minute:02d}_" \
                               f"{now.second:02d}_yolo_tracks_by_txt_{tracker_type}"
 
     session_folder = str(Path(output_folder) / session_folder_name)
@@ -261,7 +263,8 @@ def run_track_yolo(txt_source_folder: str, source: str, tracker_type, tracker_co
 
             print(f"Save total to csv '{str(save_results_csv_file)}'")
 
-            save_results_to_csv(test_result_by_traker, save_results_csv_file, save_results_excel_file)
+            save_results_to_csv(test_result_by_traker,
+                                save_results_csv_file, save_results_excel_file)
     else:
         for i, item in enumerate(list_of_videos):
             print(f"process file: {i + 1}/{total_videos} {item}")
@@ -282,7 +285,7 @@ def run_track_yolo(txt_source_folder: str, source: str, tracker_type, tracker_co
 
 
 def run_example():
-    video_source = "d:\\AI\\2023\\corridors\\dataset-v1.1\\test\\"
+    # video_source = "d:\\AI\\2023\\corridors\\dataset-v1.1\\test\\"
     video_source = "D:\\AI\\2023\\dataset-v1.1\\test\\"
     # video_source = "D:\\AI\\2023\\Goup1\\npy_1_82"
     test_file = TEST_TRACKS_PATH
@@ -293,7 +296,7 @@ def run_example():
 
     all_trackers = get_all_trackers_full_path()
 
-    selected_trackers_names = ["fastdeepsort"]
+    # selected_trackers_names = ["fastdeepsort"]
     # selected_trackers_names = ["ocsort", "sort", "fastdeepsort"]
     selected_trackers_names = ["ocsort", "bytetrack"]
     # selected_trackers_names = ["bytetrack"]
@@ -304,19 +307,19 @@ def run_example():
     # tracker_name = selected_trackers  # "norfair"
     tracker_config = None  # all_trackers.get(tracker_name)
 
-    files = None
+    # files = None
     # files = ['41']
     # files = ['6', "8", "26", "36"]
     # files = ['44', "45", "46"]
 
     files = ["50"]
 
-    classes = [0]
+    # classes = [0]
     classes = None
 
     change_bb = None  # pavel_change_bbox  # change_bbox
 
-    test_func = "popov_alex"
+    # test_func = "popov_alex"
     # test_func = "group_3"
     test_func = "timur"
     # test_func = "dimar"
@@ -332,8 +335,9 @@ def run_example():
 
     print(str(tracker_config))
 
-    txt_source_folder = "D:\\AI\\2023\\Detect\\2023_03_29_10_35_01_YoloVersion.yolo_v7_detect"
-    # txt_source_folder = "D:\\AI\\2023\\Detections\\2023_04_18_20_03_05_YoloVersion.yolo_v8ul_detect"
+    # txt_source_folder = "D:\\AI\\2023\\Detect\\2023_03_29_10_35_01_YoloVersion.yolo_v7_detect"
+    # txt_source_folder =
+    # "D:\\AI\\2023\\Detections\\2023_04_18_20_03_05_YoloVersion.yolo_v8ul_detect"
     txt_source_folder = "D:\\AI\\2023\\Detections\\2023_04_24_20_19_07_YoloVersion.yolo_v8ul_detect"
     txt_source_folder = "D:\\AI\\2023\\Detections\\2023_04_29_21_00_58_YoloVersion.yolo_v7_detect"
 
@@ -366,13 +370,15 @@ if __name__ == '__main__':
     parser.add_argument('--tracker_name', type=str, help='tracker_name')
     parser.add_argument('--tracker_config', type=str, help='tracker_config')
     parser.add_argument('--output_folder', type=str, help='output_folder')  # output folder
-    parser.add_argument('--reid_weights', type=str, default="osnet_x0_25_msmt17.pt", help='reid_weights')
+    parser.add_argument('--reid_weights', type=str, default="osnet_x0_25_msmt17.pt",
+                        help='reid_weights')
     parser.add_argument('--test_file', type=str, help='test_file')
     parser.add_argument('--test_func', type=str, help='test_func')
-    parser.add_argument('--files', type=list, default=None, help='files names list')  # files from list
+    parser.add_argument('--files', type=list, default=None, help='files names list')
     parser.add_argument('--classes', type=list, help='classes')
     parser.add_argument('--save_vid', type=bool, help='save results to *.mp4')
-    parser.add_argument('--change_bb', default=None, help='change bbox, True, False, scale, function')
+    parser.add_argument('--change_bb', default=None,
+                        help='change bbox, True, False, scale, function')
     parser.add_argument('--conf', type=float, default=0.3, help='object confidence threshold')
     opt = parser.parse_args()
     # print(opt)
