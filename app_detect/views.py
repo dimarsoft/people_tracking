@@ -1,9 +1,7 @@
 # Версия серверного ПО
 __version__ = 1.3
 
-from django.contrib.auth.forms import UserCreationForm
-from django.shortcuts import render, redirect
-import redis
+# import redis
 import requests
 from django.shortcuts import render
 
@@ -12,17 +10,16 @@ from django.http import HttpResponse, FileResponse, StreamingHttpResponse
 import os
 
 from django.views.generic import CreateView
+from drf_yasg import openapi
 
 from YoloApi.settings import BASE_DIR
-import mimetypes
 from rest_framework.response import Response
 
 from configs import ROOT
-from main import get_version
+from tools.version_tool import get_version
 from .models import VideoLoadingProcessing
-from rest_framework import generics, status
-from django.urls import reverse_lazy
-from drf_yasg import openapi
+# from rest_framework import generics, status
+# from django.urls import reverse_lazy
 from drf_yasg.utils import swagger_auto_schema
 
 
@@ -38,7 +35,7 @@ def video_view(request, filename):
     return response
 
 
-from rest_framework import generics
+from rest_framework import generics, status
 from .serializers import VideoLoadingProcessingSerializer
 from drf_yasg.utils import swagger_auto_schema
 
@@ -60,7 +57,7 @@ class VideoLoadingProcessingCreateView(generics.CreateAPIView):
         return super().post(request, *args, **kwargs)
 
 
-redis_client = redis.Redis(host='localhost', port=6379, db=0)
+# redis_client = redis.Redis(host='localhost', port=6379, db=0)
 
 
 class VideoProcessingInfoView(generics.RetrieveAPIView):
@@ -68,12 +65,7 @@ class VideoProcessingInfoView(generics.RetrieveAPIView):
     serializer_class = VideoLoadingProcessingSerializer
 
     def retrieve(self, request, *args, **kwargs):
-        instance = self.get_object()
-        if instance.status == 'completed':
-            data_result = instance.status
-        else:
-            data_result = redis_client.get(f'task_{instance.task_celery}')
-
+        data_result = "completed"
         return Response({'result': data_result}, status=status.HTTP_200_OK)
 
 
@@ -135,9 +127,3 @@ def videos(request):
 # Создаем здесь представления.
 def home(request):
     return render(request, "users/home.html")
-
-
-class SignUp(CreateView):
-    form_class = UserCreationForm
-    success_url = reverse_lazy("login")
-    template_name = "registration/signup.html"

@@ -1,12 +1,10 @@
 import os
-import time
 
 from django.db import models
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 
 from YoloApi import settings
-from app_detect.detection_utils import predict_model
 
 
 # Create your models here.
@@ -25,7 +23,8 @@ class VideoLoadingProcessing(models.Model):
 
 
 class Task(models.Model):
-    video = models.ForeignKey(VideoLoadingProcessing, on_delete=models.CASCADE, related_name='task_video')
+    video = models.ForeignKey(VideoLoadingProcessing, on_delete=models.CASCADE,
+                              related_name='task_video')
     fps = models.FloatField(blank=True, null=True)
     counter_in = models.IntegerField(blank=True, null=True)
     counter_out = models.IntegerField(blank=True, null=True)
@@ -52,7 +51,6 @@ from celery.result import AsyncResult
 @receiver(post_save, sender=VideoLoadingProcessing)
 def video_processing(sender, instance, created, **kwargs):
     if created:
-
         path_file = os.path.join(settings.MEDIA_ROOT, instance.file.name)
 
         print(f"path_file = {path_file}")
@@ -66,8 +64,6 @@ def video_processing(sender, instance, created, **kwargs):
         instance.status = 'processing'
         # instance.task_celery = result.id
         instance.save()
-
-
 
 
 @receiver(post_save, sender=Task)

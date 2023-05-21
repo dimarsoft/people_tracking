@@ -3,7 +3,8 @@ from .models import VideoLoadingProcessing
 
 
 class VideoLoadingProcessingSerializer(serializers.ModelSerializer):
-    url_detail = serializers.HyperlinkedIdentityField(view_name='video_processing_info', format='html')
+    url_detail = serializers.HyperlinkedIdentityField(view_name='video_processing_info',
+                                                      format='html')
 
     class Meta:
         model = VideoLoadingProcessing

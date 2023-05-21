@@ -1,18 +1,14 @@
 import operator
+from collections import defaultdict
 from pathlib import Path
 
 import numpy as np
-from ultralytics import YOLO
-from ultralytics.tracker import BOTSORT
-from ultralytics.tracker import BOTSORT
-from ultralytics.tracker.track import on_predict_start
-# from deep_sort_realtime.deepsort_tracker import DeepSort
-from ultralytics.yolo.utils.checks import check_requirements
-# from ultralytics.yolo.utils.plotting import save_one_box, colors
-from ultralytics.yolo.v8.detect import DetectionPredictor
-from collections import defaultdict
-import torch
 import redis
+import torch
+from ultralytics import YOLO
+from ultralytics.tracker.track import on_predict_start
+from ultralytics.yolo.v8.detect import DetectionPredictor
+
 
 class MyDetectionPredictor(DetectionPredictor):
 
