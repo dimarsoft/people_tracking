@@ -5,8 +5,9 @@ import shutil
 from pathlib import Path
 
 from tools.change_bboxes import pavel_change_bbox
-from configs import parse_yolo_version, get_all_trackers_full_path, get_select_trackers, TEST_TRACKS_PATH, \
-    get_bound_line
+# from configs import get_select_trackers
+from configs import parse_yolo_version, get_all_trackers_full_path, \
+    TEST_TRACKS_PATH, get_bound_line
 from tools.exception_tools import save_exception
 from tools.labeltools import TrackWorker
 from tools.path_tools import create_session_folder, get_video_files
@@ -22,7 +23,8 @@ from yolo_track_by_txt import cameras_info
 
 def run_single_video_yolo(yolo_version, model, source, tracker_type, tracker_config, output_folder,
                           reid_weights, test_file, test_func,
-                          classes=None, change_bb=False, conf=0.3, iou=0.45, save_txt=False, save_vid=False):
+                          classes=None, change_bb=False, conf=0.3, iou=0.45, save_txt=False,
+                          save_vid=False):
     print(f"start detect_single_video_yolo: {yolo_version}, source = {source}")
 
     source_path = Path(source)
@@ -66,7 +68,8 @@ def run_single_video_yolo(yolo_version, model, source, tracker_type, tracker_con
         try:
             tracks_new = []
             for item in track:
-                tracks_new.append([item[0], item[5], item[6], item[1], item[2], item[3], item[4], item[7]])
+                tracks_new.append([item[0], item[5], item[6], item[1], item[2], item[3],
+                                   item[4], item[7]])
 
             if isinstance(test_func, str):
 
@@ -230,7 +233,8 @@ def run_track_yolo(yolo_info, model: str, source: str,
 
             print(f"Save total to csv '{str(save_results_csv_file)}'")
 
-            save_results_to_csv(test_result_by_traker, save_results_csv_file, save_results_excel_file)
+            save_results_to_csv(test_result_by_traker, save_results_csv_file,
+                                save_results_excel_file)
     else:
         for i, item in enumerate(list_of_videos):
             print(f"process file: {i + 1}/{total_videos} {item}")
@@ -266,9 +270,9 @@ def run_example():
 
     all_trackers = get_all_trackers_full_path()
 
-    selected_trackers_names = ["ocsort"]  # "sort",
+    # selected_trackers_names = ["ocsort"]  # "sort",
 
-    selected_trackers = get_select_trackers(selected_trackers_names, all_trackers)
+    # selected_trackers = get_select_trackers(selected_trackers_names, all_trackers)
 
     tracker_name = all_trackers  # selected_trackers  # "norfair"
     # tracker_name = selected_trackers  # "norfair"
@@ -328,7 +332,7 @@ if __name__ == '__main__':
     parser.add_argument('--weights', type=str, default='yolov7.pt', help='model.pt path(s)')
     parser.add_argument('--reid_weights', type=str, help='reid_weights')
     parser.add_argument('--source', type=str, help='source')  # file/folder, 0 for webcam
-    parser.add_argument('--files', type=str, default=None, help='files names list')  # files from list
+    parser.add_argument('--files', type=str, default=None, help='files names list')
     parser.add_argument('--output_folder', type=str, help='output_folder')  # output folder
     parser.add_argument('--img-size', type=int, default=640, help='inference size (pixels)')
     parser.add_argument('--conf', type=float, default=0.25, help='object confidence threshold')
@@ -337,7 +341,8 @@ if __name__ == '__main__':
     parser.add_argument('--view-img', action='store_true', help='display results')
     parser.add_argument('--save_txt', action='store_true', help='save results to *.txt')
     parser.add_argument('--save_vid', action='store_true', help='save results to *.mp4')
-    parser.add_argument('--classes', nargs='+', type=int, help='filter by class: --class 0, or --class 0 2 3')
+    parser.add_argument('--classes', nargs='+', type=int,
+                        help='filter by class: --class 0, or --class 0 2 3')
     parser.add_argument('--agnostic-nms', action='store_true', help='class-agnostic NMS')
     parser.add_argument('--augment', action='store_true', help='augmented inference')
     opt = parser.parse_args()
