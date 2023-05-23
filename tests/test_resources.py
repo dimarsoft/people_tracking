@@ -3,12 +3,12 @@
 http://docs.python.org/library/unittest.html
 """
 
-
 import unittest
 
 from tools.change_bboxes import no_change_bbox
 from tools.count_results import Deviation
 from tools.resultools import TestResults
+from tools.save_txt_tools import yolo7_save_tracks_to_txt, yolo_load_detections_from_txt
 
 
 class FunctionsTestCase(unittest.TestCase):
@@ -54,6 +54,39 @@ class FunctionsTestCase(unittest.TestCase):
         dev3 = Deviation(101, 200, 1)
         self.assertEqual(False, TestResults.intersect_deviation(dev1, dev3))
         self.assertEqual(False, TestResults.intersect_deviation(dev2, dev3))
+
+    def test_text_save_empty(self):
+        """
+        Проверка записи/чтения пустого списка
+        Returns
+        -------
+
+        """
+        file_to_save = "test_empty.txt"
+        yolo7_save_tracks_to_txt([], file_to_save)
+
+        from_file = yolo_load_detections_from_txt(file_to_save)
+
+        self.assertEqual(0, len(from_file))
+
+    def test_text_save(self):
+        """
+        Запись/чтение списка из вух элементов
+        Returns
+        -------
+
+        """
+        file_to_save = "test.txt"
+        tracks = [
+            [1, 2, 3, 4, 5, 6, 7, 8],
+            [1, 2, 3, 4, 5, 6, 7, 8]
+        ]
+
+        yolo7_save_tracks_to_txt(tracks, file_to_save)
+
+        from_file = yolo_load_detections_from_txt(file_to_save)
+
+        self.assertEqual(2, len(from_file))
 
 
 if __name__ == '__main__':

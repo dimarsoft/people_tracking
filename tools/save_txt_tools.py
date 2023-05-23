@@ -169,7 +169,7 @@ def yolo7_save_tracks_to_txt(results: list, txt_path, conf=0.0):
         txt_path: текстовый файл для сохранения
         results: результат работы модели
     """
-    with open(txt_path, 'a') as text_file:
+    with open(txt_path, 'w') as text_file:
         for track in results:
             if track[7] < conf:
                 continue
