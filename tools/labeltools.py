@@ -5,7 +5,7 @@ from pathlib import Path
 from typing import List, Optional, Union
 
 import cv2
-from ultralytics.yolo.utils.plotting import Colors
+from ultralytics.utils.plotting import Colors
 
 from tools.count_results import Result, Deviation
 

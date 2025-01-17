@@ -11,8 +11,7 @@ from typing import List
 import pandas as pd
 import numpy as np
 from pandas import DataFrame
-
-from ultralytics.yolo.engine.results import Results
+from ultralytics.engine.results import Results
 
 from tools.exception_tools import print_exception
 from tools.track_objects import Track

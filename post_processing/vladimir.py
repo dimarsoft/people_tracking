@@ -4,8 +4,8 @@ from typing import Union
 
 import numpy as np
 from ultralytics import YOLO
-from ultralytics.tracker.track import on_predict_start
-from ultralytics.yolo.v8.detect import DetectionPredictor
+from ultralytics.trackers.track import on_predict_start
+from ultralytics.models.yolo.detect import DetectionPredictor
 from collections import defaultdict
 import torch
 

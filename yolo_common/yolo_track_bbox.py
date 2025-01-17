@@ -2,7 +2,7 @@ from pathlib import Path
 
 import cv2
 import torch
-from ultralytics.yolo.data.augment import LetterBox
+from ultralytics.data.augment import LetterBox
 
 from tools.change_bboxes import change_bbox
 from configs import WEIGHTS

@@ -9,8 +9,8 @@ from ultralytics import YOLO
 from pathlib import Path
 
 from ultralytics.nn.autobackend import AutoBackend
-from ultralytics.yolo.data.augment import LetterBox
-from ultralytics.yolo.utils.ops import scale_boxes, non_max_suppression
+from ultralytics.data.augment import LetterBox
+from ultralytics.utils.ops import scale_boxes, non_max_suppression
 
 from tools.change_bboxes import change_bbox
 from configs import WEIGHTS
